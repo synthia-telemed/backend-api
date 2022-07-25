@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "services/token";
+import "validate/validate.proto";
+
+service Token {
+  rpc GenerateToken(GenerateTokenRequest) returns (TokenResponse) {}
+}
+
+message GenerateTokenRequest {
+  uint64 UserID = 1 [(validate.rules).uint64.gte = 1];
+  string Role = 2 [(validate.rules).string.min_len = 1];
+}
+
+message TokenResponse {
+  string Token = 1;
+}
