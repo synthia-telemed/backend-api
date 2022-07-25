@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"go.uber.org/zap"
@@ -25,6 +26,7 @@ func NewGinServer(cfg *config.Config, logger *zap.SugaredLogger) *Server {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/api/healthcheck"}}))
+	router.Use(sentrygin.New(sentrygin.Options{Repanic: true}))
 	router.GET("/api/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success":   true,

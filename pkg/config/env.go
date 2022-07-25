@@ -10,6 +10,7 @@ type Config struct {
 	Mode             string `env:"MODE" envDefault:"development"`
 	Port             int    `env:"PORT" envDefault:"8080"`
 	GinMode          string `env:"GIN_MODE" envDefault:"debug"`
+	SentryDSN        string `env:"SENTRY_DSN" envDefault:""`
 }
 
 func Load() (*Config, error) {
