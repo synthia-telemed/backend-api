@@ -11,11 +11,11 @@ type Service interface {
 	GenerateToken(userID uint64, role string) (string, error)
 }
 
-type gRPCTokenService struct {
+type GRPCTokenService struct {
 	tokenClient pb.TokenClient
 }
 
-func NewGRPCTokenService(serviceHost string) (*gRPCTokenService, error) {
+func NewGRPCTokenService(serviceHost string) (*GRPCTokenService, error) {
 	conn, err := grpc.Dial(serviceHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -23,10 +23,14 @@ func NewGRPCTokenService(serviceHost string) (*gRPCTokenService, error) {
 
 	tokenClient := pb.NewTokenClient(conn)
 
-	return &gRPCTokenService{tokenClient: tokenClient}, nil
+	return NewGRPCTokenServiceWithClient(tokenClient), nil
 }
 
-func (s gRPCTokenService) GenerateToken(userID uint64, role string) (string, error) {
+func NewGRPCTokenServiceWithClient(tokenClient pb.TokenClient) *GRPCTokenService {
+	return &GRPCTokenService{tokenClient: tokenClient}
+}
+
+func (s GRPCTokenService) GenerateToken(userID uint64, role string) (string, error) {
 	req := &pb.GenerateTokenRequest{
 		UserID: userID,
 		Role:   role,
