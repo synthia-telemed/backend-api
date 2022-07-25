@@ -48,7 +48,7 @@ func (s Server) ListenAndServe() {
 	go func() {
 		s.logger.Infow("Starting server", "addr", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
-			s.logger.Infow("Failed to start server", "error", err)
+			s.logger.Infof("listen: %s\n", err)
 		}
 	}()
 
