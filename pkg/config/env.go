@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	Mode    string `env:"MODE" envDefault:"development"`
-	Port    int    `env:"PORT" envDefault:"8080"`
-	GinMode string `env:"GIN_MODE" envDefault:"debug"`
+	TokenServiceHost string `env:"TOKEN_SERVICE_HOST" envDefault:"localhost:8080"`
+	Mode             string `env:"MODE" envDefault:"development"`
+	Port             int    `env:"PORT" envDefault:"8080"`
+	GinMode          string `env:"GIN_MODE" envDefault:"debug"`
 }
 
 func Load() (*Config, error) {

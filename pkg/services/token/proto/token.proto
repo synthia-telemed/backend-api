@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "services/token";
+option go_package = "services/token/proto";
 import "validate/validate.proto";
 
 service Token {
