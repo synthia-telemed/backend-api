@@ -29,8 +29,9 @@ func main() {
 	sugaredLogger := zapLogger.Sugar()
 
 	gin.SetMode(cfg.GinMode)
-	router := gin.Default()
-
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/api/healthcheck"}}))
 	router.GET("/api/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success":   true,
