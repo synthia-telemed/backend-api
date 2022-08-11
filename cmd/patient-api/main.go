@@ -2,9 +2,13 @@ package main
 
 import (
 	"github.com/getsentry/sentry-go"
+	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/config"
+	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -30,6 +34,20 @@ func main() {
 	}
 	defer sentry.Flush(2 * time.Second)
 
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseDSN), &gorm.Config{})
+	if err != nil {
+		sugaredLogger.Fatalw("Failed to connect to database", "error", err)
+	}
+	patientDataStore, err := datastore.NewGormPatientDataStore(db)
+	if err != nil {
+		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
+	}
+
+	// Handler
+	authHandler := handler.NewAuthHandler(patientDataStore)
+
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
+	authGroup := ginServer.Group("/api/auth")
+	authGroup.POST("/signin", authHandler.Signin)
 	ginServer.ListenAndServe()
 }

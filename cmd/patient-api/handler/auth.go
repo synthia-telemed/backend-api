@@ -15,7 +15,7 @@ func NewAuthHandler(patientDataStore PatientDataStore) *AuthHandler {
 	return &AuthHandler{patientDataStore}
 }
 
-func (h AuthHandler) Login(c *gin.Context) {
+func (h AuthHandler) Signin(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{err.Error()})
@@ -32,10 +32,12 @@ func (h AuthHandler) Login(c *gin.Context) {
 	}
 
 	if patient == nil {
-		// TODO: create new patient
+		// TODO: Query patient from hospital system
+		// TODO: Create new patient
 	}
 
 	// TODO: send OTP to patient's phone number
+	c.Status(201)
 }
 
 type LoginRequest struct {
