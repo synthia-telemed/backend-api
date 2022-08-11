@@ -21,9 +21,12 @@ func NewGraphQLClient(endpoint string) *GraphQLClient {
 	}
 }
 
-func (c GraphQLClient) FindPatientByNationalID(nationalID string) (*datastore.Patient, error) {
+func (c GraphQLClient) FindPatientByGovernmentCred(val string) (*datastore.Patient, error) {
 	resp, err := getPatient(context.Background(), c.client, PatientWhereInput{
-		NationalId: StringNullableFilter{Equals: nationalID},
+		OR: []PatientWhereInput{
+			{NationalId: StringNullableFilter{Equals: val}},
+			{PassportId: StringNullableFilter{Equals: val}},
+		},
 	})
 	if err != nil || resp == nil {
 		return nil, err
@@ -39,7 +42,8 @@ func (c GraphQLClient) FindPatientByNationalID(nationalID string) (*datastore.Pa
 		InitialTh:   resp.Patient.Initial_th,
 		LastnameEn:  resp.Patient.Lastname_en,
 		LastnameTh:  resp.Patient.Lastname_th,
-		NationalID:  resp.Patient.NationalId,
+		NationalID:  &resp.Patient.NationalId,
+		PassportID:  &resp.Patient.PassportId,
 		Nationality: resp.Patient.Nationality,
 		PhoneNumber: resp.Patient.PhoneNumber,
 		Weight:      float32(resp.Patient.Weight),

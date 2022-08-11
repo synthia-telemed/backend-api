@@ -28,7 +28,8 @@ type Patient struct {
 	InitialTh   string         `json:"initial_th"`
 	LastnameEn  string         `json:"lastname_en"`
 	LastnameTh  string         `json:"lastname_th"`
-	NationalID  string         `json:"nationalId" gorm:"unique"`
+	NationalID  *string        `json:"nationalId" gorm:"unique"`
+	PassportID  *string        `json:"passportId" gorm:"unique"`
 	Nationality string         `json:"nationality"`
 	PhoneNumber string         `json:"phoneNumber"`
 	Weight      float32        `json:"weight"`
