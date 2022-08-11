@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -55,23 +54,13 @@ func (g GormPatientDataStore) New(patient *Patient) error {
 }
 
 func (g GormPatientDataStore) FindByID(id uint) (*Patient, error) {
-	var patient Patient
-	if err := g.db.First(&patient, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &patient, nil
+	var patient *Patient
+	err := g.db.Limit(1).Find(patient, id).Error
+	return patient, err
 }
 
 func (g GormPatientDataStore) FindByNationalID(nationalID string) (*Patient, error) {
-	var patient Patient
-	if err := g.db.Where("national_id = ?", nationalID).First(&patient).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &patient, nil
+	var patient *Patient
+	err := g.db.Limit(1).Where("national_id = ?", nationalID).Find(&patient).Error
+	return patient, err
 }
