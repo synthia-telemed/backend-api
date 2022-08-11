@@ -4,15 +4,19 @@ import (
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	. "github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/services/hospital"
+	"go.uber.org/zap"
 	"net/http"
 )
 
 type AuthHandler struct {
-	patientDataStore PatientDataStore
+	patientDataStore  PatientDataStore
+	hospitalSysClient hospital.SystemClient
+	logger            *zap.SugaredLogger
 }
 
-func NewAuthHandler(patientDataStore PatientDataStore) *AuthHandler {
-	return &AuthHandler{patientDataStore}
+func NewAuthHandler(patientDataStore PatientDataStore, hosClient hospital.SystemClient, logger *zap.SugaredLogger) *AuthHandler {
+	return &AuthHandler{patientDataStore, hosClient, logger}
 }
 
 func (h AuthHandler) Signin(c *gin.Context) {
@@ -22,18 +26,36 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByNationalID(req.NationalID)
+	patient, err := h.patientDataStore.FindByGovCredential(req.Credential)
 	if err != nil {
 		if hub := sentrygin.GetHubFromContext(c); hub != nil {
 			hub.CaptureException(err)
 		}
+		h.logger.Errorw("h.patientDataStore.FindByGovCredential error", "error", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
 		return
 	}
 
 	if patient == nil {
-		// TODO: Query patient from hospital system
+		patient, err := h.hospitalSysClient.FindPatientByGovCredential(req.Credential)
+		if err != nil {
+			if hub := sentrygin.GetHubFromContext(c); hub != nil {
+				hub.CaptureException(err)
+			}
+			h.logger.Errorw("h.hospitalSysClient.FindPatientByGovCredential error", "error", err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
+			return
+		}
+
 		// TODO: Create new patient
+		if err := h.patientDataStore.Create(patient); err != nil {
+			if hub := sentrygin.GetHubFromContext(c); hub != nil {
+				hub.CaptureException(err)
+			}
+			h.logger.Errorw("h.patientDataStore.Create error", "error", err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
+			return
+		}
 	}
 
 	// TODO: send OTP to patient's phone number
@@ -41,7 +63,7 @@ func (h AuthHandler) Signin(c *gin.Context) {
 }
 
 type LoginRequest struct {
-	NationalID string `json:"national_id" binding:"required,len=13"`
+	Credential string `json:"credential" binding:"required"`
 }
 
 type LoginResponse struct {

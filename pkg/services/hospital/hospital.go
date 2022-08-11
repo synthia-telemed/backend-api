@@ -8,7 +8,7 @@ import (
 )
 
 type SystemClient interface {
-	FindPatientByNationalID() error
+	FindPatientByGovCredential(cred string) (*datastore.Patient, error)
 }
 
 type GraphQLClient struct {
@@ -21,11 +21,11 @@ func NewGraphQLClient(endpoint string) *GraphQLClient {
 	}
 }
 
-func (c GraphQLClient) FindPatientByGovernmentCred(val string) (*datastore.Patient, error) {
+func (c GraphQLClient) FindPatientByGovCredential(cred string) (*datastore.Patient, error) {
 	resp, err := getPatient(context.Background(), c.client, PatientWhereInput{
 		OR: []PatientWhereInput{
-			{NationalId: StringNullableFilter{Equals: val}},
-			{PassportId: StringNullableFilter{Equals: val}},
+			{NationalId: StringNullableFilter{Equals: cred}},
+			{PassportId: StringNullableFilter{Equals: cred}},
 		},
 	})
 	if err != nil || resp == nil {

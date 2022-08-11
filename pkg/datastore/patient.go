@@ -37,9 +37,9 @@ type Patient struct {
 }
 
 type PatientDataStore interface {
-	New(patient *Patient) error
+	Create(patient *Patient) error
 	FindByID(id uint) (*Patient, error)
-	FindByNationalID(nationalID string) (*Patient, error)
+	FindByGovCredential(nationalID string) (*Patient, error)
 }
 
 type GormPatientDataStore struct {
@@ -50,7 +50,7 @@ func NewGormPatientDataStore(db *gorm.DB) (*GormPatientDataStore, error) {
 	return &GormPatientDataStore{db}, db.AutoMigrate(&Patient{})
 }
 
-func (g GormPatientDataStore) New(patient *Patient) error {
+func (g GormPatientDataStore) Create(patient *Patient) error {
 	return g.db.Create(patient).Error
 }
 
@@ -60,8 +60,8 @@ func (g GormPatientDataStore) FindByID(id uint) (*Patient, error) {
 	return patient, err
 }
 
-func (g GormPatientDataStore) FindByNationalID(nationalID string) (*Patient, error) {
+func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {
 	var patient *Patient
-	err := g.db.Limit(1).Where("national_id = ?", nationalID).Find(&patient).Error
+	err := g.db.Limit(1).Where("national_id = ?", cred).Or("passport_id = ?", cred).Find(&patient).Error
 	return patient, err
 }
