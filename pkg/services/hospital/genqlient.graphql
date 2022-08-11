@@ -1,0 +1,19 @@
+query getPatient($where: PatientWhereInput!) {
+    patient(where: $where) {
+        birthDate
+        bloodType
+        firstname_en
+        firstname_th
+        height
+        id
+        initial_en
+        initial_th
+        lastname_en
+        lastname_th
+        nationalId
+        nationality
+        passportId
+        phoneNumber
+        weight
+    }
+}

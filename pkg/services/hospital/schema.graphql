@@ -1,0 +1,1469 @@
+type Appointment {
+  _count: AppointmentCount!
+  createdAt: DateTime!
+  dateTime: DateTime!
+  detail: String!
+  doctor: Doctor!
+  doctorId: Int!
+  id: ID!
+  invoice: Invoice
+  nextAppointment: DateTime
+  patient: Patient!
+  patientId: String!
+  prescriptions: [Prescription!]
+  status: AppointmentStatus!
+  updatedAt: DateTime!
+}
+
+type AppointmentAvgAggregate {
+  doctorId: Float
+  id: Float
+}
+
+type AppointmentCount {
+  prescriptions: Int!
+}
+
+type AppointmentCountAggregate {
+  _all: Int!
+  createdAt: Int!
+  dateTime: Int!
+  detail: Int!
+  doctorId: Int!
+  id: Int!
+  nextAppointment: Int!
+  patientId: Int!
+  status: Int!
+  updatedAt: Int!
+}
+
+input AppointmentCreateInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+  invoice: InvoiceCreateNestedOneWithoutAppointmentInput
+  nextAppointment: DateTime
+  patient: PatientCreateNestedOneWithoutAppointmentsInput!
+  prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateManyDoctorInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  id: Int
+  nextAppointment: DateTime
+  patientId: String!
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateManyDoctorInputEnvelope {
+  data: [AppointmentCreateManyDoctorInput!]!
+  skipDuplicates: Boolean
+}
+
+input AppointmentCreateManyPatientInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  doctorId: Int!
+  id: Int
+  nextAppointment: DateTime
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateManyPatientInputEnvelope {
+  data: [AppointmentCreateManyPatientInput!]!
+  skipDuplicates: Boolean
+}
+
+input AppointmentCreateNestedManyWithoutDoctorInput {
+  connect: [AppointmentWhereUniqueInput!]
+  connectOrCreate: [AppointmentCreateOrConnectWithoutDoctorInput!]
+  create: [AppointmentCreateWithoutDoctorInput!]
+  createMany: AppointmentCreateManyDoctorInputEnvelope
+}
+
+input AppointmentCreateNestedManyWithoutPatientInput {
+  connect: [AppointmentWhereUniqueInput!]
+  connectOrCreate: [AppointmentCreateOrConnectWithoutPatientInput!]
+  create: [AppointmentCreateWithoutPatientInput!]
+  createMany: AppointmentCreateManyPatientInputEnvelope
+}
+
+input AppointmentCreateNestedOneWithoutInvoiceInput {
+  connect: AppointmentWhereUniqueInput
+  connectOrCreate: AppointmentCreateOrConnectWithoutInvoiceInput
+  create: AppointmentCreateWithoutInvoiceInput
+}
+
+input AppointmentCreateNestedOneWithoutPrescriptionsInput {
+  connect: AppointmentWhereUniqueInput
+  connectOrCreate: AppointmentCreateOrConnectWithoutPrescriptionsInput
+  create: AppointmentCreateWithoutPrescriptionsInput
+}
+
+input AppointmentCreateOrConnectWithoutDoctorInput {
+  create: AppointmentCreateWithoutDoctorInput!
+  where: AppointmentWhereUniqueInput!
+}
+
+input AppointmentCreateOrConnectWithoutInvoiceInput {
+  create: AppointmentCreateWithoutInvoiceInput!
+  where: AppointmentWhereUniqueInput!
+}
+
+input AppointmentCreateOrConnectWithoutPatientInput {
+  create: AppointmentCreateWithoutPatientInput!
+  where: AppointmentWhereUniqueInput!
+}
+
+input AppointmentCreateOrConnectWithoutPrescriptionsInput {
+  create: AppointmentCreateWithoutPrescriptionsInput!
+  where: AppointmentWhereUniqueInput!
+}
+
+input AppointmentCreateWithoutDoctorInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  invoice: InvoiceCreateNestedOneWithoutAppointmentInput
+  nextAppointment: DateTime
+  patient: PatientCreateNestedOneWithoutAppointmentsInput!
+  prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateWithoutInvoiceInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+  nextAppointment: DateTime
+  patient: PatientCreateNestedOneWithoutAppointmentsInput!
+  prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateWithoutPatientInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+  invoice: InvoiceCreateNestedOneWithoutAppointmentInput
+  nextAppointment: DateTime
+  prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentCreateWithoutPrescriptionsInput {
+  createdAt: DateTime
+  dateTime: DateTime!
+  detail: String!
+  doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+  invoice: InvoiceCreateNestedOneWithoutAppointmentInput
+  nextAppointment: DateTime
+  patient: PatientCreateNestedOneWithoutAppointmentsInput!
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentListRelationFilter {
+  every: AppointmentWhereInput
+  none: AppointmentWhereInput
+  some: AppointmentWhereInput
+}
+
+type AppointmentMaxAggregate {
+  createdAt: DateTime
+  dateTime: DateTime
+  detail: String
+  doctorId: Int
+  id: Int
+  nextAppointment: DateTime
+  patientId: String
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+type AppointmentMinAggregate {
+  createdAt: DateTime
+  dateTime: DateTime
+  detail: String
+  doctorId: Int
+  id: Int
+  nextAppointment: DateTime
+  patientId: String
+  status: AppointmentStatus
+  updatedAt: DateTime
+}
+
+input AppointmentOrderByRelationAggregateInput {
+  _count: SortOrder
+}
+
+input AppointmentOrderByWithRelationInput {
+  createdAt: SortOrder
+  dateTime: SortOrder
+  detail: SortOrder
+  doctor: DoctorOrderByWithRelationInput
+  doctorId: SortOrder
+  id: SortOrder
+  invoice: InvoiceOrderByWithRelationInput
+  nextAppointment: SortOrder
+  patient: PatientOrderByWithRelationInput
+  patientId: SortOrder
+  prescriptions: PrescriptionOrderByRelationAggregateInput
+  status: SortOrder
+  updatedAt: SortOrder
+}
+
+input AppointmentRelationFilter {
+  is: AppointmentWhereInput
+  isNot: AppointmentWhereInput
+}
+
+enum AppointmentScalarFieldEnum {
+  createdAt
+  dateTime
+  detail
+  doctorId
+  id
+  nextAppointment
+  patientId
+  status
+  updatedAt
+}
+
+enum AppointmentStatus {
+  CANCELLED
+  COMPLETED
+  SCHEDULED
+}
+
+type AppointmentSumAggregate {
+  doctorId: Int
+  id: Int
+}
+
+input AppointmentWhereInput {
+  AND: [AppointmentWhereInput!]
+  NOT: [AppointmentWhereInput!]
+  OR: [AppointmentWhereInput!]
+  createdAt: DateTimeFilter
+  dateTime: DateTimeFilter
+  detail: StringFilter
+  doctor: DoctorRelationFilter
+  doctorId: IntFilter
+  id: IntFilter
+  invoice: InvoiceRelationFilter
+  nextAppointment: DateTimeNullableFilter
+  patient: PatientRelationFilter
+  patientId: StringFilter
+  prescriptions: PrescriptionListRelationFilter
+  status: EnumAppointmentStatusFilter
+  updatedAt: DateTimeFilter
+}
+
+input AppointmentWhereUniqueInput {
+  id: Int
+}
+
+enum BloodType {
+  A
+  AB
+  B
+  O
+}
+
+input BoolFilter {
+  equals: Boolean
+  not: NestedBoolFilter
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DateTimeFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeFilter
+  notIn: [DateTime!]
+}
+
+input DateTimeNullableFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeNullableFilter
+  notIn: [DateTime!]
+}
+
+type Doctor {
+  _count: DoctorCount!
+  appointments: [Appointment!]
+  createdAt: DateTime!
+  firstname_en: String!
+  firstname_th: String!
+  id: ID!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  position: String!
+  updatedAt: DateTime!
+}
+
+type DoctorAvgAggregate {
+  id: Float
+}
+
+type DoctorCount {
+  appointments: Int!
+}
+
+type DoctorCountAggregate {
+  _all: Int!
+  createdAt: Int!
+  firstname_en: Int!
+  firstname_th: Int!
+  id: Int!
+  initial_en: Int!
+  initial_th: Int!
+  lastname_en: Int!
+  lastname_th: Int!
+  position: Int!
+  updatedAt: Int!
+}
+
+input DoctorCreateInput {
+  appointments: AppointmentCreateNestedManyWithoutDoctorInput
+  createdAt: DateTime
+  firstname_en: String!
+  firstname_th: String!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  position: String!
+  updatedAt: DateTime
+}
+
+input DoctorCreateNestedOneWithoutAppointmentsInput {
+  connect: DoctorWhereUniqueInput
+  connectOrCreate: DoctorCreateOrConnectWithoutAppointmentsInput
+  create: DoctorCreateWithoutAppointmentsInput
+}
+
+input DoctorCreateOrConnectWithoutAppointmentsInput {
+  create: DoctorCreateWithoutAppointmentsInput!
+  where: DoctorWhereUniqueInput!
+}
+
+input DoctorCreateWithoutAppointmentsInput {
+  createdAt: DateTime
+  firstname_en: String!
+  firstname_th: String!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  position: String!
+  updatedAt: DateTime
+}
+
+type DoctorMaxAggregate {
+  createdAt: DateTime
+  firstname_en: String
+  firstname_th: String
+  id: Int
+  initial_en: String
+  initial_th: String
+  lastname_en: String
+  lastname_th: String
+  position: String
+  updatedAt: DateTime
+}
+
+type DoctorMinAggregate {
+  createdAt: DateTime
+  firstname_en: String
+  firstname_th: String
+  id: Int
+  initial_en: String
+  initial_th: String
+  lastname_en: String
+  lastname_th: String
+  position: String
+  updatedAt: DateTime
+}
+
+input DoctorOrderByWithRelationInput {
+  appointments: AppointmentOrderByRelationAggregateInput
+  createdAt: SortOrder
+  firstname_en: SortOrder
+  firstname_th: SortOrder
+  id: SortOrder
+  initial_en: SortOrder
+  initial_th: SortOrder
+  lastname_en: SortOrder
+  lastname_th: SortOrder
+  position: SortOrder
+  updatedAt: SortOrder
+}
+
+input DoctorRelationFilter {
+  is: DoctorWhereInput
+  isNot: DoctorWhereInput
+}
+
+enum DoctorScalarFieldEnum {
+  createdAt
+  firstname_en
+  firstname_th
+  id
+  initial_en
+  initial_th
+  lastname_en
+  lastname_th
+  position
+  updatedAt
+}
+
+type DoctorSumAggregate {
+  id: Int
+}
+
+input DoctorWhereInput {
+  AND: [DoctorWhereInput!]
+  NOT: [DoctorWhereInput!]
+  OR: [DoctorWhereInput!]
+  appointments: AppointmentListRelationFilter
+  createdAt: DateTimeFilter
+  firstname_en: StringFilter
+  firstname_th: StringFilter
+  id: IntFilter
+  initial_en: StringFilter
+  initial_th: StringFilter
+  lastname_en: StringFilter
+  lastname_th: StringFilter
+  position: StringFilter
+  updatedAt: DateTimeFilter
+}
+
+input DoctorWhereUniqueInput {
+  id: Int
+}
+
+input EnumAppointmentStatusFilter {
+  equals: AppointmentStatus
+  in: [AppointmentStatus!]
+  not: NestedEnumAppointmentStatusFilter
+  notIn: [AppointmentStatus!]
+}
+
+input EnumBloodTypeFilter {
+  equals: BloodType
+  in: [BloodType!]
+  not: NestedEnumBloodTypeFilter
+  notIn: [BloodType!]
+}
+
+input FloatFilter {
+  equals: Float
+  gt: Float
+  gte: Float
+  in: [Float!]
+  lt: Float
+  lte: Float
+  not: NestedFloatFilter
+  notIn: [Float!]
+}
+
+input IntFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntFilter
+  notIn: [Int!]
+}
+
+type Invoice {
+  _count: InvoiceCount!
+  appointment: Appointment!
+  appointmentId: Int!
+  createdAt: DateTime!
+  id: ID!
+  invoiceItems: [InvoiceItem!]
+  paid: Boolean!
+  total: Float!
+  updatedAt: DateTime!
+}
+
+type InvoiceAvgAggregate {
+  appointmentId: Float
+  id: Float
+  total: Float
+}
+
+type InvoiceCount {
+  invoiceItems: Int!
+}
+
+type InvoiceCountAggregate {
+  _all: Int!
+  appointmentId: Int!
+  createdAt: Int!
+  id: Int!
+  paid: Int!
+  total: Int!
+  updatedAt: Int!
+}
+
+input InvoiceCreateInput {
+  appointment: AppointmentCreateNestedOneWithoutInvoiceInput!
+  createdAt: DateTime
+  invoiceItems: InvoiceItemCreateNestedManyWithoutInvoiceInput
+  paid: Boolean
+  total: Float!
+  updatedAt: DateTime
+}
+
+input InvoiceCreateNestedOneWithoutAppointmentInput {
+  connect: InvoiceWhereUniqueInput
+  connectOrCreate: InvoiceCreateOrConnectWithoutAppointmentInput
+  create: InvoiceCreateWithoutAppointmentInput
+}
+
+input InvoiceCreateNestedOneWithoutInvoiceItemsInput {
+  connect: InvoiceWhereUniqueInput
+  connectOrCreate: InvoiceCreateOrConnectWithoutInvoiceItemsInput
+  create: InvoiceCreateWithoutInvoiceItemsInput
+}
+
+input InvoiceCreateOrConnectWithoutAppointmentInput {
+  create: InvoiceCreateWithoutAppointmentInput!
+  where: InvoiceWhereUniqueInput!
+}
+
+input InvoiceCreateOrConnectWithoutInvoiceItemsInput {
+  create: InvoiceCreateWithoutInvoiceItemsInput!
+  where: InvoiceWhereUniqueInput!
+}
+
+input InvoiceCreateWithoutAppointmentInput {
+  createdAt: DateTime
+  invoiceItems: InvoiceItemCreateNestedManyWithoutInvoiceInput
+  paid: Boolean
+  total: Float!
+  updatedAt: DateTime
+}
+
+input InvoiceCreateWithoutInvoiceItemsInput {
+  appointment: AppointmentCreateNestedOneWithoutInvoiceInput!
+  createdAt: DateTime
+  paid: Boolean
+  total: Float!
+  updatedAt: DateTime
+}
+
+type InvoiceItem {
+  createdAt: DateTime!
+  id: ID!
+  invoice: Invoice!
+  invoiceId: Int!
+  name: String!
+  price: Float!
+  quantity: Int!
+  updatedAt: DateTime!
+}
+
+type InvoiceItemAvgAggregate {
+  id: Float
+  invoiceId: Float
+  price: Float
+  quantity: Float
+}
+
+type InvoiceItemCountAggregate {
+  _all: Int!
+  createdAt: Int!
+  id: Int!
+  invoiceId: Int!
+  name: Int!
+  price: Int!
+  quantity: Int!
+  updatedAt: Int!
+}
+
+input InvoiceItemCreateInput {
+  createdAt: DateTime
+  invoice: InvoiceCreateNestedOneWithoutInvoiceItemsInput!
+  name: String!
+  price: Float!
+  quantity: Int!
+  updatedAt: DateTime
+}
+
+input InvoiceItemCreateManyInvoiceInput {
+  createdAt: DateTime
+  id: Int
+  name: String!
+  price: Float!
+  quantity: Int!
+  updatedAt: DateTime
+}
+
+input InvoiceItemCreateManyInvoiceInputEnvelope {
+  data: [InvoiceItemCreateManyInvoiceInput!]!
+  skipDuplicates: Boolean
+}
+
+input InvoiceItemCreateNestedManyWithoutInvoiceInput {
+  connect: [InvoiceItemWhereUniqueInput!]
+  connectOrCreate: [InvoiceItemCreateOrConnectWithoutInvoiceInput!]
+  create: [InvoiceItemCreateWithoutInvoiceInput!]
+  createMany: InvoiceItemCreateManyInvoiceInputEnvelope
+}
+
+input InvoiceItemCreateOrConnectWithoutInvoiceInput {
+  create: InvoiceItemCreateWithoutInvoiceInput!
+  where: InvoiceItemWhereUniqueInput!
+}
+
+input InvoiceItemCreateWithoutInvoiceInput {
+  createdAt: DateTime
+  name: String!
+  price: Float!
+  quantity: Int!
+  updatedAt: DateTime
+}
+
+input InvoiceItemListRelationFilter {
+  every: InvoiceItemWhereInput
+  none: InvoiceItemWhereInput
+  some: InvoiceItemWhereInput
+}
+
+type InvoiceItemMaxAggregate {
+  createdAt: DateTime
+  id: Int
+  invoiceId: Int
+  name: String
+  price: Float
+  quantity: Int
+  updatedAt: DateTime
+}
+
+type InvoiceItemMinAggregate {
+  createdAt: DateTime
+  id: Int
+  invoiceId: Int
+  name: String
+  price: Float
+  quantity: Int
+  updatedAt: DateTime
+}
+
+input InvoiceItemOrderByRelationAggregateInput {
+  _count: SortOrder
+}
+
+input InvoiceItemOrderByWithRelationInput {
+  createdAt: SortOrder
+  id: SortOrder
+  invoice: InvoiceOrderByWithRelationInput
+  invoiceId: SortOrder
+  name: SortOrder
+  price: SortOrder
+  quantity: SortOrder
+  updatedAt: SortOrder
+}
+
+enum InvoiceItemScalarFieldEnum {
+  createdAt
+  id
+  invoiceId
+  name
+  price
+  quantity
+  updatedAt
+}
+
+type InvoiceItemSumAggregate {
+  id: Int
+  invoiceId: Int
+  price: Float
+  quantity: Int
+}
+
+input InvoiceItemWhereInput {
+  AND: [InvoiceItemWhereInput!]
+  NOT: [InvoiceItemWhereInput!]
+  OR: [InvoiceItemWhereInput!]
+  createdAt: DateTimeFilter
+  id: IntFilter
+  invoice: InvoiceRelationFilter
+  invoiceId: IntFilter
+  name: StringFilter
+  price: FloatFilter
+  quantity: IntFilter
+  updatedAt: DateTimeFilter
+}
+
+input InvoiceItemWhereUniqueInput {
+  id: Int
+}
+
+type InvoiceMaxAggregate {
+  appointmentId: Int
+  createdAt: DateTime
+  id: Int
+  paid: Boolean
+  total: Float
+  updatedAt: DateTime
+}
+
+type InvoiceMinAggregate {
+  appointmentId: Int
+  createdAt: DateTime
+  id: Int
+  paid: Boolean
+  total: Float
+  updatedAt: DateTime
+}
+
+input InvoiceOrderByWithRelationInput {
+  appointment: AppointmentOrderByWithRelationInput
+  appointmentId: SortOrder
+  createdAt: SortOrder
+  id: SortOrder
+  invoiceItems: InvoiceItemOrderByRelationAggregateInput
+  paid: SortOrder
+  total: SortOrder
+  updatedAt: SortOrder
+}
+
+input InvoiceRelationFilter {
+  is: InvoiceWhereInput
+  isNot: InvoiceWhereInput
+}
+
+enum InvoiceScalarFieldEnum {
+  appointmentId
+  createdAt
+  id
+  paid
+  total
+  updatedAt
+}
+
+type InvoiceSumAggregate {
+  appointmentId: Int
+  id: Int
+  total: Float
+}
+
+input InvoiceWhereInput {
+  AND: [InvoiceWhereInput!]
+  NOT: [InvoiceWhereInput!]
+  OR: [InvoiceWhereInput!]
+  appointment: AppointmentRelationFilter
+  appointmentId: IntFilter
+  createdAt: DateTimeFilter
+  id: IntFilter
+  invoiceItems: InvoiceItemListRelationFilter
+  paid: BoolFilter
+  total: FloatFilter
+  updatedAt: DateTimeFilter
+}
+
+input InvoiceWhereUniqueInput {
+  appointmentId: Int
+  id: Int
+}
+
+type Medicine {
+  _count: MedicineCount!
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  name: String!
+  prescriptions: [Prescription!]
+  updatedAt: DateTime!
+}
+
+type MedicineAvgAggregate {
+  id: Float
+}
+
+type MedicineCount {
+  prescriptions: Int!
+}
+
+type MedicineCountAggregate {
+  _all: Int!
+  createdAt: Int!
+  description: Int!
+  id: Int!
+  name: Int!
+  updatedAt: Int!
+}
+
+input MedicineCreateInput {
+  createdAt: DateTime
+  description: String!
+  name: String!
+  prescriptions: PrescriptionCreateNestedManyWithoutMedicineInput
+  updatedAt: DateTime
+}
+
+input MedicineCreateNestedOneWithoutPrescriptionsInput {
+  connect: MedicineWhereUniqueInput
+  connectOrCreate: MedicineCreateOrConnectWithoutPrescriptionsInput
+  create: MedicineCreateWithoutPrescriptionsInput
+}
+
+input MedicineCreateOrConnectWithoutPrescriptionsInput {
+  create: MedicineCreateWithoutPrescriptionsInput!
+  where: MedicineWhereUniqueInput!
+}
+
+input MedicineCreateWithoutPrescriptionsInput {
+  createdAt: DateTime
+  description: String!
+  name: String!
+  updatedAt: DateTime
+}
+
+type MedicineMaxAggregate {
+  createdAt: DateTime
+  description: String
+  id: Int
+  name: String
+  updatedAt: DateTime
+}
+
+type MedicineMinAggregate {
+  createdAt: DateTime
+  description: String
+  id: Int
+  name: String
+  updatedAt: DateTime
+}
+
+input MedicineOrderByWithRelationInput {
+  createdAt: SortOrder
+  description: SortOrder
+  id: SortOrder
+  name: SortOrder
+  prescriptions: PrescriptionOrderByRelationAggregateInput
+  updatedAt: SortOrder
+}
+
+input MedicineRelationFilter {
+  is: MedicineWhereInput
+  isNot: MedicineWhereInput
+}
+
+enum MedicineScalarFieldEnum {
+  createdAt
+  description
+  id
+  name
+  updatedAt
+}
+
+type MedicineSumAggregate {
+  id: Int
+}
+
+input MedicineWhereInput {
+  AND: [MedicineWhereInput!]
+  NOT: [MedicineWhereInput!]
+  OR: [MedicineWhereInput!]
+  createdAt: DateTimeFilter
+  description: StringFilter
+  id: IntFilter
+  name: StringFilter
+  prescriptions: PrescriptionListRelationFilter
+  updatedAt: DateTimeFilter
+}
+
+input MedicineWhereUniqueInput {
+  id: Int
+}
+
+type Mutation {
+  createAppointment(appointment: AppointmentCreateInput!): Appointment!
+  createDoctor(doctor: DoctorCreateInput!): Doctor!
+  createInvoice(invoice: InvoiceCreateInput!): Invoice!
+  createInvoiceItem(invoiceItem: InvoiceItemCreateInput!): InvoiceItem!
+  createMedicine(medicine: MedicineCreateInput!): Medicine!
+  createPatient(patient: PatientCreateInput!): Patient!
+  createPrescription(prescription: PrescriptionCreateInput!): Prescription!
+}
+
+input NestedBoolFilter {
+  equals: Boolean
+  not: NestedBoolFilter
+}
+
+input NestedDateTimeFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeFilter
+  notIn: [DateTime!]
+}
+
+input NestedDateTimeNullableFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeNullableFilter
+  notIn: [DateTime!]
+}
+
+input NestedEnumAppointmentStatusFilter {
+  equals: AppointmentStatus
+  in: [AppointmentStatus!]
+  not: NestedEnumAppointmentStatusFilter
+  notIn: [AppointmentStatus!]
+}
+
+input NestedEnumBloodTypeFilter {
+  equals: BloodType
+  in: [BloodType!]
+  not: NestedEnumBloodTypeFilter
+  notIn: [BloodType!]
+}
+
+input NestedFloatFilter {
+  equals: Float
+  gt: Float
+  gte: Float
+  in: [Float!]
+  lt: Float
+  lte: Float
+  not: NestedFloatFilter
+  notIn: [Float!]
+}
+
+input NestedIntFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntFilter
+  notIn: [Int!]
+}
+
+input NestedStringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
+}
+
+input NestedStringNullableFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  not: NestedStringNullableFilter
+  notIn: [String!]
+  startsWith: String
+}
+
+type Patient {
+  _count: PatientCount!
+  appointments: [Appointment!]
+  birthDate: DateTime!
+  bloodType: BloodType!
+  createdAt: DateTime!
+  firstname_en: String!
+  firstname_th: String!
+  height: Float!
+  id: ID!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  nationalId: String
+  nationality: String!
+  passportId: String
+  phoneNumber: String!
+  updatedAt: DateTime!
+  weight: Float!
+}
+
+type PatientAvgAggregate {
+  height: Float
+  weight: Float
+}
+
+type PatientCount {
+  appointments: Int!
+}
+
+type PatientCountAggregate {
+  _all: Int!
+  birthDate: Int!
+  bloodType: Int!
+  createdAt: Int!
+  firstname_en: Int!
+  firstname_th: Int!
+  height: Int!
+  id: Int!
+  initial_en: Int!
+  initial_th: Int!
+  lastname_en: Int!
+  lastname_th: Int!
+  nationalId: Int!
+  nationality: Int!
+  passportId: Int!
+  phoneNumber: Int!
+  updatedAt: Int!
+  weight: Int!
+}
+
+input PatientCreateInput {
+  appointments: AppointmentCreateNestedManyWithoutPatientInput
+  birthDate: DateTime!
+  bloodType: BloodType!
+  createdAt: DateTime
+  firstname_en: String!
+  firstname_th: String!
+  height: Float!
+  id: String!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  nationalId: String
+  nationality: String!
+  passportId: String
+  phoneNumber: String!
+  updatedAt: DateTime
+  weight: Float!
+}
+
+input PatientCreateNestedOneWithoutAppointmentsInput {
+  connect: PatientWhereUniqueInput
+  connectOrCreate: PatientCreateOrConnectWithoutAppointmentsInput
+  create: PatientCreateWithoutAppointmentsInput
+}
+
+input PatientCreateOrConnectWithoutAppointmentsInput {
+  create: PatientCreateWithoutAppointmentsInput!
+  where: PatientWhereUniqueInput!
+}
+
+input PatientCreateWithoutAppointmentsInput {
+  birthDate: DateTime!
+  bloodType: BloodType!
+  createdAt: DateTime
+  firstname_en: String!
+  firstname_th: String!
+  height: Float!
+  id: String!
+  initial_en: String!
+  initial_th: String!
+  lastname_en: String!
+  lastname_th: String!
+  nationalId: String
+  nationality: String!
+  passportId: String
+  phoneNumber: String!
+  updatedAt: DateTime
+  weight: Float!
+}
+
+type PatientMaxAggregate {
+  birthDate: DateTime
+  bloodType: BloodType
+  createdAt: DateTime
+  firstname_en: String
+  firstname_th: String
+  height: Float
+  id: String
+  initial_en: String
+  initial_th: String
+  lastname_en: String
+  lastname_th: String
+  nationalId: String
+  nationality: String
+  passportId: String
+  phoneNumber: String
+  updatedAt: DateTime
+  weight: Float
+}
+
+type PatientMinAggregate {
+  birthDate: DateTime
+  bloodType: BloodType
+  createdAt: DateTime
+  firstname_en: String
+  firstname_th: String
+  height: Float
+  id: String
+  initial_en: String
+  initial_th: String
+  lastname_en: String
+  lastname_th: String
+  nationalId: String
+  nationality: String
+  passportId: String
+  phoneNumber: String
+  updatedAt: DateTime
+  weight: Float
+}
+
+input PatientOrderByWithRelationInput {
+  appointments: AppointmentOrderByRelationAggregateInput
+  birthDate: SortOrder
+  bloodType: SortOrder
+  createdAt: SortOrder
+  firstname_en: SortOrder
+  firstname_th: SortOrder
+  height: SortOrder
+  id: SortOrder
+  initial_en: SortOrder
+  initial_th: SortOrder
+  lastname_en: SortOrder
+  lastname_th: SortOrder
+  nationalId: SortOrder
+  nationality: SortOrder
+  passportId: SortOrder
+  phoneNumber: SortOrder
+  updatedAt: SortOrder
+  weight: SortOrder
+}
+
+input PatientRelationFilter {
+  is: PatientWhereInput
+  isNot: PatientWhereInput
+}
+
+enum PatientScalarFieldEnum {
+  birthDate
+  bloodType
+  createdAt
+  firstname_en
+  firstname_th
+  height
+  id
+  initial_en
+  initial_th
+  lastname_en
+  lastname_th
+  nationalId
+  nationality
+  passportId
+  phoneNumber
+  updatedAt
+  weight
+}
+
+type PatientSumAggregate {
+  height: Float
+  weight: Float
+}
+
+input PatientWhereInput {
+  AND: [PatientWhereInput!]
+  NOT: [PatientWhereInput!]
+  OR: [PatientWhereInput!]
+  appointments: AppointmentListRelationFilter
+  birthDate: DateTimeFilter
+  bloodType: EnumBloodTypeFilter
+  createdAt: DateTimeFilter
+  firstname_en: StringFilter
+  firstname_th: StringFilter
+  height: FloatFilter
+  id: StringFilter
+  initial_en: StringFilter
+  initial_th: StringFilter
+  lastname_en: StringFilter
+  lastname_th: StringFilter
+  nationalId: StringNullableFilter
+  nationality: StringFilter
+  passportId: StringNullableFilter
+  phoneNumber: StringFilter
+  updatedAt: DateTimeFilter
+  weight: FloatFilter
+}
+
+input PatientWhereUniqueInput {
+  id: String
+}
+
+type Prescription {
+  amount: Int!
+  appointment: Appointment!
+  appointmentId: Int!
+  createdAt: DateTime!
+  id: ID!
+  medicine: Medicine!
+  medicineId: Int!
+  updatedAt: DateTime!
+}
+
+type PrescriptionAvgAggregate {
+  amount: Float
+  appointmentId: Float
+  id: Float
+  medicineId: Float
+}
+
+type PrescriptionCountAggregate {
+  _all: Int!
+  amount: Int!
+  appointmentId: Int!
+  createdAt: Int!
+  id: Int!
+  medicineId: Int!
+  updatedAt: Int!
+}
+
+input PrescriptionCreateInput {
+  amount: Int!
+  appointment: AppointmentCreateNestedOneWithoutPrescriptionsInput!
+  createdAt: DateTime
+  medicine: MedicineCreateNestedOneWithoutPrescriptionsInput!
+  updatedAt: DateTime
+}
+
+input PrescriptionCreateManyAppointmentInput {
+  amount: Int!
+  createdAt: DateTime
+  id: Int
+  medicineId: Int!
+  updatedAt: DateTime
+}
+
+input PrescriptionCreateManyAppointmentInputEnvelope {
+  data: [PrescriptionCreateManyAppointmentInput!]!
+  skipDuplicates: Boolean
+}
+
+input PrescriptionCreateManyMedicineInput {
+  amount: Int!
+  appointmentId: Int!
+  createdAt: DateTime
+  id: Int
+  updatedAt: DateTime
+}
+
+input PrescriptionCreateManyMedicineInputEnvelope {
+  data: [PrescriptionCreateManyMedicineInput!]!
+  skipDuplicates: Boolean
+}
+
+input PrescriptionCreateNestedManyWithoutAppointmentInput {
+  connect: [PrescriptionWhereUniqueInput!]
+  connectOrCreate: [PrescriptionCreateOrConnectWithoutAppointmentInput!]
+  create: [PrescriptionCreateWithoutAppointmentInput!]
+  createMany: PrescriptionCreateManyAppointmentInputEnvelope
+}
+
+input PrescriptionCreateNestedManyWithoutMedicineInput {
+  connect: [PrescriptionWhereUniqueInput!]
+  connectOrCreate: [PrescriptionCreateOrConnectWithoutMedicineInput!]
+  create: [PrescriptionCreateWithoutMedicineInput!]
+  createMany: PrescriptionCreateManyMedicineInputEnvelope
+}
+
+input PrescriptionCreateOrConnectWithoutAppointmentInput {
+  create: PrescriptionCreateWithoutAppointmentInput!
+  where: PrescriptionWhereUniqueInput!
+}
+
+input PrescriptionCreateOrConnectWithoutMedicineInput {
+  create: PrescriptionCreateWithoutMedicineInput!
+  where: PrescriptionWhereUniqueInput!
+}
+
+input PrescriptionCreateWithoutAppointmentInput {
+  amount: Int!
+  createdAt: DateTime
+  medicine: MedicineCreateNestedOneWithoutPrescriptionsInput!
+  updatedAt: DateTime
+}
+
+input PrescriptionCreateWithoutMedicineInput {
+  amount: Int!
+  appointment: AppointmentCreateNestedOneWithoutPrescriptionsInput!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input PrescriptionListRelationFilter {
+  every: PrescriptionWhereInput
+  none: PrescriptionWhereInput
+  some: PrescriptionWhereInput
+}
+
+type PrescriptionMaxAggregate {
+  amount: Int
+  appointmentId: Int
+  createdAt: DateTime
+  id: Int
+  medicineId: Int
+  updatedAt: DateTime
+}
+
+type PrescriptionMinAggregate {
+  amount: Int
+  appointmentId: Int
+  createdAt: DateTime
+  id: Int
+  medicineId: Int
+  updatedAt: DateTime
+}
+
+input PrescriptionOrderByRelationAggregateInput {
+  _count: SortOrder
+}
+
+input PrescriptionOrderByWithRelationInput {
+  amount: SortOrder
+  appointment: AppointmentOrderByWithRelationInput
+  appointmentId: SortOrder
+  createdAt: SortOrder
+  id: SortOrder
+  medicine: MedicineOrderByWithRelationInput
+  medicineId: SortOrder
+  updatedAt: SortOrder
+}
+
+enum PrescriptionScalarFieldEnum {
+  amount
+  appointmentId
+  createdAt
+  id
+  medicineId
+  updatedAt
+}
+
+type PrescriptionSumAggregate {
+  amount: Int
+  appointmentId: Int
+  id: Int
+  medicineId: Int
+}
+
+input PrescriptionWhereInput {
+  AND: [PrescriptionWhereInput!]
+  NOT: [PrescriptionWhereInput!]
+  OR: [PrescriptionWhereInput!]
+  amount: IntFilter
+  appointment: AppointmentRelationFilter
+  appointmentId: IntFilter
+  createdAt: DateTimeFilter
+  id: IntFilter
+  medicine: MedicineRelationFilter
+  medicineId: IntFilter
+  updatedAt: DateTimeFilter
+}
+
+input PrescriptionWhereUniqueInput {
+  id: Int
+}
+
+type Query {
+  appointment(where: AppointmentWhereInput!): Appointment
+  appointments(cursor: AppointmentWhereUniqueInput, distinct: [AppointmentScalarFieldEnum!], orderBy: [AppointmentOrderByWithRelationInput!], skip: Int, take: Int, where: AppointmentWhereInput): [Appointment!]!
+  doctor(where: DoctorWhereInput!): Doctor
+  doctors(cursor: DoctorWhereUniqueInput, distinct: [DoctorScalarFieldEnum!], orderBy: [DoctorOrderByWithRelationInput!], skip: Int, take: Int, where: DoctorWhereInput): [Doctor!]!
+  invoice(where: InvoiceWhereInput!): Invoice
+  invoiceItem(where: InvoiceItemWhereInput!): InvoiceItem
+  invoiceItems(cursor: InvoiceItemWhereUniqueInput, distinct: [InvoiceItemScalarFieldEnum!], orderBy: [InvoiceItemOrderByWithRelationInput!], skip: Int, take: Int, where: InvoiceItemWhereInput): [InvoiceItem!]!
+  invoices(cursor: InvoiceWhereUniqueInput, distinct: [InvoiceScalarFieldEnum!], orderBy: [InvoiceOrderByWithRelationInput!], skip: Int, take: Int, where: InvoiceWhereInput): [Invoice!]!
+  medicine(where: MedicineWhereInput!): Medicine
+  medicines(cursor: MedicineWhereUniqueInput, distinct: [MedicineScalarFieldEnum!], orderBy: [MedicineOrderByWithRelationInput!], skip: Int, take: Int, where: MedicineWhereInput): [Medicine!]!
+  patient(where: PatientWhereInput!): Patient
+  patients(cursor: PatientWhereUniqueInput, distinct: [PatientScalarFieldEnum!], orderBy: [PatientOrderByWithRelationInput!], skip: Int, take: Int, where: PatientWhereInput): [Patient!]!
+  prescription(where: PrescriptionWhereInput!): Prescription
+  prescriptions(cursor: PrescriptionWhereUniqueInput, distinct: [PrescriptionScalarFieldEnum!], orderBy: [PrescriptionOrderByWithRelationInput!], skip: Int, take: Int, where: PrescriptionWhereInput): [Prescription!]!
+}
+
+enum QueryMode {
+  default
+  insensitive
+}
+
+enum SortOrder {
+  asc
+  desc
+}
+
+input StringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
+}
+
+input StringNullableFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: NestedStringNullableFilter
+  notIn: [String!]
+  startsWith: String
+}
