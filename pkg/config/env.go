@@ -27,6 +27,12 @@ type DatabaseConfig struct {
 	TimeZone    string `env:"DATABASE_TIMEZONE" envDefault:"Asia/Bangkok"`
 }
 
+type TwilioConfig struct {
+	AccountSid string `env:"TWILIO_ACCOUNT_SID,required"`
+	ApiKey     string `env:"TWILIO_API_KEY,required"`
+	ApiSecret  string `env:"TWILIO_API_SECRET,required"`
+}
+
 func Load() (*Config, error) {
 	_ = godotenv.Load()
 	cfg := &Config{}
