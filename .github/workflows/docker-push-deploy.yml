@@ -51,6 +51,7 @@ jobs:
           
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v2
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           token: ${{ secrets.PAT }}
           repository: ${{ env.DISPATCH_TO }}
