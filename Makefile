@@ -10,6 +10,10 @@ unit-test:
 
 mockgen:
 	mockgen -source=pkg/services/token/proto/token_grpc.pb.go -destination=test/mock_token_service/mock_token_grpc.pb.go -package mock_token_service
+	mockgen -source=pkg/cache/client.go -destination=test/mock_cache_client/mock_cache_client.go -package mock_cache_client
+	mockgen -source=pkg/hospital/hospital.go -destination=test/mock_hospital_client/mock_hospital_client.go -package mock_hospital_client
+	mockgen -source=pkg/sms/client.go -destination=test/mock_sms_client/mock_sms_client.go -package mock_sms_client
+	mockgen -source=pkg/datastore/patient.go -destination=test/mock_datastore/mock_patient_datastore.go -package mock_datastore
 
 gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml

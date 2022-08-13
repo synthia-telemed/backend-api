@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-type Client interface {
-	Get(ctx context.Context, key string) (string, error)
-	Set(ctx context.Context, key string, value string, expiredIn time.Duration) error
-}
-
 type Config struct {
 	Endpoint  string `env:"REDIS_HOST,required"`
 	Username  string `env:"REDIS_USERNAME" envDefault:""`
