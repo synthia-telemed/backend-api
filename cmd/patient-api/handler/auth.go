@@ -32,6 +32,14 @@ func NewAuthHandler(patientDataStore PatientDataStore, hosClient hospital.System
 	}
 }
 
+type LoginRequest struct {
+	Credential string `json:"credential" binding:"required"`
+}
+
+type LoginResponse struct {
+	PhoneNumber string `json:"phone_number"`
+}
+
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,14 +73,10 @@ func (h AuthHandler) Signin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"phone_number": patientInfo.PhoneNumber,
+		"phone_number": h.censorPhoneNumber(patientInfo.PhoneNumber),
 	})
 }
 
-type LoginRequest struct {
-	Credential string `json:"credential" binding:"required"`
-}
-
-type LoginResponse struct {
-	PhoneNumber string `json:"phone_number"`
+func (h AuthHandler) censorPhoneNumber(number string) string {
+	return number[:3] + "****" + number[len(number)-4:]
 }
