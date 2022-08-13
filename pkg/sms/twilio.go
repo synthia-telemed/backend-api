@@ -10,19 +10,26 @@ type Client interface {
 	Send(to, body string) error
 }
 
+type Config struct {
+	AccountSid string `env:"TWILIO_ACCOUNT_SID,required"`
+	ApiKey     string `env:"TWILIO_API_KEY,required"`
+	ApiSecret  string `env:"TWILIO_API_SECRET,required"`
+	FromNumber string `env:"TWILIO_FROM_NUMBER,required"`
+}
+
 type TwilioClient struct {
 	client     *twilio.RestClient
 	fromNumber string
 }
 
-func NewTwilioClient(accountSid, apiKey, apiSecret, fromNumber string) *TwilioClient {
+func NewTwilioClient(config *Config) *TwilioClient {
 	return &TwilioClient{
 		client: twilio.NewRestClientWithParams(twilio.ClientParams{
-			Username:   apiKey,
-			Password:   apiSecret,
-			AccountSid: accountSid,
+			Username:   config.ApiKey,
+			Password:   config.ApiSecret,
+			AccountSid: config.AccountSid,
 		}),
-		fromNumber: fromNumber,
+		fromNumber: config.FromNumber,
 	}
 }
 
