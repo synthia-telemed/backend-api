@@ -78,5 +78,5 @@ func (h AuthHandler) Signin(c *gin.Context) {
 }
 
 func (h AuthHandler) censorPhoneNumber(number string) string {
-	return number[:3] + "****" + number[len(number)-4:]
+	return number[:3] + "***" + number[len(number)-4:]
 }

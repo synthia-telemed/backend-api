@@ -3,10 +3,12 @@ package handler_test
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
@@ -15,6 +17,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"time"
 )
 
 var _ = Describe("Auth Handler", func() {
@@ -70,6 +73,24 @@ var _ = Describe("Auth Handler", func() {
 			})
 			It("should return 404", func() {
 				Expect(rec.Code).To(Equal(http.StatusNotFound))
+			})
+		})
+
+		When("patient is found", func() {
+			p := &hospital.Patient{Id: "HN-1234", PhoneNumber: "0812223330"}
+			BeforeEach(func() {
+				reqBody := strings.NewReader(`{"credential": "1234567890"}`)
+				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
+				mockHospitalSysClient.EXPECT().FindPatientByGovCredential(context.Background(), "1234567890").Return(p, nil).Times(1)
+				mockCacheClient.EXPECT().Set(context.Background(), gomock.Any(), p.Id, time.Minute*10).Return(nil).Times(1)
+				mockSmsClient.EXPECT().Send(p.PhoneNumber, gomock.Any()).Return(nil).Times(1)
+			})
+
+			It("should return 201 with phone number", func() {
+				Expect(rec.Code).To(Equal(http.StatusCreated))
+				var res handler.LoginResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(BeNil())
+				Expect(res.PhoneNumber).To(Equal("081***3330"))
 			})
 		})
 
