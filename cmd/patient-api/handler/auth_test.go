@@ -2,8 +2,8 @@ package handler_test
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-json"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -37,6 +37,7 @@ var _ = Describe("Auth Handler", func() {
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		rec = httptest.NewRecorder()
+		gin.SetMode(gin.TestMode)
 		c, _ = gin.CreateTestContext(rec)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
