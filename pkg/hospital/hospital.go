@@ -9,13 +9,17 @@ type SystemClient interface {
 	FindPatientByGovCredential(ctx context.Context, cred string) (*getPatientPatient, error)
 }
 
+type Config struct {
+	HospitalSysEndpoint string `env:"HOSPITAL_SYS_ENDPOINT,required"`
+}
+
 type GraphQLClient struct {
 	client graphql.Client
 }
 
-func NewGraphQLClient(endpoint string) *GraphQLClient {
+func NewGraphQLClient(config *Config) *GraphQLClient {
 	return &GraphQLClient{
-		client: graphql.NewClient(endpoint, nil),
+		client: graphql.NewClient(config.HospitalSysEndpoint, nil),
 	}
 }
 

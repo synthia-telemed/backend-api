@@ -36,7 +36,7 @@ func main() {
 	}
 	defer sentry.Flush(2 * time.Second)
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseDSN), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DB.DSN()), &gorm.Config{})
 	if err != nil {
 		sugaredLogger.Fatalw("Failed to connect to database", "error", err)
 	}
@@ -44,8 +44,8 @@ func main() {
 	if err != nil {
 		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
 	}
-	hospitalSysClient := hospital.NewGraphQLClient(cfg.HospitalSysEndpoint)
-	smsClient := sms.NewTwilioClient(cfg.Twilio.AccountSid, cfg.Twilio.ApiKey, cfg.Twilio.ApiSecret, cfg.Twilio.FromNumber)
+	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
+	smsClient := sms.NewTwilioClient(&cfg.SMS)
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, sugaredLogger)
