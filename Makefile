@@ -12,4 +12,4 @@ mockgen:
 	mockgen -source=pkg/services/token/proto/token_grpc.pb.go -destination=test/mock_token_service/mock_token_grpc.pb.go -package mock_token_service
 
 gql-client-gen:
-	genqlient
+	genqlient ./pkg/hospital/genqlient.yaml

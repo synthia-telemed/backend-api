@@ -2,6 +2,7 @@ query getPatient($where: PatientWhereInput!) {
     patient(where: $where) {
         birthDate
         bloodType
+        createdAt
         firstname_en
         firstname_th
         height
@@ -14,6 +15,7 @@ query getPatient($where: PatientWhereInput!) {
         nationality
         passportId
         phoneNumber
+        updatedAt
         weight
     }
 }
