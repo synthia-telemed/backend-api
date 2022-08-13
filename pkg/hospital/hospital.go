@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/Khan/genqlient/graphql"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
-	"net/http"
 )
 
 type SystemClient interface {
@@ -17,18 +16,19 @@ type GraphQLClient struct {
 
 func NewGraphQLClient(endpoint string) *GraphQLClient {
 	return &GraphQLClient{
-		client: graphql.NewClient(endpoint, http.DefaultClient),
+		client: graphql.NewClient(endpoint, nil),
 	}
 }
 
-func (c GraphQLClient) FindPatientByGovCredential(cred string) (*datastore.Patient, error) {
-	resp, err := getPatient(context.Background(), c.client, PatientWhereInput{
-		OR: []PatientWhereInput{
-			{NationalId: StringNullableFilter{Equals: cred}},
-			{PassportId: StringNullableFilter{Equals: cred}},
+func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*datastore.Patient, error) {
+	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
+		OR: []*PatientWhereInput{
+			{NationalId: &StringNullableFilter{Equals: cred, Mode: QueryModeDefault}},
+			{PassportId: &StringNullableFilter{Equals: cred, Mode: QueryModeDefault}},
 		},
 	})
-	if err != nil || resp == nil {
+
+	if err != nil || resp.GetPatient() == nil {
 		return nil, err
 	}
 

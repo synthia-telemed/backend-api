@@ -4,7 +4,7 @@ import (
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	. "github.com/synthia-telemed/backend-api/pkg/datastore"
-	"github.com/synthia-telemed/backend-api/pkg/services/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"go.uber.org/zap"
 	"net/http"
 )
