@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
@@ -56,9 +57,19 @@ var _ = Describe("Auth Handler", func() {
 				reqBody := strings.NewReader(`{"not-credential": "1234567890"}`)
 				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
 			})
-
 			It("should return 400", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+
+		When("patient is not found", func() {
+			BeforeEach(func() {
+				reqBody := strings.NewReader(`{"credential": "1234567890"}`)
+				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
+				mockHospitalSysClient.EXPECT().FindPatientByGovCredential(context.Background(), "1234567890").Return(nil, nil).Times(1)
+			})
+			It("should return 404", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 
