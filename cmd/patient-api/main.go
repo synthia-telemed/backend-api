@@ -5,8 +5,10 @@ import (
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -42,9 +44,11 @@ func main() {
 	if err != nil {
 		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
 	}
+	hospitalSysClient := hospital.NewGraphQLClient(cfg.HospitalSysEndpoint)
+	smsClient := sms.NewTwilioClient(cfg.Twilio.AccountSid, cfg.Twilio.ApiKey, cfg.Twilio.ApiSecret, cfg.Twilio.FromNumber)
 
 	// Handler
-	authHandler := handler.NewAuthHandler(patientDataStore)
+	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	authGroup := ginServer.Group("/api/auth")

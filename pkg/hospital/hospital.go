@@ -3,11 +3,10 @@ package hospital
 import (
 	"context"
 	"github.com/Khan/genqlient/graphql"
-	"github.com/synthia-telemed/backend-api/pkg/datastore"
 )
 
 type SystemClient interface {
-	FindPatientByGovCredential(cred string) (*datastore.Patient, error)
+	FindPatientByGovCredential(ctx context.Context, cred string) (*getPatientPatient, error)
 }
 
 type GraphQLClient struct {
@@ -20,7 +19,7 @@ func NewGraphQLClient(endpoint string) *GraphQLClient {
 	}
 }
 
-func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*datastore.Patient, error) {
+func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*getPatientPatient, error) {
 	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
 		OR: []*PatientWhereInput{
 			{NationalId: &StringNullableFilter{Equals: cred, Mode: QueryModeDefault}},
@@ -32,21 +31,5 @@ func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred stri
 		return nil, err
 	}
 
-	return &datastore.Patient{
-		RefID:       resp.Patient.Id,
-		BirthDate:   resp.Patient.BirthDate,
-		BloodType:   datastore.BloodType(resp.Patient.BloodType),
-		FirstnameEn: resp.Patient.Firstname_en,
-		FirstnameTh: resp.Patient.Firstname_th,
-		InitialEn:   resp.Patient.Initial_en,
-		InitialTh:   resp.Patient.Initial_th,
-		LastnameEn:  resp.Patient.Lastname_en,
-		LastnameTh:  resp.Patient.Lastname_th,
-		NationalID:  &resp.Patient.NationalId,
-		PassportID:  &resp.Patient.PassportId,
-		Nationality: resp.Patient.Nationality,
-		PhoneNumber: resp.Patient.PhoneNumber,
-		Weight:      float32(resp.Patient.Weight),
-		Height:      float32(resp.Patient.Height),
-	}, nil
+	return resp.Patient, nil
 }

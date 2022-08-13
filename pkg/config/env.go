@@ -7,13 +7,15 @@ import (
 )
 
 type Config struct {
-	TokenServiceHost string `env:"TOKEN_SERVICE_HOST" envDefault:"localhost:8080"`
-	Mode             string `env:"MODE" envDefault:"development"`
-	Port             int    `env:"PORT" envDefault:"8080"`
-	GinMode          string `env:"GIN_MODE" envDefault:"debug"`
-	SentryDSN        string `env:"SENTRY_DSN" envDefault:""`
-	DatabaseDSN      string
-	DB               DatabaseConfig
+	TokenServiceHost    string `env:"TOKEN_SERVICE_HOST" envDefault:"localhost:8080"`
+	Mode                string `env:"MODE" envDefault:"development"`
+	Port                int    `env:"PORT" envDefault:"8080"`
+	GinMode             string `env:"GIN_MODE" envDefault:"debug"`
+	SentryDSN           string `env:"SENTRY_DSN" envDefault:""`
+	DatabaseDSN         string
+	DB                  DatabaseConfig
+	Twilio              TwilioConfig
+	HospitalSysEndpoint string `env:"HOSPITAL_SYS_ENDPOINT,required"`
 }
 
 type DatabaseConfig struct {
@@ -31,6 +33,7 @@ type TwilioConfig struct {
 	AccountSid string `env:"TWILIO_ACCOUNT_SID,required"`
 	ApiKey     string `env:"TWILIO_API_KEY,required"`
 	ApiSecret  string `env:"TWILIO_API_SECRET,required"`
+	FromNumber string `env:"TWILIO_FROM_NUMBER,required"`
 }
 
 func Load() (*Config, error) {

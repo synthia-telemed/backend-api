@@ -10,6 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.4.0
+	github.com/matoous/go-nanoid v1.5.0
 	github.com/onsi/ginkgo/v2 v2.1.4
 	github.com/onsi/gomega v1.20.0
 	github.com/twilio/twilio-go v0.26.0
