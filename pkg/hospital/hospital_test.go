@@ -17,7 +17,9 @@ var _ = Describe("Hospital Client", func() {
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
-		graphQLClient = hospital.NewGraphQLClient("https://hospital-mock.synthia.tech/graphql")
+		graphQLClient = hospital.NewGraphQLClient(&hospital.Config{
+			HospitalSysEndpoint: "https://hospital-mock.synthia.tech/graphql",
+		})
 	})
 
 	AfterEach(func() {
