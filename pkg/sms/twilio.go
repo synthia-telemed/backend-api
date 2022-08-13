@@ -6,10 +6,6 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-type Client interface {
-	Send(to, body string) error
-}
-
 type Config struct {
 	AccountSid string `env:"TWILIO_ACCOUNT_SID,required"`
 	ApiKey     string `env:"TWILIO_API_KEY,required"`
