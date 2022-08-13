@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
@@ -18,6 +19,7 @@ type Config struct {
 	DB               datastore.Config
 	SMS              sms.Config
 	HospitalClient   hospital.Config
+	Cache            cache.Config
 }
 
 func Load() (*Config, error) {

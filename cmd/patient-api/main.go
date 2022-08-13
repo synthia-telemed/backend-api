@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/getsentry/sentry-go"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -44,11 +45,13 @@ func main() {
 	if err != nil {
 		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
 	}
+
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
+	cacheClient := cache.NewRedisClient(&cfg.Cache)
 
 	// Handler
-	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, sugaredLogger)
+	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	authGroup := ginServer.Group("/api/auth")
