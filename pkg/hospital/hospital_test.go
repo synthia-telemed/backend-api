@@ -29,14 +29,14 @@ var _ = Describe("Hospital Client", func() {
 			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "QH226189")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
-			Expect(patient.RefID).To(Equal("HN-106186"))
+			Expect(patient.Id).To(Equal("HN-106186"))
 		})
 
 		It("should find patient by national ID", func() {
 			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "6514582729055")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
-			Expect(patient.RefID).To(Equal("HN-127801"))
+			Expect(patient.Id).To(Equal("HN-127801"))
 		})
 
 		It("should return nil when patient not found", func() {
