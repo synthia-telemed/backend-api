@@ -15,31 +15,31 @@ const (
 type BloodType string
 
 type Patient struct {
-	ID          uint           `json:"id" gorm:"primarykey"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	RefID       string         `json:"refID" gorm:"unique"`
-	BirthDate   time.Time      `json:"birthDate"`
-	BloodType   BloodType      `json:"bloodType"`
-	FirstnameEn string         `json:"firstname_en"`
-	FirstnameTh string         `json:"firstname_th"`
-	InitialEn   string         `json:"initial_en"`
-	InitialTh   string         `json:"initial_th"`
-	LastnameEn  string         `json:"lastname_en"`
-	LastnameTh  string         `json:"lastname_th"`
-	NationalID  *string        `json:"nationalId" gorm:"unique"`
-	PassportID  *string        `json:"passportId" gorm:"unique"`
-	Nationality string         `json:"nationality"`
-	PhoneNumber string         `json:"phoneNumber"`
-	Weight      float32        `json:"weight"`
-	Height      float32        `json:"height"`
+	ID        uint           `json:"id" gorm:"primarykey"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	RefID     string         `json:"refID" gorm:"unique"`
+	//BirthDate   time.Time      `json:"birthDate"`
+	//BloodType   BloodType      `json:"bloodType"`
+	//FirstnameEn string         `json:"firstname_en"`
+	//FirstnameTh string         `json:"firstname_th"`
+	//InitialEn   string         `json:"initial_en"`
+	//InitialTh   string         `json:"initial_th"`
+	//LastnameEn  string         `json:"lastname_en"`
+	//LastnameTh  string         `json:"lastname_th"`
+	//NationalID  *string        `json:"nationalId" gorm:"unique"`
+	//PassportID  *string        `json:"passportId" gorm:"unique"`
+	//Nationality string         `json:"nationality"`
+	//PhoneNumber string         `json:"phoneNumber"`
+	//Weight      float32        `json:"weight"`
+	//Height      float32        `json:"height"`
 }
 
 type PatientDataStore interface {
 	Create(patient *Patient) error
 	FindByID(id uint) (*Patient, error)
-	FindByGovCredential(nationalID string) (*Patient, error)
+	//FindByGovCredential(nationalID string) (*Patient, error)
 }
 
 type GormPatientDataStore struct {
@@ -60,8 +60,8 @@ func (g GormPatientDataStore) FindByID(id uint) (*Patient, error) {
 	return patient, err
 }
 
-func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {
-	var patient *Patient
-	err := g.db.Limit(1).Where("national_id = ?", cred).Or("passport_id = ?", cred).Find(&patient).Error
-	return patient, err
-}
+//func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {
+//	var patient *Patient
+//	err := g.db.Limit(1).Where("national_id = ?", cred).Or("passport_id = ?", cred).Find(&patient).Error
+//	return patient, err
+//}
