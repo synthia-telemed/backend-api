@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	hospital "github.com/synthia-telemed/backend-api/pkg/hospital"
 )
 
 // MockSystemClient is a mock of SystemClient interface.
@@ -35,10 +36,10 @@ func (m *MockSystemClient) EXPECT() *MockSystemClientMockRecorder {
 }
 
 // FindPatientByGovCredential mocks base method.
-func (m *MockSystemClient) FindPatientByGovCredential(ctx context.Context, cred string) (*getPatientPatient, error) {
+func (m *MockSystemClient) FindPatientByGovCredential(ctx context.Context, cred string) (*hospital.Patient, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindPatientByGovCredential", ctx, cred)
-	ret0, _ := ret[0].(*getPatientPatient)
+	ret0, _ := ret[0].(*hospital.Patient)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
