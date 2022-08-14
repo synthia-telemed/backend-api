@@ -9,6 +9,7 @@ import (
 	. "github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
+	"github.com/synthia-telemed/backend-api/pkg/token"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -20,15 +21,17 @@ type AuthHandler struct {
 	smsClient         sms.Client
 	cacheClient       cache.Client
 	logger            *zap.SugaredLogger
+	tokenService      token.Service
 }
 
-func NewAuthHandler(patientDataStore PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, logger *zap.SugaredLogger) *AuthHandler {
+func NewAuthHandler(patientDataStore PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, logger *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		patientDataStore:  patientDataStore,
 		hospitalSysClient: hosClient,
 		smsClient:         sms,
 		cacheClient:       cache,
 		logger:            logger,
+		tokenService:      tokenService,
 	}
 }
 

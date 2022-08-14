@@ -10,6 +10,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
+	"github.com/synthia-telemed/backend-api/pkg/token"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -49,9 +50,14 @@ func main() {
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
 	cacheClient := cache.NewRedisClient(&cfg.Cache)
+	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to create token service", "error", err)
+	}
 
 	// Handler
-	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, sugaredLogger)
+	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	authGroup := ginServer.Group("/api/auth")

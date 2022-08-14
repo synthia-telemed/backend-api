@@ -11,12 +11,16 @@ type Service interface {
 	GenerateToken(userID uint64, role string) (string, error)
 }
 
+type Config struct {
+	Endpoint string `env:"TOKEN_SERVICE_ENDPOINT,required"`
+}
+
 type GRPCTokenService struct {
 	tokenClient proto.TokenClient
 }
 
-func NewGRPCTokenService(serviceHost string) (*GRPCTokenService, error) {
-	conn, err := grpc.Dial(serviceHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewGRPCTokenService(config *Config) (*GRPCTokenService, error) {
+	conn, err := grpc.Dial(config.Endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

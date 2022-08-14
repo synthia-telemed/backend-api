@@ -13,6 +13,7 @@ import (
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_sms_client"
+	"github.com/synthia-telemed/backend-api/test/mock_token_service"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
@@ -32,6 +33,7 @@ var _ = Describe("Auth Handler", func() {
 		mockHospitalSysClient *mock_hospital_client.MockSystemClient
 		mockSmsClient         *mock_sms_client.MockClient
 		mockCacheClient       *mock_cache_client.MockClient
+		mockTokenService      *mock_token_service.MockService
 	)
 
 	BeforeEach(func() {
@@ -44,7 +46,8 @@ var _ = Describe("Auth Handler", func() {
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockSmsClient = mock_sms_client.NewMockClient(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
-		h = handler.NewAuthHandler(mockPatientDataStore, mockHospitalSysClient, mockSmsClient, mockCacheClient, zap.NewNop().Sugar())
+		mockTokenService = mock_token_service.NewMockService(mockCtrl)
+		h = handler.NewAuthHandler(mockPatientDataStore, mockHospitalSysClient, mockSmsClient, mockCacheClient, mockTokenService, zap.NewNop().Sugar())
 	})
 
 	JustBeforeEach(func() {
