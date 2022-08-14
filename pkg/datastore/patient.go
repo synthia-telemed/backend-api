@@ -41,6 +41,7 @@ type PatientDataStore interface {
 	Create(patient *Patient) error
 	FindByID(id uint) (*Patient, error)
 	FindByRefID(refID string) (*Patient, error)
+	FindOrCreate(patient *Patient) error
 	//FindByGovCredential(nationalID string) (*Patient, error)
 }
 
@@ -76,6 +77,10 @@ func (g GormPatientDataStore) FindByRefID(refID string) (*Patient, error) {
 		return nil, err
 	}
 	return &patient, nil
+}
+
+func (g GormPatientDataStore) FindOrCreate(patient *Patient) error {
+	return g.db.FirstOrCreate(patient, patient).Error
 }
 
 //func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {

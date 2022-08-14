@@ -95,6 +95,27 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 			Expect(foundUser.RefID).To(Equal(user.RefID))
 		})
 	})
+
+	When("FindOrCreate", func() {
+		It("should create user", func() {
+			patient := generatePatient()
+			err := patientDataStore.FindOrCreate(&patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
+
+			var foundUser datastore.Patient
+			Expect(db.First(&foundUser, patient.ID).Error).To(BeNil())
+			Expect(foundUser.ID).To(Equal(patient.ID))
+			Expect(foundUser.RefID).To(Equal(patient.RefID))
+		})
+
+		It("should found user", func() {
+			patient := getRandomPatient(users)
+			err := patientDataStore.FindOrCreate(&patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
+		})
+	})
 })
 
 func generatePatient() datastore.Patient {
