@@ -31,3 +31,5 @@ jobs:
       run: make mockgen
     - name: Run unit tests
       run: make unit-test
+      env: 
+        TEST_DATABASE_DSN: ${{ secrets.TEST_DATABASE_DSN }}
