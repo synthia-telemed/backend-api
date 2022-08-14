@@ -95,36 +95,27 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	refID, err := h.cacheClient.Get(context.Background(), req.OTP)
+	refID, err := h.cacheClient.Get(context.Background(), req.OTP, true)
 	if err != nil {
 		InternalServerError(c, h.logger, err, "h.cacheClient.Get error")
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{"OTP is invalid or expired"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{"OTP is invalid or expired"})
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByRefID(refID)
-	if err != nil {
+	patient := &datastore.Patient{RefID: refID}
+	if err := h.patientDataStore.FindOrCreate(patient); err != nil {
 		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
 		return
 	}
-	if patient == nil {
-		patient = &datastore.Patient{RefID: refID}
-		if err := h.patientDataStore.Create(patient); err != nil {
-			InternalServerError(c, h.logger, err, "h.patientDataStore.Create error")
-			return
-		}
-	}
-	h.logger.Info(patient)
 
 	jws, err := h.tokenService.GenerateToken(uint64(patient.ID), "Patient")
 	if err != nil {
 		InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
 		return
 	}
-
 	c.JSON(http.StatusCreated, VerifyOTPResponse{Token: jws})
 }
 
