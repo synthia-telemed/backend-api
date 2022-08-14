@@ -36,18 +36,18 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockClient) Get(ctx context.Context, key string) (string, error) {
+func (m *MockClient) Get(ctx context.Context, key string, getAndDelete bool) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, key)
+	ret := m.ctrl.Call(m, "Get", ctx, key, getAndDelete)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockClientMockRecorder) Get(ctx, key interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) Get(ctx, key, getAndDelete interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockClient)(nil).Get), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockClient)(nil).Get), ctx, key, getAndDelete)
 }
 
 // Set mocks base method.

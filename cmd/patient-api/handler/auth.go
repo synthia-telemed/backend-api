@@ -95,7 +95,7 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	refID, err := h.cacheClient.Get(context.Background(), req.OTP)
+	refID, err := h.cacheClient.Get(context.Background(), req.OTP, true)
 	if err != nil {
 		InternalServerError(c, h.logger, err, "h.cacheClient.Get error")
 		return
