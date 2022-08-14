@@ -2,9 +2,17 @@ package main
 
 import (
 	"github.com/getsentry/sentry-go"
+	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/config"
+	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/sms"
+	"github.com/synthia-telemed/backend-api/pkg/token"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -30,6 +38,30 @@ func main() {
 	}
 	defer sentry.Flush(2 * time.Second)
 
+	db, err := gorm.Open(postgres.Open(cfg.DB.DSN()), &gorm.Config{})
+	if err != nil {
+		sugaredLogger.Fatalw("Failed to connect to database", "error", err)
+	}
+	patientDataStore, err := datastore.NewGormPatientDataStore(db)
+	if err != nil {
+		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
+	}
+
+	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
+	smsClient := sms.NewTwilioClient(&cfg.SMS)
+	cacheClient := cache.NewRedisClient(&cfg.Cache)
+	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to create token service", "error", err)
+	}
+
+	// Handler
+	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
+
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
+	authGroup := ginServer.Group("/api/auth")
+	authGroup.POST("/signin", authHandler.Signin)
+	authGroup.POST("/verify", authHandler.VerifyOTP)
 	ginServer.ListenAndServe()
 }
