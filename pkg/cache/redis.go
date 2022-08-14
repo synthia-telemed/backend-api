@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
@@ -34,7 +35,14 @@ func NewRedisClient(config *Config) *RedisClient {
 }
 
 func (c RedisClient) Get(ctx context.Context, key string) (string, error) {
-	return c.client.Get(ctx, key).Result()
+	value, err := c.client.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", nil
+		}
+		return "", err
+	}
+	return value, nil
 }
 
 func (c RedisClient) Set(ctx context.Context, key string, value string, expiredIn time.Duration) error {
