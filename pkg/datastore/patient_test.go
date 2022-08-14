@@ -82,7 +82,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 		})
 	})
 
-	Context("Creating", func() {
+	When("Creating", func() {
 		It("should create user", func() {
 			user := generatePatient()
 			err := patientDataStore.Create(&user)
