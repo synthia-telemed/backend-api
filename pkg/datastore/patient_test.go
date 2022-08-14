@@ -38,40 +38,54 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	})
 
 	Context("Finding", func() {
-
 		var users []datastore.Patient
 
 		BeforeEach(func() {
-			users = generateUsers(10)
+			users = generatePatients(10)
 			db.Create(&users)
 		})
 
 		It("should find user by ID", func() {
-			user := getRandomUser(users)
+			user := getRandomPatient(users)
 			foundUser, err := patientDataStore.FindByID(user.ID)
 			Expect(err).To(BeNil())
 			Expect(*foundUser).To(Equal(user))
 		})
 
 		It("should find user by RefID", func() {
-			user := getRandomUser(users)
+			user := getRandomPatient(users)
 			foundUser, err := patientDataStore.FindByRefID(user.RefID)
 			Expect(err).To(BeNil())
 			Expect(*foundUser).To(Equal(user))
 		})
 	})
+
+	Context("Creating", func() {
+		It("should create user", func() {
+			user := generatePatient()
+			err := patientDataStore.Create(&user)
+			Expect(err).To(BeNil())
+			Expect(user.ID).ToNot(BeZero())
+
+			var foundUser datastore.Patient
+			Expect(db.First(&foundUser, user.ID).Error).To(BeNil())
+			Expect(foundUser).To(Equal(user))
+		})
+	})
 })
 
-func generateUsers(num int) []datastore.Patient {
+func generatePatient() datastore.Patient {
+	return datastore.Patient{RefID: fmt.Sprintf("HN-%d", rand.Uint32())}
+}
+
+func generatePatients(num int) []datastore.Patient {
 	users := make([]datastore.Patient, num)
 	for i := 0; i < num; i++ {
-		users[i] = datastore.Patient{
-			RefID: fmt.Sprintf("HN-%d", rand.Uint32()),
-		}
+		users[i] = generatePatient()
 	}
 	return users
 }
 
-func getRandomUser(users []datastore.Patient) datastore.Patient {
+func getRandomPatient(users []datastore.Patient) datastore.Patient {
 	return users[rand.Int()%len(users)]
 }
