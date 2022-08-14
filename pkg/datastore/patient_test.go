@@ -49,14 +49,16 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 			user := getRandomPatient(users)
 			foundUser, err := patientDataStore.FindByID(user.ID)
 			Expect(err).To(BeNil())
-			Expect(*foundUser).To(Equal(user))
+			Expect(foundUser.ID).To(Equal(user.ID))
+			Expect(foundUser.RefID).To(Equal(user.RefID))
 		})
 
 		It("should find user by RefID", func() {
 			user := getRandomPatient(users)
 			foundUser, err := patientDataStore.FindByRefID(user.RefID)
 			Expect(err).To(BeNil())
-			Expect(*foundUser).To(Equal(user))
+			Expect(foundUser.ID).To(Equal(user.ID))
+			Expect(foundUser.RefID).To(Equal(user.RefID))
 		})
 	})
 
@@ -69,7 +71,8 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 
 			var foundUser datastore.Patient
 			Expect(db.First(&foundUser, user.ID).Error).To(BeNil())
-			Expect(foundUser).To(Equal(user))
+			Expect(foundUser.ID).To(Equal(user.ID))
+			Expect(foundUser.RefID).To(Equal(user.RefID))
 		})
 	})
 })
