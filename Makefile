@@ -8,6 +8,11 @@ proto:
 unit-test:
 	ginkgo -r
 
+unit-test-local:
+	docker compose -f docker-compose.test.yml up -d
+	ginkgo -r
+	docker compose -f docker-compose.test.yml down
+
 mockgen:
 	mockgen -source=pkg/token/proto/token_grpc.pb.go -destination=test/mock_token_service/mock_token_grpc.pb.go -package mock_token_service
 	mockgen -source=pkg/token/grpc.go -destination=test/mock_token_service/mock_token_grpc.go -package mock_token_service
