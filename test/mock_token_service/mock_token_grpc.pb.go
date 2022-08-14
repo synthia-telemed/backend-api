@@ -6,10 +6,10 @@ package mock_token_service
 
 import (
 	context "context"
+	"github.com/synthia-telemed/backend-api/pkg/token/proto"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	proto "github.com/synthia-telemed/backend-api/pkg/services/token/proto"
 	grpc "google.golang.org/grpc"
 )
 

@@ -5,8 +5,8 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/synthia-telemed/backend-api/pkg/services/token"
-	pb "github.com/synthia-telemed/backend-api/pkg/services/token/proto"
+	"github.com/synthia-telemed/backend-api/pkg/token"
+	pb "github.com/synthia-telemed/backend-api/pkg/token/proto"
 	"github.com/synthia-telemed/backend-api/test/mock_token_service"
 )
 

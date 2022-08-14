@@ -1,9 +1,9 @@
 proto:
-	protoc --go_out=./pkg/services/token/proto --go_opt=paths=source_relative \
-        --go-grpc_out=./pkg/services/token/proto --go-grpc_opt=paths=source_relative \
-        --proto_path=pkg/services/token/proto \
+	protoc --go_out=./pkg/token/proto --go_opt=paths=source_relative \
+        --go-grpc_out=./pkg/token/proto --go-grpc_opt=paths=source_relative \
+        --proto_path=pkg/token/proto \
         --validate_out="lang=go:." \
-        pkg/services/token/proto/token.proto
+        pkg/token/proto/token.proto
 
 unit-test:
 	ginkgo -r
