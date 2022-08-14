@@ -106,8 +106,7 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	}
 
 	patient := &datastore.Patient{RefID: refID}
-	err = h.patientDataStore.FindOrCreate(patient)
-	if err != nil {
+	if err := h.patientDataStore.FindOrCreate(patient); err != nil {
 		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
 		return
 	}
@@ -117,7 +116,6 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
 		return
 	}
-
 	c.JSON(http.StatusCreated, VerifyOTPResponse{Token: jws})
 }
 
