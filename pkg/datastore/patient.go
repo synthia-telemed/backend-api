@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -40,6 +41,7 @@ type PatientDataStore interface {
 	Create(patient *Patient) error
 	FindByID(id uint) (*Patient, error)
 	FindByRefID(refID string) (*Patient, error)
+	FindOrCreate(patient *Patient) error
 	//FindByGovCredential(nationalID string) (*Patient, error)
 }
 
@@ -57,14 +59,28 @@ func (g GormPatientDataStore) Create(patient *Patient) error {
 
 func (g GormPatientDataStore) FindByID(id uint) (*Patient, error) {
 	var patient Patient
-	err := g.db.Limit(1).Find(&patient, id).Error
-	return &patient, err
+	if err := g.db.First(&patient, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &patient, nil
 }
 
 func (g GormPatientDataStore) FindByRefID(refID string) (*Patient, error) {
 	var patient Patient
-	err := g.db.Limit(1).Find(&patient, "ref_id = ?", refID).Error
-	return &patient, err
+	if err := g.db.First(&patient, "ref_id = ?", refID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &patient, nil
+}
+
+func (g GormPatientDataStore) FindOrCreate(patient *Patient) error {
+	return g.db.FirstOrCreate(patient, patient).Error
 }
 
 //func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {

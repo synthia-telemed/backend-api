@@ -7,6 +7,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"math/rand"
 )
 
@@ -15,10 +16,10 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	var (
 		db               *gorm.DB
 		patientDataStore datastore.PatientDataStore
+		patients         []datastore.Patient
 	)
 
 	BeforeAll(func() {
-		var err error
 		config := datastore.Config{
 			Host:     "localhost",
 			Port:     5432,
@@ -28,7 +29,10 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 			SSLMode:  "disable",
 			TimeZone: "Asia/Bangkok",
 		}
-		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{})
+		var err error
+		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
 		Expect(err).To(BeNil())
 	})
 
@@ -37,48 +41,82 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 		var err error
 		patientDataStore, err = datastore.NewGormPatientDataStore(db)
 		Expect(err).To(BeNil())
+
+		patients = generatePatients(10)
+		err = db.Create(&patients).Error
+		Expect(err).To(BeNil())
 	})
 
 	AfterEach(func() {
 		Expect(db.Migrator().DropTable(&datastore.Patient{})).To(BeNil())
 	})
 
-	Context("Finding", func() {
-		var users []datastore.Patient
-
-		BeforeEach(func() {
-			users = generatePatients(10)
-			db.Create(&users)
+	When("FindByID", func() {
+		It("should found the patient", func() {
+			patient := getRandomPatient(patients)
+			foundPatient, err := patientDataStore.FindByID(patient.ID)
+			Expect(err).To(BeNil())
+			Expect(foundPatient.ID).To(Equal(patient.ID))
+			Expect(foundPatient.RefID).To(Equal(patient.RefID))
 		})
 
-		It("should find user by ID", func() {
-			user := getRandomPatient(users)
-			foundUser, err := patientDataStore.FindByID(user.ID)
+		It("should return nil if patient not found", func() {
+			foundPatient, err := patientDataStore.FindByID(getRandomID())
 			Expect(err).To(BeNil())
-			Expect(foundUser.ID).To(Equal(user.ID))
-			Expect(foundUser.RefID).To(Equal(user.RefID))
-		})
-
-		It("should find user by RefID", func() {
-			user := getRandomPatient(users)
-			foundUser, err := patientDataStore.FindByRefID(user.RefID)
-			Expect(err).To(BeNil())
-			Expect(foundUser.ID).To(Equal(user.ID))
-			Expect(foundUser.RefID).To(Equal(user.RefID))
+			Expect(foundPatient).To(BeNil())
 		})
 	})
 
-	Context("Creating", func() {
-		It("should create user", func() {
-			user := generatePatient()
-			err := patientDataStore.Create(&user)
+	When("FindByRefID", func() {
+		It("should found the patient", func() {
+			patient := getRandomPatient(patients)
+			foundPatient, err := patientDataStore.FindByRefID(patient.RefID)
 			Expect(err).To(BeNil())
-			Expect(user.ID).ToNot(BeZero())
+			Expect(foundPatient.ID).To(Equal(patient.ID))
+			Expect(foundPatient.RefID).To(Equal(patient.RefID))
+		})
 
-			var foundUser datastore.Patient
-			Expect(db.First(&foundUser, user.ID).Error).To(BeNil())
-			Expect(foundUser.ID).To(Equal(user.ID))
-			Expect(foundUser.RefID).To(Equal(user.RefID))
+		It("should return nil if patient not found", func() {
+			foundPatient, err := patientDataStore.FindByRefID("not-exist")
+			Expect(err).To(BeNil())
+			Expect(foundPatient).To(BeNil())
+		})
+	})
+
+	When("Creating", func() {
+		It("should create patient", func() {
+			patient := generatePatient()
+			err := patientDataStore.Create(&patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
+
+			var foundPatient datastore.Patient
+			err = db.First(&foundPatient, patient.ID).Error
+			Expect(err).To(BeNil())
+			Expect(foundPatient.ID).To(Equal(patient.ID))
+			Expect(foundPatient.RefID).To(Equal(patient.RefID))
+		})
+	})
+
+	When("FindOrCreate", func() {
+		It("should create patient", func() {
+			patient := generatePatient()
+			err := patientDataStore.FindOrCreate(&patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
+
+			var foundPatient datastore.Patient
+			err = db.First(&foundPatient, patient.ID).Error
+			Expect(err).To(BeNil())
+			Expect(foundPatient.ID).To(Equal(patient.ID))
+			Expect(foundPatient.RefID).To(Equal(patient.RefID))
+		})
+
+		It("should found patient", func() {
+			patient := getRandomPatient(patients)
+			err := patientDataStore.FindOrCreate(&patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
 		})
 	})
 })
@@ -97,4 +135,8 @@ func generatePatients(num int) []datastore.Patient {
 
 func getRandomPatient(users []datastore.Patient) datastore.Patient {
 	return users[rand.Int()%len(users)]
+}
+
+func getRandomID() uint {
+	return uint(rand.Uint32())
 }

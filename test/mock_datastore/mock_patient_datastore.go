@@ -77,3 +77,17 @@ func (mr *MockPatientDataStoreMockRecorder) FindByRefID(refID interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByRefID", reflect.TypeOf((*MockPatientDataStore)(nil).FindByRefID), refID)
 }
+
+// FindOrCreate mocks base method.
+func (m *MockPatientDataStore) FindOrCreate(patient *datastore.Patient) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindOrCreate", patient)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// FindOrCreate indicates an expected call of FindOrCreate.
+func (mr *MockPatientDataStoreMockRecorder) FindOrCreate(patient interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOrCreate", reflect.TypeOf((*MockPatientDataStore)(nil).FindOrCreate), patient)
+}
