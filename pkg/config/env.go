@@ -7,19 +7,20 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
+	"github.com/synthia-telemed/backend-api/pkg/token"
 )
 
 type Config struct {
-	TokenServiceHost string `env:"TOKEN_SERVICE_HOST" envDefault:"localhost:8080"`
-	Mode             string `env:"MODE" envDefault:"development"`
-	Port             int    `env:"PORT" envDefault:"8080"`
-	GinMode          string `env:"GIN_MODE" envDefault:"debug"`
-	SentryDSN        string `env:"SENTRY_DSN" envDefault:""`
-	DatabaseDSN      string
-	DB               datastore.Config
-	SMS              sms.Config
-	HospitalClient   hospital.Config
-	Cache            cache.Config
+	Mode           string `env:"MODE" envDefault:"development"`
+	Port           int    `env:"PORT" envDefault:"8080"`
+	GinMode        string `env:"GIN_MODE" envDefault:"debug"`
+	SentryDSN      string `env:"SENTRY_DSN" envDefault:""`
+	DatabaseDSN    string
+	DB             datastore.Config
+	SMS            sms.Config
+	HospitalClient hospital.Config
+	Cache          cache.Config
+	Token          token.Config
 }
 
 func Load() (*Config, error) {

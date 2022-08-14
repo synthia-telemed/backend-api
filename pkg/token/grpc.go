@@ -2,7 +2,7 @@ package token
 
 import (
 	"context"
-	pb "github.com/synthia-telemed/backend-api/pkg/services/token/proto"
+	"github.com/synthia-telemed/backend-api/pkg/token/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -11,27 +11,31 @@ type Service interface {
 	GenerateToken(userID uint64, role string) (string, error)
 }
 
-type GRPCTokenService struct {
-	tokenClient pb.TokenClient
+type Config struct {
+	Endpoint string `env:"TOKEN_SERVICE_ENDPOINT,required"`
 }
 
-func NewGRPCTokenService(serviceHost string) (*GRPCTokenService, error) {
-	conn, err := grpc.Dial(serviceHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
+type GRPCTokenService struct {
+	tokenClient proto.TokenClient
+}
+
+func NewGRPCTokenService(config *Config) (*GRPCTokenService, error) {
+	conn, err := grpc.Dial(config.Endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	tokenClient := pb.NewTokenClient(conn)
+	tokenClient := proto.NewTokenClient(conn)
 
 	return NewGRPCTokenServiceWithClient(tokenClient), nil
 }
 
-func NewGRPCTokenServiceWithClient(tokenClient pb.TokenClient) *GRPCTokenService {
+func NewGRPCTokenServiceWithClient(tokenClient proto.TokenClient) *GRPCTokenService {
 	return &GRPCTokenService{tokenClient: tokenClient}
 }
 
 func (s GRPCTokenService) GenerateToken(userID uint64, role string) (string, error) {
-	req := &pb.GenerateTokenRequest{
+	req := &proto.GenerateTokenRequest{
 		UserID: userID,
 		Role:   role,
 	}

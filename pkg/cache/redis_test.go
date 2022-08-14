@@ -53,6 +53,12 @@ var _ = Describe("Cache Suite", func() {
 			Expect(retrievedValue).To(Equal(value))
 		})
 
+		It("return empty string if key does not exist", func() {
+			retrievedValue, err := client.Get(context.Background(), key)
+			Expect(err).To(BeNil())
+			Expect(retrievedValue).To(BeEmpty())
+		})
+
 	})
 
 })

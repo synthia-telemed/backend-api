@@ -62,3 +62,18 @@ func (mr *MockPatientDataStoreMockRecorder) FindByID(id interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockPatientDataStore)(nil).FindByID), id)
 }
+
+// FindByRefID mocks base method.
+func (m *MockPatientDataStore) FindByRefID(refID string) (*datastore.Patient, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByRefID", refID)
+	ret0, _ := ret[0].(*datastore.Patient)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByRefID indicates an expected call of FindByRefID.
+func (mr *MockPatientDataStoreMockRecorder) FindByRefID(refID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByRefID", reflect.TypeOf((*MockPatientDataStore)(nil).FindByRefID), refID)
+}
