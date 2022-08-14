@@ -35,15 +35,11 @@ func NewRedisClient(config *Config) *RedisClient {
 }
 
 func (c RedisClient) Get(ctx context.Context, key string, getAndDelete bool) (string, error) {
-	var (
-		value string
-		err   error
-	)
+	getFunc := c.client.Get
 	if getAndDelete {
-		value, err = c.client.GetDel(ctx, key).Result()
-	} else {
-		value, err = c.client.Get(ctx, key).Result()
+		getFunc = c.client.GetDel
 	}
+	value, err := getFunc(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return "", nil
