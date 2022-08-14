@@ -27,6 +27,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	})
 
 	BeforeEach(func() {
+		rand.Seed(GinkgoRandomSeed())
 		var err error
 		patientDataStore, err = datastore.NewGormPatientDataStore(db)
 		Expect(err).To(BeNil())
@@ -46,17 +47,22 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 		})
 
 		It("should find user by ID", func() {
-			user := users[0]
+			user := getRandomUser(users)
 			foundUser, err := patientDataStore.FindByID(user.ID)
 			Expect(err).To(BeNil())
-			Expect(foundUser.ID).To(Equal(user.ID))
+			Expect(*foundUser).To(Equal(user))
+		})
+
+		It("should find user by RefID", func() {
+			user := getRandomUser(users)
+			foundUser, err := patientDataStore.FindByRefID(user.RefID)
+			Expect(err).To(BeNil())
+			Expect(*foundUser).To(Equal(user))
 		})
 	})
-
 })
 
 func generateUsers(num int) []datastore.Patient {
-	rand.Seed(GinkgoRandomSeed())
 	users := make([]datastore.Patient, num)
 	for i := 0; i < num; i++ {
 		users[i] = datastore.Patient{
@@ -64,4 +70,8 @@ func generateUsers(num int) []datastore.Patient {
 		}
 	}
 	return users
+}
+
+func getRandomUser(users []datastore.Patient) datastore.Patient {
+	return users[rand.Int()%len(users)]
 }
