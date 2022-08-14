@@ -101,7 +101,7 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{"OTP is invalid or expired"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{"OTP is invalid or expired"})
 		return
 	}
 

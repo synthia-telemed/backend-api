@@ -100,6 +100,35 @@ var _ = Describe("Auth Handler", func() {
 
 	})
 
+	Context("OTP Verification", func() {
+		BeforeEach(func() {
+			handlerFunc = h.VerifyOTP
+		})
+
+		When("request body is valid", func() {
+			BeforeEach(func() {
+				reqBody := strings.NewReader(`{"not-otp": "123456"}`)
+				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
+			})
+
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+
+		When("OTP is invalid or expired", func() {
+			BeforeEach(func() {
+				reqBody := strings.NewReader(`{"otp": "123456"}`)
+				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
+				mockCacheClient.EXPECT().Get(gomock.Any(), "123456", true).Return("", nil).Times(1)
+			})
+
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+	})
+
 	AfterEach(func() {
 		mockCtrl.Finish()
 	})
