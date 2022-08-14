@@ -92,7 +92,7 @@ var _ = Describe("Auth Handler", func() {
 
 			It("should return 201 with phone number", func() {
 				Expect(rec.Code).To(Equal(http.StatusCreated))
-				var res handler.LoginResponse
+				var res handler.SigninResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(BeNil())
 				Expect(res.PhoneNumber).To(Equal("081***3330"))
 			})

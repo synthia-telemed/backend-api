@@ -15,7 +15,7 @@ const (
 type BloodType string
 
 type Patient struct {
-	ID        uint64         `json:"id" gorm:"primarykey"`
+	ID        uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`

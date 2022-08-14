@@ -62,5 +62,6 @@ func main() {
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	authGroup := ginServer.Group("/api/auth")
 	authGroup.POST("/signin", authHandler.Signin)
+	authGroup.POST("/verify", authHandler.VerifyOTP)
 	ginServer.ListenAndServe()
 }
