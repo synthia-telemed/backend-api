@@ -111,7 +111,6 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
 		return
 	}
-	h.logger.Info(patient)
 
 	jws, err := h.tokenService.GenerateToken(uint64(patient.ID), "Patient")
 	if err != nil {
