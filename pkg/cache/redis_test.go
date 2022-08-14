@@ -44,17 +44,33 @@ var _ = Describe("Cache Suite", func() {
 			Expect(retrievedValue).To(Equal(value))
 		})
 
-		It("get the value", func() {
+		It("get the value and not delete", func() {
 			err := redis.Set(key, value)
 			Expect(err).To(BeNil())
 
-			retrievedValue, err := client.Get(context.Background(), key)
+			retrievedValue, err := client.Get(context.Background(), key, false)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
+
+			val, err := redis.Get(key)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(value))
+		})
+
+		It("get the value and delete", func() {
+			err := redis.Set(key, value)
+			Expect(err).To(BeNil())
+
+			retrievedValue, err := client.Get(context.Background(), key, true)
+			Expect(err).To(BeNil())
+			Expect(retrievedValue).To(Equal(value))
+
+			_, err = redis.Get(key)
+			Expect(err).To(Equal(miniredis.ErrKeyNotFound))
 		})
 
 		It("return empty string if key does not exist", func() {
-			retrievedValue, err := client.Get(context.Background(), key)
+			retrievedValue, err := client.Get(context.Background(), key, false)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(BeEmpty())
 		})
