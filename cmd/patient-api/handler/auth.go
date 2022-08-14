@@ -105,17 +105,11 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByRefID(refID)
+	patient := &datastore.Patient{RefID: refID}
+	err = h.patientDataStore.FindOrCreate(patient)
 	if err != nil {
 		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
 		return
-	}
-	if patient == nil {
-		patient = &datastore.Patient{RefID: refID}
-		if err := h.patientDataStore.Create(patient); err != nil {
-			InternalServerError(c, h.logger, err, "h.patientDataStore.Create error")
-			return
-		}
 	}
 	h.logger.Info(patient)
 
