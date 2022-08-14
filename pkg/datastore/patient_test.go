@@ -22,7 +22,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	BeforeAll(func() {
 		_ = godotenv.Load(".test.env")
 		var err error
-		db, err = gorm.Open(postgres.Open(os.Getenv("DATABASE_DSN")), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(os.Getenv("TEST_DATABASE_DSN")), &gorm.Config{})
 		Expect(err).To(BeNil())
 	})
 
