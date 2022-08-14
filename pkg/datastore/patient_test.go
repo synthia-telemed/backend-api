@@ -16,7 +16,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	var (
 		db               *gorm.DB
 		patientDataStore datastore.PatientDataStore
-		patients         []datastore.Patient
+		patients         []*datastore.Patient
 	)
 
 	BeforeAll(func() {
@@ -86,7 +86,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	When("Creating", func() {
 		It("should create patient", func() {
 			patient := generatePatient()
-			err := patientDataStore.Create(&patient)
+			err := patientDataStore.Create(patient)
 			Expect(err).To(BeNil())
 			Expect(patient.ID).ToNot(BeZero())
 
@@ -101,7 +101,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	When("FindOrCreate", func() {
 		It("should create patient", func() {
 			patient := generatePatient()
-			err := patientDataStore.FindOrCreate(&patient)
+			err := patientDataStore.FindOrCreate(patient)
 			Expect(err).To(BeNil())
 			Expect(patient.ID).ToNot(BeZero())
 
@@ -114,26 +114,26 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 
 		It("should found patient", func() {
 			patient := getRandomPatient(patients)
-			err := patientDataStore.FindOrCreate(&patient)
+			err := patientDataStore.FindOrCreate(patient)
 			Expect(err).To(BeNil())
 			Expect(patient.ID).ToNot(BeZero())
 		})
 	})
 })
 
-func generatePatient() datastore.Patient {
-	return datastore.Patient{RefID: fmt.Sprintf("HN-%d", rand.Uint32())}
+func generatePatient() *datastore.Patient {
+	return &datastore.Patient{RefID: fmt.Sprintf("HN-%d", rand.Uint32())}
 }
 
-func generatePatients(num int) []datastore.Patient {
-	users := make([]datastore.Patient, num)
+func generatePatients(num int) []*datastore.Patient {
+	users := make([]*datastore.Patient, num)
 	for i := 0; i < num; i++ {
 		users[i] = generatePatient()
 	}
 	return users
 }
 
-func getRandomPatient(users []datastore.Patient) datastore.Patient {
+func getRandomPatient(users []*datastore.Patient) *datastore.Patient {
 	return users[rand.Int()%len(users)]
 }
 
