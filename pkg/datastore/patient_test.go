@@ -2,14 +2,12 @@ package datastore_test
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"math/rand"
-	"os"
 )
 
 var _ = Describe("Patient Datastore", Ordered, func() {
@@ -20,9 +18,17 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		_ = godotenv.Load(".test.env")
 		var err error
-		db, err = gorm.Open(postgres.Open(os.Getenv("TEST_DATABASE_DSN")), &gorm.Config{})
+		config := datastore.Config{
+			Host:     "localhost",
+			Port:     5432,
+			User:     "postgres",
+			Password: "postgres",
+			Name:     "synthia",
+			SSLMode:  "disable",
+			TimeZone: "Asia/Bangkok",
+		}
+		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{})
 		Expect(err).To(BeNil())
 	})
 
