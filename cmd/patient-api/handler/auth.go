@@ -24,6 +24,12 @@ type AuthHandler struct {
 	tokenService      token.Service
 }
 
+var (
+	ErrInvalidRequestBody = ErrorResponse{Message: "Invalid request body"}
+	ErrPatientNotFound    = ErrorResponse{"Patient not found"}
+	ErrInvalidOTP         = ErrorResponse{"OTP is invalid or expired"}
+)
+
 func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, logger *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		patientDataStore:  patientDataStore,
@@ -43,10 +49,20 @@ type SigninResponse struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+// Signin godoc
+// @Summary      Start signing-in with government credential
+// @Description  Initiate auth process with government credential which will sent OTP to patient's phone number
+// @Tags         Auth
+// @Param 	  	 SigninRequest body SigninRequest true "Patient government credential (Passport ID or National ID)"
+// @Success      201  {object}  SigninResponse "OTP is sent to patient's phone number"
+// @Failure      400  {object}  ErrorResponse "Invalid request body"
+// @Failure      404  {object}  ErrorResponse "Provided credential is not in the hospital system"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Router       /auth/signin [post]
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -56,7 +72,7 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 	if patientInfo == nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{"Patient not found"})
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrPatientNotFound)
 		return
 	}
 
@@ -88,10 +104,20 @@ type VerifyOTPResponse struct {
 	Token string `json:"token"`
 }
 
+// VerifyOTP godoc
+// @Summary      Verify OTP and get token
+// @Description  Complete auth process with OTP verification. It will return token if verification success.
+// @Tags         Auth
+// @Param 	  	 VerifyOTPRequest body VerifyOTPRequest true "OTP that is sent to patient's phone number"
+// @Success      201  {object}  VerifyOTPResponse "JWS Token for later use"
+// @Failure      400  {object}  ErrorResponse "Invalid request body"
+// @Failure      400  {object}  ErrorResponse "OTP is invalid or expired"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Router       /auth/verify [post]
 func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	var req VerifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -101,7 +127,7 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{"OTP is invalid or expired"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidOTP)
 		return
 	}
 

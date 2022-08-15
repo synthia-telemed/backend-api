@@ -1,0 +1,159 @@
+{
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a Synthia patient backend API.",
+        "title": "Synthia Patient Backend API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/auth/signin": {
+            "post": {
+                "description": "Initiate auth process with government credential which will sent OTP to patient's phone number",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Start signing-in with government credential",
+                "parameters": [
+                    {
+                        "description": "Patient government credential (Passport ID or National ID)",
+                        "name": "SigninRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SigninRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "OTP is sent to patient's phone number",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SigninResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Provided credential is not in the hospital system",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verify": {
+            "post": {
+                "description": "Complete auth process with OTP verification. It will return token if verification success.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verify OTP and get token",
+                "parameters": [
+                    {
+                        "description": "OTP that is sent to patient's phone number",
+                        "name": "VerifyOTPRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.VerifyOTPRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "JWS Token for later use",
+                        "schema": {
+                            "$ref": "#/definitions/handler.VerifyOTPResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "OTP is invalid or expired",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SigninRequest": {
+            "type": "object",
+            "required": [
+                "credential"
+            ],
+            "properties": {
+                "credential": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SigninResponse": {
+            "type": "object",
+            "properties": {
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.VerifyOTPRequest": {
+            "type": "object",
+            "required": [
+                "otp"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.VerifyOTPResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "UserID": {
+            "type": "apiKey",
+            "name": "X-USER-ID",
+            "in": "header"
+        }
+    }
+}
