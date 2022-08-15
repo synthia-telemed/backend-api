@@ -77,7 +77,6 @@ func main() {
 	authGroup := ginServer.Group("/api/auth")
 	authGroup.POST("/signin", authHandler.Signin)
 	authGroup.POST("/verify", authHandler.VerifyOTP)
-
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
