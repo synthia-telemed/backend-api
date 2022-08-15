@@ -2,7 +2,10 @@ package main
 
 import (
 	"github.com/getsentry/sentry-go"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	_ "github.com/synthia-telemed/backend-api/docs"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -17,6 +20,17 @@ import (
 	"time"
 )
 
+// @title           Synthia Patient Backend API
+// @version         1.0.0
+// @description     This is a Synthia patient backend API.
+// @accept json
+// @produce json
+// @BasePath  /api
+
+// @securityDefinitions.apikey  UserID
+// @in                          header
+// @name                        X-USER-ID
+// @description					UserID that interacts with the API. Normally this header is set by Heimdall.
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -63,5 +77,7 @@ func main() {
 	authGroup := ginServer.Group("/api/auth")
 	authGroup.POST("/signin", authHandler.Signin)
 	authGroup.POST("/verify", authHandler.VerifyOTP)
+
+	ginServer.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
