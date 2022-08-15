@@ -78,6 +78,6 @@ func main() {
 	authGroup.POST("/signin", authHandler.Signin)
 	authGroup.POST("/verify", authHandler.VerifyOTP)
 
-	ginServer.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
