@@ -74,9 +74,8 @@ func main() {
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	authGroup := ginServer.Group("/api/auth")
-	authGroup.POST("/signin", authHandler.Signin)
-	authGroup.POST("/verify", authHandler.VerifyOTP)
+	apiGroup := ginServer.Group("/api")
+	authHandler.Register(apiGroup)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }

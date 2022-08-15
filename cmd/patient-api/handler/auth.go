@@ -41,6 +41,12 @@ func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospi
 	}
 }
 
+func (h AuthHandler) Register(r *gin.RouterGroup) {
+	authGroup := r.Group("/auth")
+	authGroup.POST("/signin", h.Signin)
+	authGroup.POST("/verify", h.VerifyOTP)
+}
+
 type SigninRequest struct {
 	Credential string `json:"credential" binding:"required"`
 }
