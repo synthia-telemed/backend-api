@@ -23,3 +23,6 @@ mockgen:
 
 gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml
+
+swagger:
+	swag init --dir cmd/patient-api --parseDependency --parseInternal

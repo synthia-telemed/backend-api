@@ -1,0 +1,105 @@
+basePath: /api
+consumes:
+- application/json
+definitions:
+  handler.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.SigninRequest:
+    properties:
+      credential:
+        type: string
+    required:
+    - credential
+    type: object
+  handler.SigninResponse:
+    properties:
+      phone_number:
+        type: string
+    type: object
+  handler.VerifyOTPRequest:
+    properties:
+      otp:
+        type: string
+    required:
+    - otp
+    type: object
+  handler.VerifyOTPResponse:
+    properties:
+      token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a Synthia patient backend API.
+  title: Synthia Patient Backend API
+  version: 1.0.0
+paths:
+  /auth/signin:
+    post:
+      description: Initiate auth process with government credential which will sent
+        OTP to patient's phone number
+      parameters:
+      - description: Patient government credential (Passport ID or National ID)
+        in: body
+        name: SigninRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SigninRequest'
+      responses:
+        "201":
+          description: OTP is sent to patient's phone number
+          schema:
+            $ref: '#/definitions/handler.SigninResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Provided credential is not in the hospital system
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Start signing-in with government credential
+      tags:
+      - Auth
+  /auth/verify:
+    post:
+      description: Complete auth process with OTP verification. It will return token
+        if verification success.
+      parameters:
+      - description: OTP that is sent to patient's phone number
+        in: body
+        name: VerifyOTPRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.VerifyOTPRequest'
+      responses:
+        "201":
+          description: JWS Token for later use
+          schema:
+            $ref: '#/definitions/handler.VerifyOTPResponse'
+        "400":
+          description: OTP is invalid or expired
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Verify OTP and get token
+      tags:
+      - Auth
+produces:
+- application/json
+securityDefinitions:
+  UserID:
+    in: header
+    name: X-USER-ID
+    type: apiKey
+swagger: "2.0"
