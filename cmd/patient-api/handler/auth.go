@@ -54,7 +54,7 @@ type SigninResponse struct {
 // @Description  Initiate auth process with government credential which will sent OTP to patient's phone number
 // @Tags         Auth
 // @Param 	  	 SigninRequest body SigninRequest true "Patient government credential (Passport ID or National ID)"
-// @Success      201  {object}  SigninResponse
+// @Success      201  {object}  SigninResponse "OTP is sent to patient's phone number"
 // @Failure      400  {object}  ErrorResponse "Invalid request body"
 // @Failure      404  {object}  ErrorResponse "Provided credential is not in the hospital system"
 // @Failure      500  {object}  ErrorResponse "Internal server error"
@@ -109,7 +109,7 @@ type VerifyOTPResponse struct {
 // @Description  Complete auth process with OTP verification. It will return token if verification success.
 // @Tags         Auth
 // @Param 	  	 VerifyOTPRequest body VerifyOTPRequest true "OTP that is sent to patient's phone number"
-// @Success      201  {object}  VerifyOTPResponse
+// @Success      201  {object}  VerifyOTPResponse "JWS Token for later use"
 // @Failure      400  {object}  ErrorResponse "Invalid request body"
 // @Failure      400  {object}  ErrorResponse "OTP is invalid or expired"
 // @Failure      500  {object}  ErrorResponse "Internal server error"

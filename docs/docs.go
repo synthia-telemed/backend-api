@@ -42,7 +42,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "OTP is sent to patient's phone number",
                         "schema": {
                             "$ref": "#/definitions/handler.SigninResponse"
                         }
@@ -88,7 +88,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "JWS Token for later use",
                         "schema": {
                             "$ref": "#/definitions/handler.VerifyOTPResponse"
                         }
