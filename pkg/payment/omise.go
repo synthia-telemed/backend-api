@@ -1,12 +1,12 @@
 package payment
 
 import (
-	"github.com/caarlos0/env/v6"
 	"github.com/omise/omise-go"
 	"github.com/omise/omise-go/operations"
 )
 
 type Client interface {
+	CreateCustomerWithCard(patientID uint, cardToken string) (string, error)
 }
 
 type Config struct {
@@ -18,11 +18,7 @@ type OmisePaymentClient struct {
 	client *omise.Client
 }
 
-func NewOmisePaymentClient() (*OmisePaymentClient, error) {
-	c := Config{}
-	if err := env.Parse(&c); err != nil {
-		return nil, err
-	}
+func NewOmisePaymentClient(c *Config) (*OmisePaymentClient, error) {
 	client, err := omise.NewClient(c.PublicKey, c.SecretKey)
 	if err != nil {
 		return nil, err
