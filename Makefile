@@ -9,6 +9,7 @@ unit-test:
 	ginkgo -r
 
 unit-test-local:
+	source ".env.test"
 	docker compose -f docker-compose.test.yml up -d
 	ginkgo -r
 	docker compose -f docker-compose.test.yml down
