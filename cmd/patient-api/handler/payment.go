@@ -66,5 +66,5 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.AbortWithStatus(http.StatusCreated)
 }
