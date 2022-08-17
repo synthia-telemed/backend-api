@@ -6,7 +6,7 @@ import (
 )
 
 type Client interface {
-	CreateCustomerWithCard(patientID uint, cardToken string) (string, error)
+	CreateCustomer(patientID uint) (string, error)
 }
 
 type Config struct {
@@ -26,9 +26,8 @@ func NewOmisePaymentClient(c *Config) (*OmisePaymentClient, error) {
 	return &OmisePaymentClient{client: client}, nil
 }
 
-func (c OmisePaymentClient) CreateCustomerWithCard(patientID uint, cardToken string) (string, error) {
+func (c OmisePaymentClient) CreateCustomer(patientID uint) (string, error) {
 	customer, createCustomer := &omise.Customer{}, &operations.CreateCustomer{
-		Card: cardToken,
 		Metadata: map[string]interface{}{
 			"patient_id": patientID,
 		},

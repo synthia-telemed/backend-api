@@ -28,7 +28,7 @@ var _ = Describe("Omise Payment Client", func() {
 		Expect(err).To(BeNil())
 	})
 
-	Context("Create customer with card", func() {
+	Context("Create customer", func() {
 		var (
 			token          *omise.Token
 			createTokenOps *operations.CreateToken
@@ -49,7 +49,7 @@ var _ = Describe("Omise Payment Client", func() {
 			Expect(err).To(BeNil())
 		})
 		It("should create Omise's customer", func() {
-			cusID, err := paymentClient.CreateCustomerWithCard(1, token.ID)
+			cusID, err := paymentClient.CreateCustomer(1)
 			Expect(err).To(BeNil())
 			Expect(cusID).ToNot(BeEmpty())
 			Expect(cusID).To(MatchRegexp("cust(_test)?_[0-9a-z]+"))
