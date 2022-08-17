@@ -16,11 +16,12 @@ const (
 type BloodType string
 
 type Patient struct {
-	ID        uint           `json:"id" gorm:"autoIncrement,primaryKey"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	RefID     string         `json:"refID" gorm:"unique"`
+	ID                uint           `json:"id" gorm:"autoIncrement,primaryKey"`
+	CreatedAt         time.Time      `json:"createdAt"`
+	UpdatedAt         time.Time      `json:"updatedAt"`
+	DeletedAt         gorm.DeletedAt `gorm:"index"`
+	RefID             string         `json:"refID" gorm:"unique"`
+	PaymentCustomerID *string        `gorm:"unique"`
 	//BirthDate   time.Time      `json:"birthDate"`
 	//BloodType   BloodType      `json:"bloodType"`
 	//FirstnameEn string         `json:"firstname_en"`
@@ -42,6 +43,7 @@ type PatientDataStore interface {
 	FindByID(id uint) (*Patient, error)
 	FindByRefID(refID string) (*Patient, error)
 	FindOrCreate(patient *Patient) error
+	Save(patient *Patient) error
 	//FindByGovCredential(nationalID string) (*Patient, error)
 }
 
@@ -81,6 +83,10 @@ func (g GormPatientDataStore) FindByRefID(refID string) (*Patient, error) {
 
 func (g GormPatientDataStore) FindOrCreate(patient *Patient) error {
 	return g.db.FirstOrCreate(patient, patient).Error
+}
+
+func (g GormPatientDataStore) Save(patient *Patient) error {
+	return g.db.Save(patient).Error
 }
 
 //func (g GormPatientDataStore) FindByGovCredential(cred string) (*Patient, error) {

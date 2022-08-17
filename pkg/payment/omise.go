@@ -5,10 +5,6 @@ import (
 	"github.com/omise/omise-go/operations"
 )
 
-type Client interface {
-	CreateCustomerWithCard(patientID uint, cardToken string) (string, error)
-}
-
 type Config struct {
 	PublicKey string `env:"OMISE_PUBLIC_KEY,required"`
 	SecretKey string `env:"OMISE_SECRET_KEY,required"`
@@ -26,9 +22,8 @@ func NewOmisePaymentClient(c *Config) (*OmisePaymentClient, error) {
 	return &OmisePaymentClient{client: client}, nil
 }
 
-func (c OmisePaymentClient) CreateCustomerWithCard(patientID uint, cardToken string) (string, error) {
+func (c OmisePaymentClient) CreateCustomer(patientID uint) (string, error) {
 	customer, createCustomer := &omise.Customer{}, &operations.CreateCustomer{
-		Card: cardToken,
 		Metadata: map[string]interface{}{
 			"patient_id": patientID,
 		},
@@ -37,4 +32,12 @@ func (c OmisePaymentClient) CreateCustomerWithCard(patientID uint, cardToken str
 		return "", err
 	}
 	return customer.ID, nil
+}
+
+func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) error {
+	addCardOps := &operations.UpdateCustomer{
+		CustomerID: customerID,
+		Card:       cardToken,
+	}
+	return c.client.Do(nil, addCardOps)
 }

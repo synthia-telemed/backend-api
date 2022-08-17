@@ -113,6 +113,22 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 			Expect(patient.ID).ToNot(BeZero())
 		})
 	})
+
+	When("Updating", func() {
+		It("should update patient", func() {
+			patient := getRandomPatient(patients)
+			patient.RefID = "updated-ref-id"
+			err := patientDataStore.Save(patient)
+			Expect(err).To(BeNil())
+			Expect(patient.ID).ToNot(BeZero())
+
+			var foundPatient datastore.Patient
+			err = db.First(&foundPatient, patient.ID).Error
+			Expect(err).To(BeNil())
+			Expect(foundPatient.ID).To(Equal(patient.ID))
+			Expect(foundPatient.RefID).To(Equal(patient.RefID))
+		})
+	})
 })
 
 func generatePatient() *datastore.Patient {
