@@ -91,3 +91,17 @@ func (mr *MockPatientDataStoreMockRecorder) FindOrCreate(patient interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOrCreate", reflect.TypeOf((*MockPatientDataStore)(nil).FindOrCreate), patient)
 }
+
+// Save mocks base method.
+func (m *MockPatientDataStore) Save(patient *datastore.Patient) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", patient)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Save indicates an expected call of Save.
+func (mr *MockPatientDataStoreMockRecorder) Save(patient interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockPatientDataStore)(nil).Save), patient)
+}
