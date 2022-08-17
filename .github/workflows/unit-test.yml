@@ -47,3 +47,4 @@ jobs:
       env: 
         OMISE_PUBLIC_KEY: ${{ secrets.OMISE_PUBLIC_KEY }}
         OMISE_SECRET_KEY: ${{ secrets.OMISE_SECRET_KEY }}
+        HOSPITAL_SYS_ENDPOINT: "https://hospital-mock.synthia.tech/graphql"
