@@ -24,12 +24,6 @@ type AuthHandler struct {
 	tokenService      token.Service
 }
 
-var (
-	ErrInvalidRequestBody = ErrorResponse{Message: "Invalid request body"}
-	ErrPatientNotFound    = ErrorResponse{"Patient not found"}
-	ErrInvalidOTP         = ErrorResponse{"OTP is invalid or expired"}
-)
-
 func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, logger *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		patientDataStore:  patientDataStore,
