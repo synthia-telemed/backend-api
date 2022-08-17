@@ -41,3 +41,20 @@ func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) error {
 	}
 	return c.client.Do(nil, addCardOps)
 }
+
+func (c OmisePaymentClient) ListCards(customerID string) ([]Card, error) {
+	omiseCards, listCardsOps := &omise.CardList{}, &operations.ListCards{CustomerID: customerID}
+	listCardsOps.Order = omise.ReverseChronological
+	if err := c.client.Do(omiseCards, listCardsOps); err != nil {
+		return nil, err
+	}
+	cards := make([]Card, omiseCards.Total)
+	for i, c := range omiseCards.Data {
+		cards[i] = Card{
+			ID:         c.ID,
+			LastDigits: c.LastDigits,
+			Brand:      c.Brand,
+		}
+	}
+	return cards, nil
+}
