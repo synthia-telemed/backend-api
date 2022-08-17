@@ -6,6 +6,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"github.com/synthia-telemed/backend-api/pkg/token"
 )
@@ -21,6 +22,7 @@ type Config struct {
 	HospitalClient hospital.Config
 	Cache          cache.Config
 	Token          token.Config
+	Payment        payment.Config
 }
 
 func Load() (*Config, error) {

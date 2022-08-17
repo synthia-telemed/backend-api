@@ -11,6 +11,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
+	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"github.com/synthia-telemed/backend-api/pkg/token"
@@ -69,13 +70,20 @@ func main() {
 		sentry.CaptureException(err)
 		sugaredLogger.Fatalw("Failed to create token service", "error", err)
 	}
+	paymentClient, err := payment.NewOmisePaymentClient(&cfg.Payment)
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to create payment client", "error", err)
+	}
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
+	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	apiGroup := ginServer.Group("/api")
 	authHandler.Register(apiGroup)
+	paymentHandler.Register(apiGroup)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }

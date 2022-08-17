@@ -23,10 +23,10 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 	}
 }
 
-//func (h PaymentHandler) Register(r *gin.RouterGroup) {
-//	paymentGroup := r.Group("/payment")
-//	paymentGroup.POST("/credit-card", h.Pay)
-//}
+func (h PaymentHandler) Register(r *gin.RouterGroup) {
+	paymentGroup := r.Group("/payment")
+	paymentGroup.POST("/credit-card", h.AddCreditCard)
+}
 
 type AddCreditCardRequest struct {
 	CardToken string `json:"card_token" binding:"required"`
