@@ -53,8 +53,17 @@ var _ = Describe("Payment Handler", func() {
 	})
 
 	Context("Add credit card", func() {
+		var (
+			patient   *datastore.Patient
+			cardToken string
+		)
+
 		BeforeEach(func() {
 			handlerFunc = h.AddCreditCard
+			cardToken = "token"
+			patient = &datastore.Patient{PaymentCustomerID: nil}
+			reqBody := strings.NewReader(fmt.Sprintf(`{"card_token": "%s"}`, cardToken))
+			c.Request = httptest.NewRequest("POST", "/", reqBody)
 		})
 
 		When("card_token is not present in request body", func() {
@@ -66,16 +75,17 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 
-		Context("haven't added any credit card", func() {
-			var (
-				patient   *datastore.Patient
-				cardToken string
-			)
+		When("find patient by id error", func() {
 			BeforeEach(func() {
-				cardToken = "token"
-				patient = &datastore.Patient{PaymentCustomerID: nil}
-				reqBody := strings.NewReader(fmt.Sprintf(`{"card_token": "%s"}`, cardToken))
-				c.Request = httptest.NewRequest("POST", "/", reqBody)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("error")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		Context("haven't added any credit card", func() {
+			BeforeEach(func() {
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
 			})
 
@@ -111,5 +121,15 @@ var _ = Describe("Payment Handler", func() {
 				})
 			})
 		})
+
+		//Context("already added credit card", func() {
+		//	var (
+		//		patient   *datastore.Patient
+		//		cardToken string
+		//	)
+		//	BeforeEach(func() {
+		//		mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
+		//	})
+		//})
 	})
 })
