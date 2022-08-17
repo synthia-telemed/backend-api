@@ -5,11 +5,6 @@ import (
 	"github.com/omise/omise-go/operations"
 )
 
-type Client interface {
-	CreateCustomer(patientID uint) (string, error)
-	AddCreditCard(customerID, cardToken string) error
-}
-
 type Config struct {
 	PublicKey string `env:"OMISE_PUBLIC_KEY,required"`
 	SecretKey string `env:"OMISE_SECRET_KEY,required"`
