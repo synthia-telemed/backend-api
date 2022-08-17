@@ -7,6 +7,7 @@ import (
 
 type Client interface {
 	CreateCustomer(patientID uint) (string, error)
+	AddCreditCard(customerID, cardToken string) error
 }
 
 type Config struct {
@@ -36,4 +37,12 @@ func (c OmisePaymentClient) CreateCustomer(patientID uint) (string, error) {
 		return "", err
 	}
 	return customer.ID, nil
+}
+
+func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) error {
+	addCardOps := &operations.UpdateCustomer{
+		CustomerID: customerID,
+		Card:       cardToken,
+	}
+	return c.client.Do(nil, addCardOps)
 }
