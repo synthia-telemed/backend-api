@@ -108,7 +108,7 @@ var _ = Describe("Payment Handler", func() {
 				})
 			})
 
-			When("no error", func() {
+			When("successfully added credit card", func() {
 				BeforeEach(func() {
 					cusID := "cus_id"
 					p := &datastore.Patient{PaymentCustomerID: &cusID}
@@ -131,6 +131,18 @@ var _ = Describe("Payment Handler", func() {
 			})
 			It("should return 201", func() {
 				Expect(rec.Code).To(Equal(http.StatusCreated))
+			})
+		})
+
+		When("add credit card error", func() {
+			BeforeEach(func() {
+				cusID := "cus_id"
+				p := &datastore.Patient{PaymentCustomerID: &cusID}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+				mockPaymentClient.EXPECT().AddCreditCard(cusID, cardToken).Return(errors.New("error")).Times(1)
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
 	})
