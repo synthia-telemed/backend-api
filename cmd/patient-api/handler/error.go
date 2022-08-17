@@ -12,7 +12,7 @@ var (
 	ErrPatientNotFound    = ErrorResponse{"Patient not found"}
 	ErrInvalidOTP         = ErrorResponse{"OTP is invalid or expired"}
 	// Payment
-	ErrMissingPatientID      = ErrorResponse{Message: "Missing patient ID"}
+
 	ErrFailedToAddCreditCard = ErrorResponse{Message: "Failed to add credit card"}
 )
 

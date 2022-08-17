@@ -2,11 +2,11 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"go.uber.org/zap"
 	"net/http"
-	"strconv"
 )
 
 type PaymentHandler struct {
@@ -24,7 +24,7 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 }
 
 func (h PaymentHandler) Register(r *gin.RouterGroup) {
-	paymentGroup := r.Group("/payment")
+	paymentGroup := r.Group("/payment", middleware.ParsePatientID)
 	paymentGroup.POST("/credit-card", h.AddCreditCard)
 }
 
@@ -33,13 +33,8 @@ type AddCreditCardRequest struct {
 }
 
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
-	patientID, err := getPatientID(c)
-	if err != nil {
-		InternalServerError(c, h.logger, err, "getPatientID error")
-		return
-	} else if patientID == 0 {
-		return
-	}
+	id, _ := c.Get("patientID")
+	patientID := id.(uint)
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -72,17 +67,4 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	}
 
 	c.Status(http.StatusCreated)
-}
-
-func getPatientID(c *gin.Context) (uint, error) {
-	id := c.GetHeader("X-USER-ID")
-	if id == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrMissingPatientID)
-		return 0, nil
-	}
-	uintID, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
-		return 0, err
-	}
-	return uint(uintID), nil
 }
