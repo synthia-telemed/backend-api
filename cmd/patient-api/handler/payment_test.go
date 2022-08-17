@@ -34,7 +34,6 @@ var _ = Describe("Payment Handler", func() {
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		rec = httptest.NewRecorder()
-		gin.SetMode(gin.TestMode)
 		c, _ = gin.CreateTestContext(rec)
 		patientID = uint(rand.Uint32())
 		c.Set("patientID", patientID)

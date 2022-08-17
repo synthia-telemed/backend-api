@@ -19,7 +19,6 @@ var _ = Describe("Parser Middleware", func() {
 
 	BeforeEach(func() {
 		rec = httptest.NewRecorder()
-		gin.SetMode(gin.TestMode)
 		c, _ = gin.CreateTestContext(rec)
 		c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
 		handlerFunc = middleware.ParsePatientID
