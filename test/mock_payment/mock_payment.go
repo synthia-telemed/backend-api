@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	payment "github.com/synthia-telemed/backend-api/pkg/payment"
 )
 
 // MockClient is a mock of Client interface.
@@ -60,4 +61,19 @@ func (m *MockClient) CreateCustomer(patientID uint) (string, error) {
 func (mr *MockClientMockRecorder) CreateCustomer(patientID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomer", reflect.TypeOf((*MockClient)(nil).CreateCustomer), patientID)
+}
+
+// ListCards mocks base method.
+func (m *MockClient) ListCards(customerID string) ([]payment.Card, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListCards", customerID)
+	ret0, _ := ret[0].([]payment.Card)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCards indicates an expected call of ListCards.
+func (mr *MockClientMockRecorder) ListCards(customerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCards", reflect.TypeOf((*MockClient)(nil).ListCards), customerID)
 }
