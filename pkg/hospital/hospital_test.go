@@ -2,6 +2,7 @@ package hospital_test
 
 import (
 	"context"
+	"github.com/caarlos0/env/v6"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -16,10 +17,10 @@ var _ = Describe("Hospital Client", func() {
 	)
 
 	BeforeEach(func() {
+		var c hospital.Config
+		Expect(env.Parse(&c)).To(BeNil())
 		mockCtrl = gomock.NewController(GinkgoT())
-		graphQLClient = hospital.NewGraphQLClient(&hospital.Config{
-			HospitalSysEndpoint: "https://hospital-mock.synthia.tech/graphql",
-		})
+		graphQLClient = hospital.NewGraphQLClient(&c)
 	})
 
 	AfterEach(func() {
