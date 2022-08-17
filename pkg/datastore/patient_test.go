@@ -2,6 +2,7 @@ package datastore_test
 
 import (
 	"fmt"
+	"github.com/caarlos0/env/v6"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -20,15 +21,8 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		config := datastore.Config{
-			Host:     "localhost",
-			Port:     5432,
-			User:     "postgres",
-			Password: "postgres",
-			Name:     "synthia",
-			SSLMode:  "disable",
-			TimeZone: "Asia/Bangkok",
-		}
+		var config datastore.Config
+		Expect(env.Parse(&config)).To(BeNil())
 		var err error
 		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
