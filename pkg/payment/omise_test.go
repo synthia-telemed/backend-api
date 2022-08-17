@@ -66,6 +66,27 @@ var _ = Describe("Omise Payment Client", func() {
 			Expect(customer.Cards.Total).To(Equal(1))
 		})
 	})
+
+	Context("List cards", func() {
+		var n int
+		BeforeEach(func() {
+			n = 3
+			for i := 0; i < n; i++ {
+				t := createCardToken(client)
+				attachCardToCustomer(client, testCustomerID, t)
+			}
+		})
+		It("should list cards of Omise's customer", func() {
+			cards, err := paymentClient.ListCards(testCustomerID)
+			Expect(err).To(BeNil())
+			Expect(len(cards)).To(Equal(n))
+			for _, c := range cards {
+				Expect(c).To(HaveExistingField("ID"))
+				Expect(c).To(HaveExistingField("LastDigits"))
+				Expect(c).To(HaveExistingField("Brand"))
+			}
+		})
+	})
 })
 
 func createCardToken(client *omise.Client) string {
@@ -78,8 +99,7 @@ func createCardToken(client *omise.Client) string {
 		City:            "Bangkok",
 		PostalCode:      "10500",
 	}
-	err := client.Do(token, createTokenOps)
-	Expect(err).To(BeNil())
+	Expect(client.Do(token, createTokenOps)).To(Succeed())
 	return token.ID
 }
 
@@ -92,13 +112,19 @@ func createCustomer(client *omise.Client) string {
 			"testing_customer": true,
 		},
 	}
-	err := client.Do(customer, createCustomerOps)
-	Expect(err).To(BeNil())
+	Expect(client.Do(customer, createCustomerOps)).To(Succeed())
 	return customer.ID
 }
 
 func deleteCustomer(client *omise.Client, customerID string) {
 	deleteCustomerOps := &operations.DestroyCustomer{CustomerID: customerID}
-	err := client.Do(nil, deleteCustomerOps)
-	Expect(err).To(BeNil())
+	Expect(client.Do(nil, deleteCustomerOps)).To(Succeed())
+}
+
+func attachCardToCustomer(client *omise.Client, customerID, cardToken string) {
+	addCardOps := &operations.UpdateCustomer{
+		CustomerID: customerID,
+		Card:       cardToken,
+	}
+	Expect(client.Do(nil, addCardOps)).To(Succeed())
 }
