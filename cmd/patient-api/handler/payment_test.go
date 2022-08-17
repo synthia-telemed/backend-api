@@ -122,14 +122,16 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 
-		//Context("already added credit card", func() {
-		//	var (
-		//		patient   *datastore.Patient
-		//		cardToken string
-		//	)
-		//	BeforeEach(func() {
-		//		mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
-		//	})
-		//})
+		When("already added credit card", func() {
+			BeforeEach(func() {
+				cusID := "cus_id"
+				p := &datastore.Patient{PaymentCustomerID: &cusID}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+				mockPaymentClient.EXPECT().AddCreditCard(cusID, cardToken).Return(nil).Times(1)
+			})
+			It("should return 201", func() {
+				Expect(rec.Code).To(Equal(http.StatusCreated))
+			})
+		})
 	})
 })
