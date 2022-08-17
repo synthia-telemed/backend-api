@@ -18,7 +18,7 @@ var _ = Describe("Hospital Client", func() {
 
 	BeforeEach(func() {
 		var c hospital.Config
-		Expect(env.Parse(&c)).To(BeNil())
+		Expect(env.Parse(&c)).To(Succeed())
 		mockCtrl = gomock.NewController(GinkgoT())
 		graphQLClient = hospital.NewGraphQLClient(&c)
 	})

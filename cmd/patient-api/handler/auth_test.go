@@ -92,7 +92,7 @@ var _ = Describe("Auth Handler", func() {
 			It("should return 201 with phone number", func() {
 				Expect(rec.Code).To(Equal(http.StatusCreated))
 				var res handler.SigninResponse
-				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(BeNil())
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.PhoneNumber).To(Equal("081***3330"))
 			})
 		})
@@ -139,8 +139,7 @@ var _ = Describe("Auth Handler", func() {
 			It("should return 201 with token", func() {
 				Expect(rec.Code).To(Equal(http.StatusCreated))
 				var res handler.VerifyOTPResponse
-				err := json.Unmarshal(rec.Body.Bytes(), &res)
-				Expect(err).To(BeNil())
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Token).To(Equal("token"))
 			})
 		})

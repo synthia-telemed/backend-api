@@ -36,8 +36,7 @@ var _ = Describe("Cache Suite", func() {
 		})
 
 		It("set the value", func() {
-			err := client.Set(context.Background(), key, value, 0)
-			Expect(err).To(BeNil())
+			Expect(client.Set(context.Background(), key, value, 0)).To(Succeed())
 
 			retrievedValue, err := redis.Get(key)
 			Expect(err).To(BeNil())
@@ -45,8 +44,7 @@ var _ = Describe("Cache Suite", func() {
 		})
 
 		It("get the value and not delete", func() {
-			err := redis.Set(key, value)
-			Expect(err).To(BeNil())
+			Expect(redis.Set(key, value)).To(Succeed())
 
 			retrievedValue, err := client.Get(context.Background(), key, false)
 			Expect(err).To(BeNil())
@@ -58,8 +56,7 @@ var _ = Describe("Cache Suite", func() {
 		})
 
 		It("get the value and delete", func() {
-			err := redis.Set(key, value)
-			Expect(err).To(BeNil())
+			Expect(redis.Set(key, value)).To(Succeed())
 
 			retrievedValue, err := client.Get(context.Background(), key, true)
 			Expect(err).To(BeNil())
