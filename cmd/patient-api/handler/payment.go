@@ -26,6 +26,8 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup := r.Group("/payment", middleware.ParsePatientID)
 	paymentGroup.POST("/credit-card", h.AddCreditCard)
+	paymentGroup.GET("/credit-card", h.GetCreditCards)
+
 }
 
 type AddCreditCardRequest struct {
@@ -67,4 +69,26 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	}
 
 	c.AbortWithStatus(http.StatusCreated)
+}
+
+func (h PaymentHandler) GetCreditCards(c *gin.Context) {
+	id, _ := c.Get("patientID")
+	patientID := id.(uint)
+
+	patient, err := h.patientDataStore.FindByID(patientID)
+	if err != nil {
+		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		return
+	}
+	if patient.PaymentCustomerID == nil {
+		c.JSON(http.StatusOK, []payment.Card{})
+		return
+	}
+
+	cards, err := h.paymentClient.ListCards(*patient.PaymentCustomerID)
+	if err != nil {
+		InternalServerError(c, h.logger, err, "h.paymentClient.ListCards error")
+		return
+	}
+	c.JSON(http.StatusOK, cards)
 }

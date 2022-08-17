@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_payment"
 	"go.uber.org/zap"
@@ -32,6 +34,7 @@ var _ = Describe("Payment Handler", func() {
 	)
 
 	BeforeEach(func() {
+		rand.Seed(GinkgoRandomSeed())
 		mockCtrl = gomock.NewController(GinkgoT())
 		rec = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(rec)
@@ -145,4 +148,72 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 	})
+
+	Context("Get patient's credit cards", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetCreditCards
+			c.Request = httptest.NewRequest("GET", "/", nil)
+		})
+
+		When("find patient by id error", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("error")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("patient has no credit cards", func() {
+			BeforeEach(func() {
+				patient := &datastore.Patient{PaymentCustomerID: nil}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
+			})
+			It("should return 200 with empty list", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				Expect(rec.Body.String()).To(Equal(`[]`))
+			})
+		})
+
+		When("patient has at least one credit card", func() {
+			var cards []payment.Card
+			BeforeEach(func() {
+				cards = generatePaymentCard(3)
+				cusID := "cus_id"
+				patient := &datastore.Patient{PaymentCustomerID: &cusID}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
+				mockPaymentClient.EXPECT().ListCards(cusID).Return(cards, nil)
+			})
+			It("should return 200 with list of cards", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var c []payment.Card
+				Expect(json.Unmarshal(rec.Body.Bytes(), &c)).To(Succeed())
+				Expect(c).To(Equal(cards))
+			})
+		})
+
+		When("payment client error when getting list of cards", func() {
+			BeforeEach(func() {
+				cusID := "cus_id"
+				patient := &datastore.Patient{PaymentCustomerID: &cusID}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
+				mockPaymentClient.EXPECT().ListCards(cusID).Return(nil, errors.New("error"))
+			})
+			It("should return 200 with list of cards", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+	})
 })
+
+func generatePaymentCard(n int) []payment.Card {
+	cards := make([]payment.Card, n)
+	for i := 0; i < n; i++ {
+		cards[i] = payment.Card{
+			ID:         fmt.Sprintf("id-%d", rand.Int()),
+			LastDigits: fmt.Sprintf("%d", rand.Intn(10000)),
+			Brand:      "Visa",
+		}
+	}
+	return cards
+}
