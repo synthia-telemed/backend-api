@@ -14,6 +14,7 @@ type Card struct {
 	ID         string `json:"id"`
 	LastDigits string `json:"last_digits"`
 	Brand      string `json:"brand"`
+	Default    bool   `json:"default"`
 }
 
 type Payment struct {
