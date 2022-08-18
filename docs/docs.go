@@ -254,6 +254,9 @@ const docTemplate = `{
                 "brand": {
                     "type": "string"
                 },
+                "default": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
