@@ -113,6 +113,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "UserID": []
+                    },
+                    {
+                        "JWSToken": []
                     }
                 ],
                 "tags": [
@@ -147,6 +150,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "UserID": []
+                    },
+                    {
+                        "JWSToken": []
                     }
                 ],
                 "tags": [
@@ -267,6 +273,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "JWSToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
         "UserID": {
             "type": "apiKey",
             "name": "X-USER-ID",
@@ -279,7 +290,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "/patient/api",
 	Schemes:          []string{},
 	Title:            "Synthia Patient Backend API",
 	Description:      "This is a Synthia patient backend API.",

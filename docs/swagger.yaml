@@ -1,4 +1,4 @@
-basePath: /api
+basePath: /patient/api
 consumes:
 - application/json
 definitions:
@@ -132,6 +132,7 @@ paths:
             $ref: '#/definitions/handler.ErrorResponse'
       security:
       - UserID: []
+      - JWSToken: []
       summary: Get lists of saved credit cards
       tags:
       - Payment
@@ -160,12 +161,17 @@ paths:
             $ref: '#/definitions/handler.ErrorResponse'
       security:
       - UserID: []
+      - JWSToken: []
       summary: Add new credit card
       tags:
       - Payment
 produces:
 - application/json
 securityDefinitions:
+  JWSToken:
+    in: header
+    name: Authorization
+    type: apiKey
   UserID:
     in: header
     name: X-USER-ID
