@@ -26,7 +26,7 @@ import (
 // @description     This is a Synthia patient backend API.
 // @accept json
 // @produce json
-// @BasePath  /api
+// @BasePath  /patient/api
 
 // @securityDefinitions.apikey  UserID
 // @in                          header

@@ -290,7 +290,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "/patient/api",
 	Schemes:          []string{},
 	Title:            "Synthia Patient Backend API",
 	Description:      "This is a Synthia patient backend API.",
