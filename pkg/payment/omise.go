@@ -58,3 +58,24 @@ func (c OmisePaymentClient) ListCards(customerID string) ([]Card, error) {
 	}
 	return cards, nil
 }
+
+func (c OmisePaymentClient) PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error) {
+	charge, createChargeOps := &omise.Charge{}, &operations.CreateCharge{
+		Customer:    customerID,
+		Card:        cardID,
+		Amount:      int64(amount),
+		Currency:    "THB",
+		DontCapture: false,
+		Metadata:    map[string]interface{}{"ref_id": refID},
+	}
+	if err := c.client.Do(charge, createChargeOps); err != nil {
+		return nil, err
+	}
+	return &Payment{
+		ID:        charge.ID,
+		Amount:    int(charge.Amount),
+		Currency:  charge.Currency,
+		CreatedAt: charge.Created,
+		Paid:      charge.Paid,
+	}, nil
+}
