@@ -45,4 +45,7 @@ jobs:
     - name: Run unit tests
       run: make unit-test
       env: 
-        TEST_DATABASE_DSN: ${{ secrets.TEST_DATABASE_DSN }}
+        GIN_MODE: test
+        OMISE_PUBLIC_KEY: ${{ secrets.OMISE_PUBLIC_KEY }}
+        OMISE_SECRET_KEY: ${{ secrets.OMISE_SECRET_KEY }}
+        HOSPITAL_SYS_ENDPOINT: "https://hospital-mock.synthia.tech/graphql"

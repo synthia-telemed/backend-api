@@ -13,6 +13,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.4.0
 	github.com/matoous/go-nanoid v1.5.0
+	github.com/omise/omise-go v1.0.8
 	github.com/onsi/ginkgo/v2 v2.1.4
 	github.com/onsi/gomega v1.20.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a

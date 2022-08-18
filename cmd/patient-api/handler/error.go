@@ -7,6 +7,15 @@ import (
 	"net/http"
 )
 
+var (
+	ErrInvalidRequestBody = ErrorResponse{Message: "Invalid request body"}
+	ErrPatientNotFound    = ErrorResponse{"Patient not found"}
+	ErrInvalidOTP         = ErrorResponse{"OTP is invalid or expired"}
+	// Payment
+
+	ErrFailedToAddCreditCard = ErrorResponse{Message: "Failed to add credit card"}
+)
+
 type ErrorResponse struct {
 	Message string `json:"message"`
 }

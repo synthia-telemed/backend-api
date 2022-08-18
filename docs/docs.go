@@ -107,9 +107,101 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/payment/credit-card": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Get lists of saved credit cards",
+                "responses": {
+                    "200": {
+                        "description": "List of saved cards",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/payment.Card"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Add new credit card",
+                "parameters": [
+                    {
+                        "description": "Token from Omise",
+                        "name": "AddCreditCardRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AddCreditCardRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Failed to add credit card",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.AddCreditCardRequest": {
+            "type": "object",
+            "required": [
+                "card_token"
+            ],
+            "properties": {
+                "card_token": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -152,6 +244,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "payment.Card": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_digits": {
                     "type": "string"
                 }
             }

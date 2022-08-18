@@ -2,6 +2,13 @@ basePath: /api
 consumes:
 - application/json
 definitions:
+  handler.AddCreditCardRequest:
+    properties:
+      card_token:
+        type: string
+    required:
+    - card_token
+    type: object
   handler.ErrorResponse:
     properties:
       message:
@@ -29,6 +36,17 @@ definitions:
   handler.VerifyOTPResponse:
     properties:
       token:
+        type: string
+    type: object
+  payment.Card:
+    properties:
+      brand:
+        type: string
+      default:
+        type: boolean
+      id:
+        type: string
+      last_digits:
         type: string
     type: object
 info:
@@ -95,6 +113,56 @@ paths:
       summary: Verify OTP and get token
       tags:
       - Auth
+  /payment/credit-card:
+    get:
+      responses:
+        "200":
+          description: List of saved cards
+          schema:
+            items:
+              $ref: '#/definitions/payment.Card'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - UserID: []
+      summary: Get lists of saved credit cards
+      tags:
+      - Payment
+    post:
+      parameters:
+      - description: Token from Omise
+        in: body
+        name: AddCreditCardRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddCreditCardRequest'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed to add credit card
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - UserID: []
+      summary: Add new credit card
+      tags:
+      - Payment
 produces:
 - application/json
 securityDefinitions:
