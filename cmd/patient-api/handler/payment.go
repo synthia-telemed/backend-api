@@ -34,6 +34,17 @@ type AddCreditCardRequest struct {
 	CardToken string `json:"card_token" binding:"required"`
 }
 
+// AddCreditCard godoc
+// @Summary      Add new credit card
+// @Tags         Payment
+// @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token from Omise"
+// @Success      201
+// @Failure      400  {object}  ErrorResponse "Invalid request body"
+// @Failure      400  {object}  ErrorResponse "Failed to add credit card"
+// @Failure      401  {object}  ErrorResponse "Unauthorized"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Security     UserID
+// @Router       /payment/credit-card [post]
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	id, _ := c.Get("patientID")
 	patientID := id.(uint)
@@ -71,6 +82,14 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	c.AbortWithStatus(http.StatusCreated)
 }
 
+// GetCreditCards godoc
+// @Summary      Get lists of saved credit cards
+// @Tags         Payment
+// @Success      200  {array}   payment.Card  "List of saved cards"
+// @Failure      401  {object}  ErrorResponse "Unauthorized"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Security     UserID
+// @Router       /payment/credit-card [get]
 func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 	id, _ := c.Get("patientID")
 	patientID := id.(uint)
