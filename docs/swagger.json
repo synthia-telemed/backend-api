@@ -105,6 +105,9 @@
                 "security": [
                     {
                         "UserID": []
+                    },
+                    {
+                        "JWSToken": []
                     }
                 ],
                 "tags": [
@@ -139,6 +142,9 @@
                 "security": [
                     {
                         "UserID": []
+                    },
+                    {
+                        "JWSToken": []
                     }
                 ],
                 "tags": [
@@ -259,6 +265,11 @@
         }
     },
     "securityDefinitions": {
+        "JWSToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
         "UserID": {
             "type": "apiKey",
             "name": "X-USER-ID",
