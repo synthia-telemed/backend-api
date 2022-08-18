@@ -6,7 +6,7 @@ type Client interface {
 	CreateCustomer(patientID uint) (string, error)
 	AddCreditCard(customerID, cardToken string) error
 	ListCards(customerID string) ([]Card, error)
-	PayWithCreditCard(customerID, cardID string) (*Payment, error)
+	PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error)
 }
 
 type Card struct {

@@ -1,6 +1,7 @@
 package payment_test
 
 import (
+	"fmt"
 	"github.com/caarlos0/env/v6"
 	"github.com/omise/omise-go"
 	"github.com/omise/omise-go/operations"
@@ -86,6 +87,48 @@ var _ = Describe("Omise Payment Client", func() {
 			}
 		})
 	})
+
+	Context("Pay with credit card", func() {
+		var (
+			refID  string
+			amount int
+		)
+		BeforeEach(func() {
+			refID = fmt.Sprintf("test-ref-%d", rand.Int())
+			amount = (rand.Intn(100000) + 20) * 100
+		})
+
+		When("provide valid card ID", func() {
+			var cards []*omise.Card
+			BeforeEach(func() {
+				attachCardToCustomer(client, testCustomerID, createCardToken(client))
+				cards = listsCreditCards(client, testCustomerID)
+				Expect(cards).To(HaveLen(1))
+			})
+			It("should create charge", func() {
+				p, err := paymentClient.PayWithCreditCard(testCustomerID, cards[0].ID, refID, amount)
+				Expect(err).To(BeNil())
+				Expect(p.ID).ToNot(BeEmpty())
+				Expect(p.Amount).To(Equal(amount))
+				Expect(p.Paid).To(BeTrue())
+			})
+		})
+
+		When("provide invalid card ID", func() {
+			var cards []*omise.Card
+			BeforeEach(func() {
+				anotherCusID := createCustomer(client)
+				attachCardToCustomer(client, anotherCusID, createCardToken(client))
+				cards = listsCreditCards(client, anotherCusID)
+				Expect(cards).To(HaveLen(1))
+			})
+			It("should create charge", func() {
+				p, err := paymentClient.PayWithCreditCard(testCustomerID, cards[0].ID, refID, amount)
+				Expect(err).ToNot(BeNil())
+				Expect(p).To(BeNil())
+			})
+		})
+	})
 })
 
 func createCardToken(client *omise.Client) string {
@@ -126,4 +169,10 @@ func attachCardToCustomer(client *omise.Client, customerID, cardToken string) {
 		Card:       cardToken,
 	}
 	Expect(client.Do(nil, addCardOps)).To(Succeed())
+}
+
+func listsCreditCards(client *omise.Client, customerID string) []*omise.Card {
+	cards, listCardsOps := &omise.CardList{}, &operations.ListCards{CustomerID: customerID}
+	Expect(client.Do(cards, listCardsOps)).To(Succeed())
+	return cards.Data
 }
