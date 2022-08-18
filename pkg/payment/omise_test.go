@@ -69,23 +69,34 @@ var _ = Describe("Omise Payment Client", func() {
 	})
 
 	Context("List cards", func() {
-		var n int
-		BeforeEach(func() {
-			n = 3
-			for i := 0; i < n; i++ {
-				t, _ := createCardToken(client, "4242424242424242")
-				attachCardToCustomer(client, testCustomerID, t)
-			}
+		When("Customer has multiple card", func() {
+			var n int
+			BeforeEach(func() {
+				n = 3
+				for i := 0; i < n; i++ {
+					t, _ := createCardToken(client, "4242424242424242")
+					attachCardToCustomer(client, testCustomerID, t)
+				}
+			})
+			It("should list cards of Omise's customer", func() {
+				cards, err := paymentClient.ListCards(testCustomerID)
+				Expect(err).To(BeNil())
+				Expect(cards).To(HaveLen(n))
+				for _, c := range cards {
+					Expect(c).To(HaveExistingField("ID"))
+					Expect(c).To(HaveExistingField("LastDigits"))
+					Expect(c).To(HaveExistingField("Brand"))
+					Expect(c).To(HaveExistingField("Default"))
+				}
+			})
 		})
-		It("should list cards of Omise's customer", func() {
-			cards, err := paymentClient.ListCards(testCustomerID)
-			Expect(err).To(BeNil())
-			Expect(len(cards)).To(Equal(n))
-			for _, c := range cards {
-				Expect(c).To(HaveExistingField("ID"))
-				Expect(c).To(HaveExistingField("LastDigits"))
-				Expect(c).To(HaveExistingField("Brand"))
-			}
+
+		When("Customer has no card", func() {
+			It("should return empty list", func() {
+				cards, err := paymentClient.ListCards(testCustomerID)
+				Expect(err).To(BeNil())
+				Expect(cards).To(HaveLen(0))
+			})
 		})
 	})
 
