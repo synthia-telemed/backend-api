@@ -55,7 +55,7 @@ var _ = Describe("Omise Payment Client", func() {
 	Context("Add credit card", func() {
 		var cardToken string
 		BeforeEach(func() {
-			cardToken = createCardToken(client)
+			cardToken, _ = createCardToken(client)
 		})
 
 		It("should add credit card to Omise's customer", func() {
@@ -73,7 +73,7 @@ var _ = Describe("Omise Payment Client", func() {
 		BeforeEach(func() {
 			n = 3
 			for i := 0; i < n; i++ {
-				t := createCardToken(client)
+				t, _ := createCardToken(client)
 				attachCardToCustomer(client, testCustomerID, t)
 			}
 		})
@@ -90,15 +90,16 @@ var _ = Describe("Omise Payment Client", func() {
 	})
 
 	Context("Check is own card", func() {
-		var cards []*omise.Card
+		var cardID, token string
+		BeforeEach(func() {
+			token, cardID = createCardToken(client)
+		})
 		When("customer own the card", func() {
 			BeforeEach(func() {
-				attachCardToCustomer(client, testCustomerID, createCardToken(client))
-				cards = listsCreditCards(client, testCustomerID)
-				Expect(cards).To(HaveLen(1))
+				attachCardToCustomer(client, testCustomerID, token)
 			})
 			It("should return true", func() {
-				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cards[0].ID)
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
 				Expect(err).To(BeNil())
 				Expect(isOwn).To(BeTrue())
 			})
@@ -108,12 +109,10 @@ var _ = Describe("Omise Payment Client", func() {
 			var anotherCusID string
 			BeforeEach(func() {
 				anotherCusID = createCustomer(client)
-				attachCardToCustomer(client, anotherCusID, createCardToken(client))
-				cards = listsCreditCards(client, anotherCusID)
-				Expect(cards).To(HaveLen(1))
+				attachCardToCustomer(client, anotherCusID, token)
 			})
 			It("should return false", func() {
-				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cards[0].ID)
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
 				Expect(err).To(BeNil())
 				Expect(isOwn).To(BeFalse())
 			})
@@ -130,18 +129,18 @@ var _ = Describe("Omise Payment Client", func() {
 		)
 		BeforeEach(func() {
 			refID = fmt.Sprintf("test-ref-%d", rand.Int())
-			amount = (rand.Intn(100000) + 20) * 100
+			amount = (rand.Intn(100000)+20)*100 + 99
 		})
 
 		When("provide valid card ID", func() {
-			var cards []*omise.Card
+			var cardID string
 			BeforeEach(func() {
-				attachCardToCustomer(client, testCustomerID, createCardToken(client))
-				cards = listsCreditCards(client, testCustomerID)
-				Expect(cards).To(HaveLen(1))
+				var token string
+				token, cardID = createCardToken(client)
+				attachCardToCustomer(client, testCustomerID, token)
 			})
 			It("should create charge", func() {
-				p, err := paymentClient.PayWithCreditCard(testCustomerID, cards[0].ID, refID, amount)
+				p, err := paymentClient.PayWithCreditCard(testCustomerID, cardID, refID, amount)
 				Expect(err).To(BeNil())
 				Expect(p.ID).ToNot(BeEmpty())
 				Expect(p.Amount).To(Equal(amount))
@@ -152,10 +151,11 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 
 		// TODO: when credit card charging error
+
 	})
 })
 
-func createCardToken(client *omise.Client) string {
+func createCardToken(client *omise.Client) (string, string) {
 	token, createTokenOps := &omise.Token{}, &operations.CreateToken{
 		Name:            "John Doe (Testing)",
 		Number:          "4242424242424242",
@@ -166,7 +166,7 @@ func createCardToken(client *omise.Client) string {
 		PostalCode:      "10500",
 	}
 	Expect(client.Do(token, createTokenOps)).To(Succeed())
-	return token.ID
+	return token.ID, token.Card.ID
 }
 
 func createCustomer(client *omise.Client) string {
@@ -193,10 +193,4 @@ func attachCardToCustomer(client *omise.Client, customerID, cardToken string) {
 		Card:       cardToken,
 	}
 	Expect(client.Do(nil, addCardOps)).To(Succeed())
-}
-
-func listsCreditCards(client *omise.Client, customerID string) []*omise.Card {
-	cards, listCardsOps := &omise.CardList{}, &operations.ListCards{CustomerID: customerID}
-	Expect(client.Do(cards, listCardsOps)).To(Succeed())
-	return cards.Data
 }
