@@ -144,13 +144,25 @@ var _ = Describe("Omise Payment Client", func() {
 				Expect(p.ID).ToNot(BeEmpty())
 				Expect(p.Amount).To(Equal(amount))
 				Expect(p.Paid).To(BeTrue())
+				Expect(p.Success).To(BeTrue())
 				Expect(p.FailureCode).To(BeNil())
 				Expect(p.FailureMessage).To(BeNil())
 			})
 		})
 
-		// TODO: when credit card charging error
-
+		DescribeTable("credit card charging error", func(number string, failureCode string) {
+			token, cardID := createCardToken(client, number)
+			attachCardToCustomer(client, testCustomerID, token)
+			p, err := paymentClient.PayWithCreditCard(testCustomerID, cardID, refID, amount)
+			Expect(err).To(BeNil())
+			Expect(p.Paid).To(BeFalse())
+			Expect(p.Success).To(BeFalse())
+			Expect(*p.FailureCode).To(Equal(failureCode))
+		},
+			Entry("insufficient_fund", "5555551111110011", "insufficient_fund"),
+			Entry("stolen_or_lost_card", "4111111111130012", "stolen_or_lost_card"),
+			Entry("failed_processing", "3530111111170013", "failed_processing"),
+		)
 	})
 })
 

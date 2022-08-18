@@ -92,6 +92,7 @@ func (c OmisePaymentClient) PayWithCreditCard(customerID, cardID, refID string, 
 		Currency:       charge.Currency,
 		CreatedAt:      charge.Created,
 		Paid:           charge.Paid,
+		Success:        charge.Status == omise.ChargeSuccessful,
 		FailureCode:    charge.FailureCode,
 		FailureMessage: charge.FailureMessage,
 	}, nil

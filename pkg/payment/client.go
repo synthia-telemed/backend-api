@@ -22,6 +22,7 @@ type Payment struct {
 	Currency       string    `json:"currency"`
 	CreatedAt      time.Time `json:"created_at"`
 	Paid           bool      `json:"paid"`
+	Success        bool      `json:"success"`
 	FailureCode    *string   `json:"failure_code"`
 	FailureMessage *string   `json:"failure_message"`
 }
