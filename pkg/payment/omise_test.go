@@ -1,6 +1,7 @@
 package payment_test
 
 import (
+	"fmt"
 	"github.com/caarlos0/env/v6"
 	"github.com/omise/omise-go"
 	"github.com/omise/omise-go/operations"
@@ -23,6 +24,7 @@ var _ = Describe("Omise Payment Client", func() {
 			err error
 			c   payment.Config
 		)
+		rand.Seed(GinkgoRandomSeed())
 		Expect(env.Parse(&c)).To(BeNil())
 		client, err = omise.NewClient(c.PublicKey, c.SecretKey)
 		Expect(err).To(BeNil())
@@ -53,7 +55,7 @@ var _ = Describe("Omise Payment Client", func() {
 	Context("Add credit card", func() {
 		var cardToken string
 		BeforeEach(func() {
-			cardToken = createCardToken(client)
+			cardToken, _ = createCardToken(client, "4242424242424242")
 		})
 
 		It("should add credit card to Omise's customer", func() {
@@ -71,7 +73,7 @@ var _ = Describe("Omise Payment Client", func() {
 		BeforeEach(func() {
 			n = 3
 			for i := 0; i < n; i++ {
-				t := createCardToken(client)
+				t, _ := createCardToken(client, "4242424242424242")
 				attachCardToCustomer(client, testCustomerID, t)
 			}
 		})
@@ -86,12 +88,88 @@ var _ = Describe("Omise Payment Client", func() {
 			}
 		})
 	})
+
+	Context("Check is own card", func() {
+		var cardID, token string
+		BeforeEach(func() {
+			token, cardID = createCardToken(client, "4242424242424242")
+		})
+		When("customer own the card", func() {
+			BeforeEach(func() {
+				attachCardToCustomer(client, testCustomerID, token)
+			})
+			It("should return true", func() {
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeTrue())
+			})
+		})
+
+		When("customer doesn't down the card", func() {
+			var anotherCusID string
+			BeforeEach(func() {
+				anotherCusID = createCustomer(client)
+				attachCardToCustomer(client, anotherCusID, token)
+			})
+			It("should return false", func() {
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeFalse())
+			})
+			AfterEach(func() {
+				deleteCustomer(client, anotherCusID)
+			})
+		})
+	})
+
+	Context("Pay with credit card", func() {
+		var (
+			refID  string
+			amount int
+		)
+		BeforeEach(func() {
+			refID = fmt.Sprintf("test-ref-%d", rand.Int())
+			amount = (rand.Intn(100000)+20)*100 + 99
+		})
+
+		When("provide valid card ID", func() {
+			var cardID, token string
+			BeforeEach(func() {
+				token, cardID = createCardToken(client, "4242424242424242")
+				attachCardToCustomer(client, testCustomerID, token)
+			})
+			It("should create charge", func() {
+				p, err := paymentClient.PayWithCreditCard(testCustomerID, cardID, refID, amount)
+				Expect(err).To(BeNil())
+				Expect(p.ID).ToNot(BeEmpty())
+				Expect(p.Amount).To(Equal(amount))
+				Expect(p.Paid).To(BeTrue())
+				Expect(p.Success).To(BeTrue())
+				Expect(p.FailureCode).To(BeNil())
+				Expect(p.FailureMessage).To(BeNil())
+			})
+		})
+
+		DescribeTable("credit card charging error", func(number string, failureCode string) {
+			token, cardID := createCardToken(client, number)
+			attachCardToCustomer(client, testCustomerID, token)
+			p, err := paymentClient.PayWithCreditCard(testCustomerID, cardID, refID, amount)
+			Expect(err).To(BeNil())
+			Expect(p.Paid).To(BeFalse())
+			Expect(p.Success).To(BeFalse())
+			Expect(*p.FailureCode).To(Equal(failureCode))
+		},
+			Entry("insufficient_fund", "5555551111110011", "insufficient_fund"),
+			Entry("stolen_or_lost_card", "4111111111130012", "stolen_or_lost_card"),
+			Entry("failed_processing", "3530111111170013", "failed_processing"),
+		)
+	})
 })
 
-func createCardToken(client *omise.Client) string {
+func createCardToken(client *omise.Client, number string) (string, string) {
 	token, createTokenOps := &omise.Token{}, &operations.CreateToken{
 		Name:            "John Doe (Testing)",
-		Number:          "4242424242424242",
+		Number:          number,
 		ExpirationMonth: 12,
 		ExpirationYear:  time.Now().Year(),
 		SecurityCode:    "123",
@@ -99,7 +177,7 @@ func createCardToken(client *omise.Client) string {
 		PostalCode:      "10500",
 	}
 	Expect(client.Do(token, createTokenOps)).To(Succeed())
-	return token.ID
+	return token.ID, token.Card.ID
 }
 
 func createCustomer(client *omise.Client) string {

@@ -63,6 +63,21 @@ func (mr *MockClientMockRecorder) CreateCustomer(patientID interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomer", reflect.TypeOf((*MockClient)(nil).CreateCustomer), patientID)
 }
 
+// IsOwnCreditCard mocks base method.
+func (m *MockClient) IsOwnCreditCard(customerID, cardID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsOwnCreditCard", customerID, cardID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsOwnCreditCard indicates an expected call of IsOwnCreditCard.
+func (mr *MockClientMockRecorder) IsOwnCreditCard(customerID, cardID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwnCreditCard", reflect.TypeOf((*MockClient)(nil).IsOwnCreditCard), customerID, cardID)
+}
+
 // ListCards mocks base method.
 func (m *MockClient) ListCards(customerID string) ([]payment.Card, error) {
 	m.ctrl.T.Helper()
@@ -76,4 +91,19 @@ func (m *MockClient) ListCards(customerID string) ([]payment.Card, error) {
 func (mr *MockClientMockRecorder) ListCards(customerID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCards", reflect.TypeOf((*MockClient)(nil).ListCards), customerID)
+}
+
+// PayWithCreditCard mocks base method.
+func (m *MockClient) PayWithCreditCard(customerID, cardID, refID string, amount int) (*payment.Payment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PayWithCreditCard", customerID, cardID, refID, amount)
+	ret0, _ := ret[0].(*payment.Payment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PayWithCreditCard indicates an expected call of PayWithCreditCard.
+func (mr *MockClientMockRecorder) PayWithCreditCard(customerID, cardID, refID, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PayWithCreditCard", reflect.TypeOf((*MockClient)(nil).PayWithCreditCard), customerID, cardID, refID, amount)
 }
