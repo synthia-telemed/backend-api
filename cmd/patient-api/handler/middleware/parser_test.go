@@ -29,8 +29,8 @@ var _ = Describe("Parser Middleware", func() {
 	})
 
 	When("X-USER-ID is not present", func() {
-		It("should return 400", func() {
-			Expect(rec.Code).To(Equal(http.StatusBadRequest))
+		It("should return 401", func() {
+			Expect(rec.Code).To(Equal(http.StatusUnauthorized))
 			Expect(rec.Body.String()).To(Equal(`{"message":"Missing patient ID"}`))
 		})
 	})
@@ -39,8 +39,8 @@ var _ = Describe("Parser Middleware", func() {
 		BeforeEach(func() {
 			c.Request.Header.Set("X-USER-ID", "invalid")
 		})
-		It("should return 400", func() {
-			Expect(rec.Code).To(Equal(http.StatusBadRequest))
+		It("should return 401", func() {
+			Expect(rec.Code).To(Equal(http.StatusUnauthorized))
 			Expect(rec.Body.String()).To(Equal(`{"message":"Invalid patient ID"}`))
 		})
 	})
@@ -49,7 +49,7 @@ var _ = Describe("Parser Middleware", func() {
 		BeforeEach(func() {
 			c.Request.Header.Set("X-USER-ID", "99")
 		})
-		It("should return 400", func() {
+		It("should return 200", func() {
 			Expect(rec.Code).To(Equal(http.StatusOK))
 			id, ok := c.Get("patientID")
 			Expect(ok).To(BeTrue())
