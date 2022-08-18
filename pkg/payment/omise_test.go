@@ -112,27 +112,12 @@ var _ = Describe("Omise Payment Client", func() {
 				Expect(p.ID).ToNot(BeEmpty())
 				Expect(p.Amount).To(Equal(amount))
 				Expect(p.Paid).To(BeTrue())
+				Expect(p.FailureCode).To(BeNil())
+				Expect(p.FailureMessage).To(BeNil())
 			})
 		})
 
-		When("provide invalid card ID", func() {
-			var cards []*omise.Card
-			var anotherCusID string
-			BeforeEach(func() {
-				anotherCusID = createCustomer(client)
-				attachCardToCustomer(client, anotherCusID, createCardToken(client))
-				cards = listsCreditCards(client, anotherCusID)
-				Expect(cards).To(HaveLen(1))
-			})
-			It("should create charge", func() {
-				p, err := paymentClient.PayWithCreditCard(testCustomerID, cards[0].ID, refID, amount)
-				Expect(err).ToNot(BeNil())
-				Expect(p).To(BeNil())
-			})
-			AfterEach(func() {
-				deleteCustomer(client, anotherCusID)
-			})
-		})
+		// TODO: when credit card charging error
 	})
 })
 

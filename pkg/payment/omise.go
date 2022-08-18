@@ -72,10 +72,12 @@ func (c OmisePaymentClient) PayWithCreditCard(customerID, cardID, refID string, 
 		return nil, err
 	}
 	return &Payment{
-		ID:        charge.ID,
-		Amount:    int(charge.Amount),
-		Currency:  charge.Currency,
-		CreatedAt: charge.Created,
-		Paid:      charge.Paid,
+		ID:             charge.ID,
+		Amount:         int(charge.Amount),
+		Currency:       charge.Currency,
+		CreatedAt:      charge.Created,
+		Paid:           charge.Paid,
+		FailureCode:    charge.FailureCode,
+		FailureMessage: charge.FailureMessage,
 	}, nil
 }

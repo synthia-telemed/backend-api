@@ -16,9 +16,11 @@ type Card struct {
 }
 
 type Payment struct {
-	ID        string    `json:"id"`
-	Amount    int       `json:"amount"`
-	Currency  string    `json:"currency"`
-	CreatedAt time.Time `json:"created_at"`
-	Paid      bool      `json:"paid"`
+	ID             string    `json:"id"`
+	Amount         int       `json:"amount"`
+	Currency       string    `json:"currency"`
+	CreatedAt      time.Time `json:"created_at"`
+	Paid           bool      `json:"paid"`
+	FailureCode    *string   `json:"failure_code"`
+	FailureMessage *string   `json:"failure_message"`
 }
