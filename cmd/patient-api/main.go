@@ -26,12 +26,16 @@ import (
 // @description     This is a Synthia patient backend API.
 // @accept json
 // @produce json
-// @BasePath  /api
+// @BasePath  /patient/api
 
 // @securityDefinitions.apikey  UserID
 // @in                          header
 // @name                        X-USER-ID
-// @description					UserID that interacts with the API. Normally this header is set by Heimdall.
+// @description					UserID that interacts with the API. Normally this header is set by Heimdall. Development Only!
+// @securityDefinitions.apikey  JWSToken
+// @in                          header
+// @name                        Authorization
+// @description					JWS that user possess
 func main() {
 	cfg, err := config.Load()
 	if err != nil {

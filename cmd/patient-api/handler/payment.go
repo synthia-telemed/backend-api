@@ -44,6 +44,7 @@ type AddCreditCardRequest struct {
 // @Failure      401  {object}  ErrorResponse "Unauthorized"
 // @Failure      500  {object}  ErrorResponse "Internal server error"
 // @Security     UserID
+// @Security     JWSToken
 // @Router       /payment/credit-card [post]
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	id, _ := c.Get("patientID")
@@ -89,6 +90,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Failure      401  {object}  ErrorResponse "Unauthorized"
 // @Failure      500  {object}  ErrorResponse "Internal server error"
 // @Security     UserID
+// @Security     JWSToken
 // @Router       /payment/credit-card [get]
 func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 	id, _ := c.Get("patientID")
