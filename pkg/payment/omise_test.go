@@ -24,6 +24,7 @@ var _ = Describe("Omise Payment Client", func() {
 			err error
 			c   payment.Config
 		)
+		rand.Seed(GinkgoRandomSeed())
 		Expect(env.Parse(&c)).To(BeNil())
 		client, err = omise.NewClient(c.PublicKey, c.SecretKey)
 		Expect(err).To(BeNil())
