@@ -7,6 +7,7 @@ type Client interface {
 	AddCreditCard(customerID, cardToken string) error
 	ListCards(customerID string) ([]Card, error)
 	PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error)
+	IsOwnCreditCard(customerID, cardID string) (bool, error)
 }
 
 type Card struct {

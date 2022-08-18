@@ -89,6 +89,40 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 	})
 
+	Context("Check is own card", func() {
+		var cards []*omise.Card
+		When("customer own the card", func() {
+			BeforeEach(func() {
+				attachCardToCustomer(client, testCustomerID, createCardToken(client))
+				cards = listsCreditCards(client, testCustomerID)
+				Expect(cards).To(HaveLen(1))
+			})
+			It("should return true", func() {
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cards[0].ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeTrue())
+			})
+		})
+
+		When("customer doesn't down the card", func() {
+			var anotherCusID string
+			BeforeEach(func() {
+				anotherCusID = createCustomer(client)
+				attachCardToCustomer(client, anotherCusID, createCardToken(client))
+				cards = listsCreditCards(client, anotherCusID)
+				Expect(cards).To(HaveLen(1))
+			})
+			It("should return false", func() {
+				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cards[0].ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeFalse())
+			})
+			AfterEach(func() {
+				deleteCustomer(client, anotherCusID)
+			})
+		})
+	})
+
 	Context("Pay with credit card", func() {
 		var (
 			refID  string
