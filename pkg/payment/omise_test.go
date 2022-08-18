@@ -55,7 +55,7 @@ var _ = Describe("Omise Payment Client", func() {
 	Context("Add credit card", func() {
 		var cardToken string
 		BeforeEach(func() {
-			cardToken, _ = createCardToken(client)
+			cardToken, _ = createCardToken(client, "4242424242424242")
 		})
 
 		It("should add credit card to Omise's customer", func() {
@@ -73,7 +73,7 @@ var _ = Describe("Omise Payment Client", func() {
 		BeforeEach(func() {
 			n = 3
 			for i := 0; i < n; i++ {
-				t, _ := createCardToken(client)
+				t, _ := createCardToken(client, "4242424242424242")
 				attachCardToCustomer(client, testCustomerID, t)
 			}
 		})
@@ -92,7 +92,7 @@ var _ = Describe("Omise Payment Client", func() {
 	Context("Check is own card", func() {
 		var cardID, token string
 		BeforeEach(func() {
-			token, cardID = createCardToken(client)
+			token, cardID = createCardToken(client, "4242424242424242")
 		})
 		When("customer own the card", func() {
 			BeforeEach(func() {
@@ -133,10 +133,9 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 
 		When("provide valid card ID", func() {
-			var cardID string
+			var cardID, token string
 			BeforeEach(func() {
-				var token string
-				token, cardID = createCardToken(client)
+				token, cardID = createCardToken(client, "4242424242424242")
 				attachCardToCustomer(client, testCustomerID, token)
 			})
 			It("should create charge", func() {
@@ -155,10 +154,10 @@ var _ = Describe("Omise Payment Client", func() {
 	})
 })
 
-func createCardToken(client *omise.Client) (string, string) {
+func createCardToken(client *omise.Client, number string) (string, string) {
 	token, createTokenOps := &omise.Token{}, &operations.CreateToken{
 		Name:            "John Doe (Testing)",
-		Number:          "4242424242424242",
+		Number:          number,
 		ExpirationMonth: 12,
 		ExpirationYear:  time.Now().Year(),
 		SecurityCode:    "123",
