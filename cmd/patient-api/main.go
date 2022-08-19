@@ -90,10 +90,7 @@ func main() {
 	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	apiGroup := ginServer.Group("/api")
-	authHandler.Register(apiGroup)
-	paymentHandler.Register(apiGroup)
-	measurementHandler.Register(apiGroup)
+	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, measurementHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
