@@ -23,8 +23,8 @@ func NewMeasurementHandler(m datastore.MeasurementDataStore, l *zap.SugaredLogge
 
 func (h MeasurementHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/measurement", middleware.ParsePatientID)
-	g.POST("/blood-pressure", h.createBloodPressure)
-	g.POST("/glucose", h.createGlucose)
+	g.POST("/blood-pressure", h.CreateBloodPressure)
+	g.POST("/glucose", h.CreateGlucose)
 }
 
 type BloodPressureRequest struct {
@@ -34,7 +34,7 @@ type BloodPressureRequest struct {
 	Pulse     uint      `json:"pulse" binding:"required"`
 }
 
-func (h MeasurementHandler) createBloodPressure(c *gin.Context) {
+func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 	var req BloodPressureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
@@ -62,7 +62,7 @@ type GlucoseRequest struct {
 	IsBeforeMeal *bool     `json:"is_before_meal" binding:"required"`
 }
 
-func (h MeasurementHandler) createGlucose(c *gin.Context) {
+func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 	var req GlucoseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Debug(err.Error())
