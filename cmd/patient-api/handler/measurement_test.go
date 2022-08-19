@@ -51,7 +51,7 @@ var _ = Describe("Measurement Handler", func() {
 		mockCtrl.Finish()
 	})
 
-	Context("createBloodPressure", func() {
+	Context("CreateBloodPressure", func() {
 		var req *handler.BloodPressureRequest
 		BeforeEach(func() {
 			handlerFunc = h.CreateBloodPressure
@@ -97,6 +97,55 @@ var _ = Describe("Measurement Handler", func() {
 				Expect(bp.Diastolic).To(Equal(req.Diastolic))
 				Expect(bp.Systolic).To(Equal(req.Systolic))
 				Expect(bp.Pulse).To(Equal(req.Pulse))
+			})
+		})
+
+		Context("CreateGlucose", func() {
+			var req *handler.GlucoseRequest
+			BeforeEach(func() {
+				handlerFunc = h.CreateGlucose
+				b := false
+				req = &handler.GlucoseRequest{
+					DateTime:     time.Now(),
+					Value:        uint(rand.Uint32()),
+					IsBeforeMeal: &b,
+				}
+				body, err := json.Marshal(&req)
+				Expect(err).To(BeNil())
+				c.Request = httptest.NewRequest("GET", "/", bytes.NewReader(body))
+			})
+
+			When("Request body is invalid", func() {
+				BeforeEach(func() {
+					c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{ "invalid": "error ja" }`))
+				})
+				It("should return 400", func() {
+					Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				})
+			})
+
+			When("create glucose error", func() {
+				BeforeEach(func() {
+					mockMeasurementDataStore.EXPECT().CreateGlucose(gomock.Any()).Return(errors.New("error")).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+
+			When("no error", func() {
+				BeforeEach(func() {
+					mockMeasurementDataStore.EXPECT().CreateGlucose(gomock.Any()).Return(nil).Times(1)
+				})
+				It("should return 201 wth blood pressure", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
+					var g datastore.Glucose
+					Expect(json.Unmarshal(rec.Body.Bytes(), &g)).To(Succeed())
+					Expect(g.DateTime).To(Equal(req.DateTime.UTC()))
+					Expect(g.PatientID).To(Equal(patientID))
+					Expect(g.Value).To(Equal(req.Value))
+					Expect(g.IsBeforeMeal).To(Equal(*req.IsBeforeMeal))
+				})
 			})
 		})
 	})
