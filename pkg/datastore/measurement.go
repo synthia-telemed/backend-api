@@ -12,8 +12,8 @@ type MeasurementDataStore interface {
 
 type BloodPressure struct {
 	ID        uint           `json:"id" gorm:"autoIncrement,primaryKey"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	PatientID uint           `json:"patient_id" gorm:"not null"`
 	DateTime  time.Time      `json:"date_time"`
@@ -24,8 +24,8 @@ type BloodPressure struct {
 
 type Glucose struct {
 	ID           uint           `json:"id" gorm:"autoIncrement,primaryKey"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 	PatientID    uint           `json:"patient_id" gorm:"not null"`
 	DateTime     time.Time      `json:"date_time"`

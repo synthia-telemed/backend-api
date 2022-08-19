@@ -306,7 +306,7 @@ const docTemplate = `{
         "datastore.BloodPressure": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "date_time": {
@@ -330,7 +330,7 @@ const docTemplate = `{
                 "systolic": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -338,7 +338,7 @@ const docTemplate = `{
         "datastore.Glucose": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "date_time": {
@@ -356,7 +356,7 @@ const docTemplate = `{
                 "patient_id": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
                 "value": {

@@ -298,7 +298,7 @@
         "datastore.BloodPressure": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "date_time": {
@@ -322,7 +322,7 @@
                 "systolic": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -330,7 +330,7 @@
         "datastore.Glucose": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "date_time": {
@@ -348,7 +348,7 @@
                 "patient_id": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
                 "value": {
