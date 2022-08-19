@@ -35,12 +35,13 @@ var _ = Describe("Measurement Datastore", Ordered, func() {
 		var err error
 		measurementDataStore, err = datastore.NewGormMeasurementDataStore(db)
 		Expect(err).To(BeNil())
+		Expect(db.AutoMigrate(&datastore.Patient{})).To(Succeed())
 		patient = &datastore.Patient{RefID: fmt.Sprintf("ref-id-%d", rand.Int())}
 		Expect(db.Create(patient).Error).To(Succeed())
 	})
 
 	AfterEach(func() {
-		Expect(db.Migrator().DropTable(&datastore.BloodPressure{}, &datastore.Glucose{})).To(Succeed())
+		Expect(db.Migrator().DropTable(&datastore.BloodPressure{}, &datastore.Glucose{}, &datastore.Patient{})).To(Succeed())
 	})
 
 	Context("CreateBloodPressure", func() {
