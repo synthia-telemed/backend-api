@@ -16,14 +16,14 @@ const (
 type BloodType string
 
 type Patient struct {
-	ID                uint           `json:"id" gorm:"autoIncrement,primaryKey"`
-	CreatedAt         time.Time      `json:"createdAt"`
-	UpdatedAt         time.Time      `json:"updatedAt"`
-	DeletedAt         gorm.DeletedAt `gorm:"index"`
-	RefID             string         `json:"refID" gorm:"unique"`
-	PaymentCustomerID *string        `gorm:"unique"`
-	BloodPressure     []BloodPressure
-	Glucose           []Glucose
+	ID                uint            `json:"id" gorm:"autoIncrement,primaryKey"`
+	CreatedAt         time.Time       `json:"createdAt"`
+	UpdatedAt         time.Time       `json:"updatedAt"`
+	DeletedAt         gorm.DeletedAt  `gorm:"index"`
+	RefID             string          `json:"refID" gorm:"unique"`
+	PaymentCustomerID *string         `gorm:"unique"`
+	BloodPressure     []BloodPressure `gorm:"foreignKey:PatientID"`
+	Glucose           []Glucose       `gorm:"foreignKey:PatientID"`
 	//BirthDate   time.Time      `json:"birthDate"`
 	//BloodType   BloodType      `json:"bloodType"`
 	//FirstnameEn string         `json:"firstname_en"`
