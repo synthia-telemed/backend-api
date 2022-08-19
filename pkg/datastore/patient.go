@@ -22,6 +22,8 @@ type Patient struct {
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
 	RefID             string         `json:"refID" gorm:"unique"`
 	PaymentCustomerID *string        `gorm:"unique"`
+	BloodPressure     []BloodPressure
+	Glucose           []Glucose
 	//BirthDate   time.Time      `json:"birthDate"`
 	//BloodType   BloodType      `json:"bloodType"`
 	//FirstnameEn string         `json:"firstname_en"`

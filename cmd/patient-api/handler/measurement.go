@@ -40,8 +40,11 @@ func (h MeasurementHandler) createBloodPressure(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
+	id, _ := c.Get("patientID")
+	patientID := id.(uint)
 
 	bp := &datastore.BloodPressure{
+		PatientID: patientID,
 		DateTime:  req.DateTime.UTC(),
 		Systolic:  req.Systolic,
 		Diastolic: req.Diastolic,
@@ -66,7 +69,11 @@ func (h MeasurementHandler) createGlucose(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
+	id, _ := c.Get("patientID")
+	patientID := id.(uint)
+
 	g := &datastore.Glucose{
+		PatientID:    patientID,
 		DateTime:     req.DateTime.UTC(),
 		Value:        req.Value,
 		IsBeforeMeal: *req.IsBeforeMeal,

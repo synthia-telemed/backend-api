@@ -15,6 +15,7 @@ type BloodPressure struct {
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	PatientID uint           `json:"patient_id"`
 	DateTime  time.Time      `json:"date_time"`
 	Systolic  uint           `json:"systolic" gorm:"not null"`
 	Diastolic uint           `json:"diastolic" gorm:"not null"`
@@ -26,6 +27,7 @@ type Glucose struct {
 	CreatedAt    time.Time      `json:"createdAt"`
 	UpdatedAt    time.Time      `json:"updatedAt"`
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	PatientID    uint           `json:"patient_id"`
 	DateTime     time.Time      `json:"date_time"`
 	Value        uint           `json:"value" gorm:"not null"`
 	IsBeforeMeal bool           `json:"is_before_meal" gorm:"not null"`
