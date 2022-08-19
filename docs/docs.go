@@ -108,6 +108,112 @@ const docTemplate = `{
                 }
             }
         },
+        "/measurement/blood-pressure": {
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Measurement"
+                ],
+                "summary": "Record blood pressure",
+                "parameters": [
+                    {
+                        "description": "Blood pressure information",
+                        "name": "BloodPressureRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.BloodPressureRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/datastore.BloodPressure"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/measurement/glucose": {
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Measurement"
+                ],
+                "summary": "Record glucose level",
+                "parameters": [
+                    {
+                        "description": "Glucose level information",
+                        "name": "GlucoseRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.GlucoseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/datastore.Glucose"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment/credit-card": {
             "get": {
                 "security": [
@@ -197,6 +303,79 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "datastore.BloodPressure": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "date_time": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "diastolic": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "patient_id": {
+                    "type": "integer"
+                },
+                "pulse": {
+                    "type": "integer"
+                },
+                "systolic": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "datastore.Glucose": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "date_time": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_before_meal": {
+                    "type": "boolean"
+                },
+                "patient_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
@@ -208,11 +387,53 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.BloodPressureRequest": {
+            "type": "object",
+            "required": [
+                "date_time",
+                "diastolic",
+                "pulse",
+                "systolic"
+            ],
+            "properties": {
+                "date_time": {
+                    "type": "string"
+                },
+                "diastolic": {
+                    "type": "integer"
+                },
+                "pulse": {
+                    "type": "integer"
+                },
+                "systolic": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.GlucoseRequest": {
+            "type": "object",
+            "required": [
+                "date_time",
+                "is_before_meal",
+                "value"
+            ],
+            "properties": {
+                "date_time": {
+                    "type": "string"
+                },
+                "is_before_meal": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "integer"
                 }
             }
         },
