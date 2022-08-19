@@ -15,6 +15,10 @@ import (
 	"time"
 )
 
+type Handler interface {
+	Register(r *gin.RouterGroup)
+}
+
 type Server struct {
 	*gin.Engine
 	logger *zap.SugaredLogger
@@ -66,4 +70,10 @@ func (s Server) ListenAndServe() {
 		s.logger.Fatalw("Server forced to shutdown", "error", err)
 	}
 	s.logger.Info("Server exiting")
+}
+
+func (s Server) RegisterHandlers(prefix string, handlers ...Handler) {
+	for _, h := range handlers {
+		h.Register(s.Group(prefix))
+	}
 }

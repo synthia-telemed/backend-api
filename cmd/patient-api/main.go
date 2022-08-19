@@ -65,6 +65,10 @@ func main() {
 	if err != nil {
 		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
 	}
+	measurementDataStore, err := datastore.NewGormMeasurementDataStore(db)
+	if err != nil {
+		sugaredLogger.Fatalw("Failed to create measurement data store", "error", err)
+	}
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
@@ -83,11 +87,10 @@ func main() {
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, sugaredLogger)
+	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	apiGroup := ginServer.Group("/api")
-	authHandler.Register(apiGroup)
-	paymentHandler.Register(apiGroup)
+	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, measurementHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
