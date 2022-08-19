@@ -24,6 +24,7 @@ func NewMeasurementHandler(m datastore.MeasurementDataStore, l *zap.SugaredLogge
 func (h MeasurementHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/measurement", middleware.ParsePatientID)
 	g.POST("/blood-pressure", h.createBloodPressure)
+	g.POST("/glucose", h.createGlucose)
 }
 
 type BloodPressureRequest struct {
@@ -50,4 +51,28 @@ func (h MeasurementHandler) createBloodPressure(c *gin.Context) {
 		InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateBloodPressure error")
 	}
 	c.JSON(http.StatusCreated, bp)
+}
+
+type GlucoseRequest struct {
+	DateTime     time.Time `json:"date_time" binding:"required"`
+	Value        uint      `json:"value" binding:"required"`
+	IsBeforeMeal *bool     `json:"is_before_meal" binding:"required"`
+}
+
+func (h MeasurementHandler) createGlucose(c *gin.Context) {
+	var req GlucoseRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.Debug(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
+	g := &datastore.Glucose{
+		DateTime:     req.DateTime.UTC(),
+		Value:        req.Value,
+		IsBeforeMeal: *req.IsBeforeMeal,
+	}
+	if err := h.measurementDataStore.CreateGlucose(g); err != nil {
+		InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateGlucose error")
+	}
+	c.JSON(http.StatusCreated, g)
 }
