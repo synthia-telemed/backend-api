@@ -34,6 +34,17 @@ type BloodPressureRequest struct {
 	Pulse     uint      `json:"pulse" binding:"required"`
 }
 
+// CreateBloodPressure godoc
+// @Summary      Record blood pressure
+// @Tags         Measurement
+// @Param 	  	 BloodPressureRequest body BloodPressureRequest true "Blood pressure information"
+// @Success      201  {object}  datastore.BloodPressure
+// @Failure      400  {object}  ErrorResponse "Invalid request body"
+// @Failure      401  {object}  ErrorResponse "Unauthorized"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /measurement/blood-pressure [post]
 func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 	var req BloodPressureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,6 +73,17 @@ type GlucoseRequest struct {
 	IsBeforeMeal *bool     `json:"is_before_meal" binding:"required"`
 }
 
+// CreateGlucose godoc
+// @Summary      Record glucose level
+// @Tags         Measurement
+// @Param 	  	 GlucoseRequest body GlucoseRequest true "Glucose level information"
+// @Success      201  {object}  datastore.Glucose
+// @Failure      400  {object}  ErrorResponse "Invalid request body"
+// @Failure      401  {object}  ErrorResponse "Unauthorized"
+// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /measurement/glucose [post]
 func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 	var req GlucoseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
