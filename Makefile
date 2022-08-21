@@ -29,3 +29,4 @@ gql-client-gen:
 
 swagger:
 	swag init --parseDependency --parseInternal --dir cmd/patient-api --output cmd/patient-api/docs
+	swag init --parseDependency --parseInternal --dir cmd/doctor-api --output cmd/doctor-api/docs

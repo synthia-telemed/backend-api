@@ -11,6 +11,21 @@ import (
 	"time"
 )
 
+// @title           Synthia Doctor Backend API
+// @version         1.0.0
+// @description     This is a Synthia doctor backend API.
+// @accept json
+// @produce json
+// @BasePath  /doctor/api
+
+// @securityDefinitions.apikey  UserID
+// @in                          header
+// @name                        X-USER-ID
+// @description					UserID that interacts with the API. Normally this header is set by Heimdall. Development Only!
+// @securityDefinitions.apikey  JWSToken
+// @in                          header
+// @name                        Authorization
+// @description					JWS that user possess
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
