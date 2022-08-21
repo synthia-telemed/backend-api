@@ -1,0 +1,21 @@
+basePath: /doctor/api
+consumes:
+- application/json
+info:
+  contact: {}
+  description: This is a Synthia doctor backend API.
+  title: Synthia Doctor Backend API
+  version: 1.0.0
+paths: {}
+produces:
+- application/json
+securityDefinitions:
+  JWSToken:
+    in: header
+    name: Authorization
+    type: apiKey
+  UserID:
+    in: header
+    name: X-USER-ID
+    type: apiKey
+swagger: "2.0"

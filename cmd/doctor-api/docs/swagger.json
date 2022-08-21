@@ -1,0 +1,29 @@
+{
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a Synthia doctor backend API.",
+        "title": "Synthia Doctor Backend API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "basePath": "/doctor/api",
+    "paths": {},
+    "securityDefinitions": {
+        "JWSToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "UserID": {
+            "type": "apiKey",
+            "name": "X-USER-ID",
+            "in": "header"
+        }
+    }
+}
