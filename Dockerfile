@@ -1,11 +1,16 @@
+FROM golang:1.18-alpine as base-builder
+WORKDIR /app
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
 FROM golang:1.18-alpine as patient-api-builder
 WORKDIR /app
 COPY ./DigiCertGlobalRootCA.crt.pem ./
 ENV GOOS=linux
 ENV GOARCH=amd64
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
+COPY go.mod go.sum ./
+COPY --from=base-builder /go/pkg/mod /go/pkg/mod
 COPY ./pkg ./pkg
 COPY ./cmd/patient-api ./cmd/patient-api
 RUN go build -o patient-api cmd/patient-api/main.go
@@ -15,9 +20,8 @@ WORKDIR /app
 COPY ./DigiCertGlobalRootCA.crt.pem ./
 ENV GOOS=linux
 ENV GOARCH=amd64
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
+COPY go.mod go.sum ./
+COPY --from=base-builder /go/pkg/mod /go/pkg/mod
 COPY ./pkg ./pkg
 COPY ./cmd/doctor-api ./cmd/doctor-api
 RUN go build -o doctor-api cmd/doctor-api/main.go
