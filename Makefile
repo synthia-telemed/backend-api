@@ -28,4 +28,5 @@ gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml
 
 swagger:
-	swag init --dir cmd/patient-api --parseDependency --parseInternal
+	swag init --parseDependency --parseInternal --dir cmd/patient-api --output cmd/patient-api/docs
+	swag init --parseDependency --parseInternal --dir cmd/doctor-api --output cmd/doctor-api/docs
