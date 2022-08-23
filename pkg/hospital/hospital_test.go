@@ -48,4 +48,30 @@ var _ = Describe("Hospital Client", func() {
 			Expect(patient).To(BeNil())
 		})
 	})
+
+	Context("AssertDoctorCredential", func() {
+		When("doctor's username is not found", func() {
+			It("should return false", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "not-exist-doctor", "password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeFalse())
+			})
+		})
+
+		When("doctor credential is invalid", func() {
+			It("should return false", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Roma40", "not-password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeFalse())
+			})
+		})
+
+		When("doctor credential is valid", func() {
+			It("should return true", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Rickie_Ward29", "password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeTrue())
+			})
+		})
+	})
 })
