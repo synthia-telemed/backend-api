@@ -29,23 +29,49 @@ var _ = Describe("Hospital Client", func() {
 
 	Context("FindPatientByGovCredential", func() {
 		It("should find patient by passport ID", func() {
-			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "QH226189")
+			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "SO629265")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
-			Expect(patient.Id).To(Equal("HN-106186"))
+			Expect(patient.Id).To(Equal("HN-525661"))
 		})
 
 		It("should find patient by national ID", func() {
-			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "6514582729055")
+			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "3089074169079")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
-			Expect(patient.Id).To(Equal("HN-127801"))
+			Expect(patient.Id).To(Equal("HN-937553"))
 		})
 
 		It("should return nil when patient not found", func() {
 			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "not-exist-national-id")
 			Expect(err).To(BeNil())
 			Expect(patient).To(BeNil())
+		})
+	})
+
+	Context("AssertDoctorCredential", func() {
+		When("doctor's username is not found", func() {
+			It("should return false", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "not-exist-doctor", "password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeFalse())
+			})
+		})
+
+		When("doctor credential is invalid", func() {
+			It("should return false", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Roma40", "not-password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeFalse())
+			})
+		})
+
+		When("doctor credential is valid", func() {
+			It("should return true", func() {
+				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Rickie_Ward29", "password")
+				Expect(err).To(BeNil())
+				Expect(assertion).To(BeTrue())
+			})
 		})
 	})
 })

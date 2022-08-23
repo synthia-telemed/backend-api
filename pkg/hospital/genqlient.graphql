@@ -19,3 +19,7 @@ query getPatient($where: PatientWhereInput!) {
         weight
     }
 }
+
+query assertDoctorCredential($password: String!, $username: String!) {
+    assertDoctorPassword(password: $password, username: $username)
+}

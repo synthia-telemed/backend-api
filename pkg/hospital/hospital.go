@@ -8,6 +8,7 @@ import (
 
 type SystemClient interface {
 	FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error)
+	AssertDoctorCredential(ctx context.Context, username, password string) (bool, error)
 }
 
 type Config struct {
@@ -57,4 +58,12 @@ func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred stri
 	}
 
 	return (*Patient)(resp.Patient), nil
+}
+
+func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, password string) (bool, error) {
+	resp, err := assertDoctorCredential(ctx, c.client, password, username)
+	if err != nil {
+		return false, err
+	}
+	return resp.AssertDoctorPassword, nil
 }

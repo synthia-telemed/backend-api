@@ -228,8 +228,10 @@ type DoctorWhereInput struct {
 	Initial_th   *StringFilter                  `json:"initial_th,omitempty"`
 	Lastname_en  *StringFilter                  `json:"lastname_en,omitempty"`
 	Lastname_th  *StringFilter                  `json:"lastname_th,omitempty"`
+	Password     *StringFilter                  `json:"password,omitempty"`
 	Position     *StringFilter                  `json:"position,omitempty"`
 	UpdatedAt    *DateTimeFilter                `json:"updatedAt,omitempty"`
+	Username     *StringFilter                  `json:"username,omitempty"`
 }
 
 // GetAND returns DoctorWhereInput.AND, and is useful for accessing the field via an interface.
@@ -268,11 +270,17 @@ func (v *DoctorWhereInput) GetLastname_en() *StringFilter { return v.Lastname_en
 // GetLastname_th returns DoctorWhereInput.Lastname_th, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetLastname_th() *StringFilter { return v.Lastname_th }
 
+// GetPassword returns DoctorWhereInput.Password, and is useful for accessing the field via an interface.
+func (v *DoctorWhereInput) GetPassword() *StringFilter { return v.Password }
+
 // GetPosition returns DoctorWhereInput.Position, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetPosition() *StringFilter { return v.Position }
 
 // GetUpdatedAt returns DoctorWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
+
+// GetUsername returns DoctorWhereInput.Username, and is useful for accessing the field via an interface.
+func (v *DoctorWhereInput) GetUsername() *StringFilter { return v.Username }
 
 type EnumAppointmentStatusFilter struct {
 	Equals AppointmentStatus                  `json:"equals"`
@@ -1106,6 +1114,18 @@ func (v *StringNullableFilter) GetNotIn() []string { return v.NotIn }
 // GetStartsWith returns StringNullableFilter.StartsWith, and is useful for accessing the field via an interface.
 func (v *StringNullableFilter) GetStartsWith() string { return v.StartsWith }
 
+// __assertDoctorCredentialInput is used internally by genqlient
+type __assertDoctorCredentialInput struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// GetPassword returns __assertDoctorCredentialInput.Password, and is useful for accessing the field via an interface.
+func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password }
+
+// GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
+func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
+
 // __getPatientInput is used internally by genqlient
 type __getPatientInput struct {
 	Where *PatientWhereInput `json:"where,omitempty"`
@@ -1113,6 +1133,16 @@ type __getPatientInput struct {
 
 // GetWhere returns __getPatientInput.Where, and is useful for accessing the field via an interface.
 func (v *__getPatientInput) GetWhere() *PatientWhereInput { return v.Where }
+
+// assertDoctorCredentialResponse is returned by assertDoctorCredential on success.
+type assertDoctorCredentialResponse struct {
+	AssertDoctorPassword bool `json:"assertDoctorPassword"`
+}
+
+// GetAssertDoctorPassword returns assertDoctorCredentialResponse.AssertDoctorPassword, and is useful for accessing the field via an interface.
+func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
+	return v.AssertDoctorPassword
+}
 
 // getPatientPatient includes the requested fields of the GraphQL type Patient.
 type getPatientPatient struct {
@@ -1193,6 +1223,38 @@ type getPatientResponse struct {
 
 // GetPatient returns getPatientResponse.Patient, and is useful for accessing the field via an interface.
 func (v *getPatientResponse) GetPatient() *getPatientPatient { return v.Patient }
+
+func assertDoctorCredential(
+	ctx context.Context,
+	client graphql.Client,
+	password string,
+	username string,
+) (*assertDoctorCredentialResponse, error) {
+	req := &graphql.Request{
+		OpName: "assertDoctorCredential",
+		Query: `
+query assertDoctorCredential ($password: String!, $username: String!) {
+	assertDoctorPassword(password: $password, username: $username)
+}
+`,
+		Variables: &__assertDoctorCredentialInput{
+			Password: password,
+			Username: username,
+		},
+	}
+	var err error
+
+	var data assertDoctorCredentialResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
 
 func getPatient(
 	ctx context.Context,

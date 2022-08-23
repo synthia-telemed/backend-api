@@ -327,8 +327,10 @@ type Doctor {
     initial_th: String!
     lastname_en: String!
     lastname_th: String!
+    password: String!
     position: String!
     updatedAt: DateTime!
+    username: String!
 }
 
 type DoctorAvgAggregate {
@@ -349,8 +351,10 @@ type DoctorCountAggregate {
     initial_th: Int!
     lastname_en: Int!
     lastname_th: Int!
+    password: Int!
     position: Int!
     updatedAt: Int!
+    username: Int!
 }
 
 input DoctorCreateInput {
@@ -362,8 +366,10 @@ input DoctorCreateInput {
     initial_th: String!
     lastname_en: String!
     lastname_th: String!
+    password: String!
     position: String!
     updatedAt: DateTime
+    username: String!
 }
 
 input DoctorCreateNestedOneWithoutAppointmentsInput {
@@ -385,8 +391,10 @@ input DoctorCreateWithoutAppointmentsInput {
     initial_th: String!
     lastname_en: String!
     lastname_th: String!
+    password: String!
     position: String!
     updatedAt: DateTime
+    username: String!
 }
 
 type DoctorMaxAggregate {
@@ -398,8 +406,10 @@ type DoctorMaxAggregate {
     initial_th: String
     lastname_en: String
     lastname_th: String
+    password: String
     position: String
     updatedAt: DateTime
+    username: String
 }
 
 type DoctorMinAggregate {
@@ -411,8 +421,10 @@ type DoctorMinAggregate {
     initial_th: String
     lastname_en: String
     lastname_th: String
+    password: String
     position: String
     updatedAt: DateTime
+    username: String
 }
 
 input DoctorOrderByWithRelationInput {
@@ -425,8 +437,10 @@ input DoctorOrderByWithRelationInput {
     initial_th: SortOrder
     lastname_en: SortOrder
     lastname_th: SortOrder
+    password: SortOrder
     position: SortOrder
     updatedAt: SortOrder
+    username: SortOrder
 }
 
 input DoctorRelationFilter {
@@ -443,8 +457,10 @@ enum DoctorScalarFieldEnum {
     initial_th
     lastname_en
     lastname_th
+    password
     position
     updatedAt
+    username
 }
 
 type DoctorSumAggregate {
@@ -464,12 +480,15 @@ input DoctorWhereInput {
     initial_th: StringFilter
     lastname_en: StringFilter
     lastname_th: StringFilter
+    password: StringFilter
     position: StringFilter
     updatedAt: DateTimeFilter
+    username: StringFilter
 }
 
 input DoctorWhereUniqueInput {
     id: Int
+    username: String
 }
 
 input EnumAppointmentStatusFilter {
@@ -1414,6 +1433,7 @@ input PrescriptionWhereUniqueInput {
 type Query {
     appointment(where: AppointmentWhereInput!): Appointment
     appointments(cursor: AppointmentWhereUniqueInput, distinct: [AppointmentScalarFieldEnum!], orderBy: [AppointmentOrderByWithRelationInput!], skip: Int, take: Int, where: AppointmentWhereInput): [Appointment!]!
+    assertDoctorPassword(password: String!, username: String!): Boolean!
     doctor(where: DoctorWhereInput!): Doctor
     doctors(cursor: DoctorWhereUniqueInput, distinct: [DoctorScalarFieldEnum!], orderBy: [DoctorOrderByWithRelationInput!], skip: Int, take: Int, where: DoctorWhereInput): [Doctor!]!
     invoice(where: InvoiceWhereInput!): Invoice
