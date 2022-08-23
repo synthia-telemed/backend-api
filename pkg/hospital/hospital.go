@@ -45,6 +45,21 @@ type Patient struct {
 	Weight       float64   `json:"weight"`
 }
 
+type Doctor struct {
+	CreatedAt    time.Time `json:"createdAt"`
+	Firstname_en string    `json:"firstname_en"`
+	Firstname_th string    `json:"firstname_th"`
+	Id           string    `json:"id"`
+	Initial_en   string    `json:"initial_en"`
+	Initial_th   string    `json:"initial_th"`
+	Lastname_en  string    `json:"lastname_en"`
+	Lastname_th  string    `json:"lastname_th"`
+	Password     string    `json:"password"`
+	Position     string    `json:"position"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Username     string    `json:"username"`
+}
+
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
 	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
 		OR: []*PatientWhereInput{
@@ -66,4 +81,12 @@ func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, pas
 		return false, err
 	}
 	return resp.AssertDoctorPassword, nil
+}
+
+func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error) {
+	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: username}})
+	if err != nil {
+		return nil, err
+	}
+	return (*Doctor)(resp.Doctor), nil
 }
