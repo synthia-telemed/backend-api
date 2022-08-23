@@ -60,6 +60,7 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 			It("should create", func() {
 				Expect(doctor.ID).ToNot(BeZero())
 				Expect(doctor.RefID).To(Equal(refID))
+				Expect(db.First(&datastore.Doctor{}, doctor.ID).Error).To(Succeed())
 			})
 		})
 		When("doctor is existed", func() {
