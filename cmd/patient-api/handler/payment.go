@@ -5,6 +5,7 @@ import (
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
+	"github.com/synthia-telemed/backend-api/pkg/server"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -39,10 +40,10 @@ type AddCreditCardRequest struct {
 // @Tags         Payment
 // @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token from Omise"
 // @Success      201
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      400  {object}  ErrorResponse "Failed to add credit card"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      400  {object}  server.ErrorResponse "Failed to add credit card"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /payment/credit-card [post]
@@ -52,31 +53,31 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
 		return
 	}
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
 		return
 	}
 
 	if patient.PaymentCustomerID == nil {
 		cusID, err := h.paymentClient.CreateCustomer(patientID)
 		if err != nil {
-			InternalServerError(c, h.logger, err, "h.paymentClient.CreateCustomer error")
+			server.InternalServerError(c, h.logger, err, "h.paymentClient.CreateCustomer error")
 			return
 		}
 		patient.PaymentCustomerID = &cusID
 		if err := h.patientDataStore.Save(patient); err != nil {
-			InternalServerError(c, h.logger, err, "h.patientDataStore.Save error")
+			server.InternalServerError(c, h.logger, err, "h.patientDataStore.Save error")
 			return
 		}
 	}
 
 	if err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrFailedToAddCreditCard)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrFailedToAddCreditCard)
 		return
 	}
 
@@ -87,8 +88,8 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Summary      Get lists of saved credit cards
 // @Tags         Payment
 // @Success      200  {array}   payment.Card  "List of saved cards"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /payment/credit-card [get]
@@ -98,7 +99,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
 		return
 	}
 	if patient.PaymentCustomerID == nil {
@@ -108,7 +109,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 
 	cards, err := h.paymentClient.ListCards(*patient.PaymentCustomerID)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.paymentClient.ListCards error")
+		server.InternalServerError(c, h.logger, err, "h.paymentClient.ListCards error")
 		return
 	}
 	c.JSON(http.StatusOK, cards)

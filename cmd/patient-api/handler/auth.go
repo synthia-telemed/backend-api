@@ -8,6 +8,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"github.com/synthia-telemed/backend-api/pkg/token"
 	"go.uber.org/zap"
@@ -55,39 +56,39 @@ type SigninResponse struct {
 // @Tags         Auth
 // @Param 	  	 SigninRequest body SigninRequest true "Patient government credential (Passport ID or National ID)"
 // @Success      201  {object}  SigninResponse "OTP is sent to patient's phone number"
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      404  {object}  ErrorResponse "Provided credential is not in the hospital system"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      404  {object}  server.ErrorResponse "Provided credential is not in the hospital system"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Router       /auth/signin [post]
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
 		return
 	}
 
 	patientInfo, err := h.hospitalSysClient.FindPatientByGovCredential(context.Background(), req.Credential)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.hospitalSysClient.FindPatientByGovCredential error")
+		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.FindPatientByGovCredential error")
 		return
 	}
 	if patientInfo == nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrPatientNotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, server.ErrPatientNotFound)
 		return
 	}
 
 	otp, err := gonanoid.Generate("1234567890", 6)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "gonanoid.Generate error")
+		server.InternalServerError(c, h.logger, err, "gonanoid.Generate error")
 		return
 	}
 
 	if err := h.cacheClient.Set(context.Background(), otp, patientInfo.Id, time.Minute*10); err != nil {
-		InternalServerError(c, h.logger, err, "h.cacheClient.Set error")
+		server.InternalServerError(c, h.logger, err, "h.cacheClient.Set error")
 		return
 	}
 	if err := h.smsClient.Send(patientInfo.PhoneNumber, fmt.Sprintf("Your OTP is %s", otp)); err != nil {
-		InternalServerError(c, h.logger, err, "h.smsClient.Send error")
+		server.InternalServerError(c, h.logger, err, "h.smsClient.Send error")
 		return
 	}
 
@@ -110,36 +111,36 @@ type VerifyOTPResponse struct {
 // @Tags         Auth
 // @Param 	  	 VerifyOTPRequest body VerifyOTPRequest true "OTP that is sent to patient's phone number"
 // @Success      201  {object}  VerifyOTPResponse "JWS Token for later use"
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      400  {object}  ErrorResponse "OTP is invalid or expired"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      400  {object}  server.ErrorResponse "OTP is invalid or expired"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Router       /auth/verify [post]
 func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	var req VerifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
 		return
 	}
 
 	refID, err := h.cacheClient.Get(context.Background(), req.OTP, true)
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.cacheClient.Get error")
+		server.InternalServerError(c, h.logger, err, "h.cacheClient.Get error")
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidOTP)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidOTP)
 		return
 	}
 
 	patient := &datastore.Patient{RefID: refID}
 	if err := h.patientDataStore.FindOrCreate(patient); err != nil {
-		InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
+		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
 		return
 	}
 
 	jws, err := h.tokenService.GenerateToken(uint64(patient.ID), "Patient")
 	if err != nil {
-		InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
+		server.InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
 		return
 	}
 	c.JSON(http.StatusCreated, VerifyOTPResponse{Token: jws})

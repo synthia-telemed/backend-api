@@ -1,12 +1,62 @@
 basePath: /doctor/api
 consumes:
 - application/json
+definitions:
+  handler.SigninRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.SigninResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  server.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
 info:
   contact: {}
   description: This is a Synthia doctor backend API.
   title: Synthia Doctor Backend API
   version: 1.0.0
-paths: {}
+paths:
+  /auth/signin:
+    post:
+      parameters:
+      - description: Username and password of the doctor
+        in: body
+        name: SigninRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SigninRequest'
+      responses:
+        "201":
+          description: Token is return when authentication is successes
+          schema:
+            $ref: '#/definitions/handler.SigninResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Provided credential is not in the hospital system
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Signin doctor with credential
+      tags:
+      - Auth
 produces:
 - application/json
 securityDefinitions:

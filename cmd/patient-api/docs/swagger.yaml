@@ -73,11 +73,6 @@ definitions:
     - pulse
     - systolic
     type: object
-  handler.ErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
   handler.GlucoseRequest:
     properties:
       date_time:
@@ -126,6 +121,11 @@ definitions:
       last_digits:
         type: string
     type: object
+  server.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
 info:
   contact: {}
   description: This is a Synthia patient backend API.
@@ -151,15 +151,15 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "404":
           description: Provided credential is not in the hospital system
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Start signing-in with government credential
       tags:
       - Auth
@@ -182,11 +182,11 @@ paths:
         "400":
           description: OTP is invalid or expired
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Verify OTP and get token
       tags:
       - Auth
@@ -207,15 +207,15 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       security:
       - UserID: []
       - JWSToken: []
@@ -239,15 +239,15 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       security:
       - UserID: []
       - JWSToken: []
@@ -266,11 +266,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       security:
       - UserID: []
       - JWSToken: []
@@ -291,15 +291,15 @@ paths:
         "400":
           description: Failed to add credit card
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/server.ErrorResponse'
       security:
       - UserID: []
       - JWSToken: []

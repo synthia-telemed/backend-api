@@ -23,6 +23,7 @@ mockgen:
 	mockgen -source=pkg/payment/client.go -destination=test/mock_payment/mock_payment.go -package mock_payment
 	mockgen -source=pkg/datastore/patient.go -destination=test/mock_datastore/mock_patient_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/measurement.go -destination=test/mock_datastore/mock_measurement_datastore.go -package mock_datastore
+	mockgen -source=pkg/datastore/doctor.go -destination=test/mock_datastore/mock_doctor_datastore.go -package mock_datastore
 
 gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml

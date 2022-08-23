@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/server"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -39,16 +40,16 @@ type BloodPressureRequest struct {
 // @Tags         Measurement
 // @Param 	  	 BloodPressureRequest body BloodPressureRequest true "Blood pressure information"
 // @Success      201  {object}  datastore.BloodPressure
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /measurement/blood-pressure [post]
 func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 	var req BloodPressureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
 		return
 	}
 	id, _ := c.Get("patientID")
@@ -62,7 +63,7 @@ func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 		Pulse:     req.Pulse,
 	}
 	if err := h.measurementDataStore.CreateBloodPressure(bp); err != nil {
-		InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateBloodPressure error")
+		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateBloodPressure error")
 	}
 	c.JSON(http.StatusCreated, bp)
 }
@@ -78,9 +79,9 @@ type GlucoseRequest struct {
 // @Tags         Measurement
 // @Param 	  	 GlucoseRequest body GlucoseRequest true "Glucose level information"
 // @Success      201  {object}  datastore.Glucose
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /measurement/glucose [post]
@@ -88,7 +89,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 	var req GlucoseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Debug(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
 		return
 	}
 	id, _ := c.Get("patientID")
@@ -101,7 +102,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 		IsBeforeMeal: *req.IsBeforeMeal,
 	}
 	if err := h.measurementDataStore.CreateGlucose(g); err != nil {
-		InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateGlucose error")
+		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateGlucose error")
 	}
 	c.JSON(http.StatusCreated, g)
 }
