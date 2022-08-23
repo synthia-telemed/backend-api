@@ -228,8 +228,10 @@ type DoctorWhereInput struct {
 	Initial_th   *StringFilter                  `json:"initial_th,omitempty"`
 	Lastname_en  *StringFilter                  `json:"lastname_en,omitempty"`
 	Lastname_th  *StringFilter                  `json:"lastname_th,omitempty"`
+	Password     *StringFilter                  `json:"password,omitempty"`
 	Position     *StringFilter                  `json:"position,omitempty"`
 	UpdatedAt    *DateTimeFilter                `json:"updatedAt,omitempty"`
+	Username     *StringFilter                  `json:"username,omitempty"`
 }
 
 // GetAND returns DoctorWhereInput.AND, and is useful for accessing the field via an interface.
@@ -268,11 +270,17 @@ func (v *DoctorWhereInput) GetLastname_en() *StringFilter { return v.Lastname_en
 // GetLastname_th returns DoctorWhereInput.Lastname_th, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetLastname_th() *StringFilter { return v.Lastname_th }
 
+// GetPassword returns DoctorWhereInput.Password, and is useful for accessing the field via an interface.
+func (v *DoctorWhereInput) GetPassword() *StringFilter { return v.Password }
+
 // GetPosition returns DoctorWhereInput.Position, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetPosition() *StringFilter { return v.Position }
 
 // GetUpdatedAt returns DoctorWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
+
+// GetUsername returns DoctorWhereInput.Username, and is useful for accessing the field via an interface.
+func (v *DoctorWhereInput) GetUsername() *StringFilter { return v.Username }
 
 type EnumAppointmentStatusFilter struct {
 	Equals AppointmentStatus                  `json:"equals"`
@@ -1106,6 +1114,26 @@ func (v *StringNullableFilter) GetNotIn() []string { return v.NotIn }
 // GetStartsWith returns StringNullableFilter.StartsWith, and is useful for accessing the field via an interface.
 func (v *StringNullableFilter) GetStartsWith() string { return v.StartsWith }
 
+// __assertDoctorCredentialInput is used internally by genqlient
+type __assertDoctorCredentialInput struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// GetPassword returns __assertDoctorCredentialInput.Password, and is useful for accessing the field via an interface.
+func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password }
+
+// GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
+func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
+
+// __getDoctorInput is used internally by genqlient
+type __getDoctorInput struct {
+	Where *DoctorWhereInput `json:"where,omitempty"`
+}
+
+// GetWhere returns __getDoctorInput.Where, and is useful for accessing the field via an interface.
+func (v *__getDoctorInput) GetWhere() *DoctorWhereInput { return v.Where }
+
 // __getPatientInput is used internally by genqlient
 type __getPatientInput struct {
 	Where *PatientWhereInput `json:"where,omitempty"`
@@ -1113,6 +1141,76 @@ type __getPatientInput struct {
 
 // GetWhere returns __getPatientInput.Where, and is useful for accessing the field via an interface.
 func (v *__getPatientInput) GetWhere() *PatientWhereInput { return v.Where }
+
+// assertDoctorCredentialResponse is returned by assertDoctorCredential on success.
+type assertDoctorCredentialResponse struct {
+	AssertDoctorPassword bool `json:"assertDoctorPassword"`
+}
+
+// GetAssertDoctorPassword returns assertDoctorCredentialResponse.AssertDoctorPassword, and is useful for accessing the field via an interface.
+func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
+	return v.AssertDoctorPassword
+}
+
+// getDoctorDoctor includes the requested fields of the GraphQL type Doctor.
+type getDoctorDoctor struct {
+	CreatedAt    time.Time `json:"createdAt"`
+	Firstname_en string    `json:"firstname_en"`
+	Firstname_th string    `json:"firstname_th"`
+	Id           string    `json:"id"`
+	Initial_en   string    `json:"initial_en"`
+	Initial_th   string    `json:"initial_th"`
+	Lastname_en  string    `json:"lastname_en"`
+	Lastname_th  string    `json:"lastname_th"`
+	Password     string    `json:"password"`
+	Position     string    `json:"position"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Username     string    `json:"username"`
+}
+
+// GetCreatedAt returns getDoctorDoctor.CreatedAt, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetCreatedAt() time.Time { return v.CreatedAt }
+
+// GetFirstname_en returns getDoctorDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetFirstname_en() string { return v.Firstname_en }
+
+// GetFirstname_th returns getDoctorDoctor.Firstname_th, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetFirstname_th() string { return v.Firstname_th }
+
+// GetId returns getDoctorDoctor.Id, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetId() string { return v.Id }
+
+// GetInitial_en returns getDoctorDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetInitial_en() string { return v.Initial_en }
+
+// GetInitial_th returns getDoctorDoctor.Initial_th, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetInitial_th() string { return v.Initial_th }
+
+// GetLastname_en returns getDoctorDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetLastname_en() string { return v.Lastname_en }
+
+// GetLastname_th returns getDoctorDoctor.Lastname_th, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetLastname_th() string { return v.Lastname_th }
+
+// GetPassword returns getDoctorDoctor.Password, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetPassword() string { return v.Password }
+
+// GetPosition returns getDoctorDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetPosition() string { return v.Position }
+
+// GetUpdatedAt returns getDoctorDoctor.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetUpdatedAt() time.Time { return v.UpdatedAt }
+
+// GetUsername returns getDoctorDoctor.Username, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetUsername() string { return v.Username }
+
+// getDoctorResponse is returned by getDoctor on success.
+type getDoctorResponse struct {
+	Doctor *getDoctorDoctor `json:"doctor"`
+}
+
+// GetDoctor returns getDoctorResponse.Doctor, and is useful for accessing the field via an interface.
+func (v *getDoctorResponse) GetDoctor() *getDoctorDoctor { return v.Doctor }
 
 // getPatientPatient includes the requested fields of the GraphQL type Patient.
 type getPatientPatient struct {
@@ -1193,6 +1291,81 @@ type getPatientResponse struct {
 
 // GetPatient returns getPatientResponse.Patient, and is useful for accessing the field via an interface.
 func (v *getPatientResponse) GetPatient() *getPatientPatient { return v.Patient }
+
+func assertDoctorCredential(
+	ctx context.Context,
+	client graphql.Client,
+	password string,
+	username string,
+) (*assertDoctorCredentialResponse, error) {
+	req := &graphql.Request{
+		OpName: "assertDoctorCredential",
+		Query: `
+query assertDoctorCredential ($password: String!, $username: String!) {
+	assertDoctorPassword(password: $password, username: $username)
+}
+`,
+		Variables: &__assertDoctorCredentialInput{
+			Password: password,
+			Username: username,
+		},
+	}
+	var err error
+
+	var data assertDoctorCredentialResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getDoctor(
+	ctx context.Context,
+	client graphql.Client,
+	where *DoctorWhereInput,
+) (*getDoctorResponse, error) {
+	req := &graphql.Request{
+		OpName: "getDoctor",
+		Query: `
+query getDoctor ($where: DoctorWhereInput!) {
+	doctor(where: $where) {
+		createdAt
+		firstname_en
+		firstname_th
+		id
+		initial_en
+		initial_th
+		lastname_en
+		lastname_th
+		password
+		position
+		updatedAt
+		username
+	}
+}
+`,
+		Variables: &__getDoctorInput{
+			Where: where,
+		},
+	}
+	var err error
+
+	var data getDoctorResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
 
 func getPatient(
 	ctx context.Context,

@@ -19,3 +19,24 @@ query getPatient($where: PatientWhereInput!) {
         weight
     }
 }
+
+query getDoctor($where: DoctorWhereInput!) {
+    doctor(where: $where) {
+        createdAt
+        firstname_en
+        firstname_th
+        id
+        initial_en
+        initial_th
+        lastname_en
+        lastname_th
+        password
+        position
+        updatedAt
+        username
+    }
+}
+
+query assertDoctorCredential($password: String!, $username: String!) {
+    assertDoctorPassword(password: $password, username: $username)
+}

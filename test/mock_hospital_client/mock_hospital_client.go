@@ -35,6 +35,36 @@ func (m *MockSystemClient) EXPECT() *MockSystemClientMockRecorder {
 	return m.recorder
 }
 
+// AssertDoctorCredential mocks base method.
+func (m *MockSystemClient) AssertDoctorCredential(ctx context.Context, username, password string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssertDoctorCredential", ctx, username, password)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssertDoctorCredential indicates an expected call of AssertDoctorCredential.
+func (mr *MockSystemClientMockRecorder) AssertDoctorCredential(ctx, username, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssertDoctorCredential", reflect.TypeOf((*MockSystemClient)(nil).AssertDoctorCredential), ctx, username, password)
+}
+
+// FindDoctorByUsername mocks base method.
+func (m *MockSystemClient) FindDoctorByUsername(ctx context.Context, username string) (*hospital.Doctor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindDoctorByUsername", ctx, username)
+	ret0, _ := ret[0].(*hospital.Doctor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindDoctorByUsername indicates an expected call of FindDoctorByUsername.
+func (mr *MockSystemClientMockRecorder) FindDoctorByUsername(ctx, username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindDoctorByUsername", reflect.TypeOf((*MockSystemClient)(nil).FindDoctorByUsername), ctx, username)
+}
+
 // FindPatientByGovCredential mocks base method.
 func (m *MockSystemClient) FindPatientByGovCredential(ctx context.Context, cred string) (*hospital.Patient, error) {
 	m.ctrl.T.Helper()

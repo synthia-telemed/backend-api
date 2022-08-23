@@ -5,9 +5,15 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/synthia-telemed/backend-api/cmd/doctor-api/docs"
+	"github.com/synthia-telemed/backend-api/cmd/doctor-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/config"
+	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/token"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -48,7 +54,28 @@ func main() {
 	}
 	defer sentry.Flush(2 * time.Second)
 
+	db, err := gorm.Open(postgres.Open(cfg.DB.DSN()), &gorm.Config{})
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to connect to database", "error", err)
+	}
+	doctorDataStore, err := datastore.NewGormDoctorDataStore(db)
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to create doctor data store", "error", err)
+	}
+	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
+	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
+	if err != nil {
+		sentry.CaptureException(err)
+		sugaredLogger.Fatalw("Failed to create token service", "error", err)
+	}
+
+	// Handlers
+	authHandler := handler.NewAuthHandler(hospitalSysClient, tokenService, doctorDataStore, sugaredLogger)
+
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
+	ginServer.RegisterHandlers("/api", authHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }
