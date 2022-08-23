@@ -41,6 +41,15 @@ type SigninResponse struct {
 	Token string `json:"token"`
 }
 
+// Signin godoc
+// @Summary      Signin doctor with credential
+// @Tags         Auth
+// @Param 	  	 SigninRequest body SigninRequest true "Username and password of the doctor"
+// @Success      201  {object}  SigninResponse "Token is return when authentication is successes"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse "Provided credential is not in the hospital system"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Router       /auth/signin [post]
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

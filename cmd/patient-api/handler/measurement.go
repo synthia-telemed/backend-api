@@ -40,9 +40,9 @@ type BloodPressureRequest struct {
 // @Tags         Measurement
 // @Param 	  	 BloodPressureRequest body BloodPressureRequest true "Blood pressure information"
 // @Success      201  {object}  datastore.BloodPressure
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /measurement/blood-pressure [post]
@@ -79,9 +79,9 @@ type GlucoseRequest struct {
 // @Tags         Measurement
 // @Param 	  	 GlucoseRequest body GlucoseRequest true "Glucose level information"
 // @Success      201  {object}  datastore.Glucose
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /measurement/glucose [post]

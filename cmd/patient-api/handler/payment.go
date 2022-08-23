@@ -40,10 +40,10 @@ type AddCreditCardRequest struct {
 // @Tags         Payment
 // @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token from Omise"
 // @Success      201
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      400  {object}  ErrorResponse "Failed to add credit card"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      400  {object}  server.ErrorResponse "Failed to add credit card"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /payment/credit-card [post]
@@ -88,8 +88,8 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Summary      Get lists of saved credit cards
 // @Tags         Payment
 // @Success      200  {array}   payment.Card  "List of saved cards"
-// @Failure      401  {object}  ErrorResponse "Unauthorized"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
 // @Router       /payment/credit-card [get]

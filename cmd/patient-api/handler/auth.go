@@ -56,9 +56,9 @@ type SigninResponse struct {
 // @Tags         Auth
 // @Param 	  	 SigninRequest body SigninRequest true "Patient government credential (Passport ID or National ID)"
 // @Success      201  {object}  SigninResponse "OTP is sent to patient's phone number"
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      404  {object}  ErrorResponse "Provided credential is not in the hospital system"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      404  {object}  server.ErrorResponse "Provided credential is not in the hospital system"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Router       /auth/signin [post]
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
@@ -111,9 +111,9 @@ type VerifyOTPResponse struct {
 // @Tags         Auth
 // @Param 	  	 VerifyOTPRequest body VerifyOTPRequest true "OTP that is sent to patient's phone number"
 // @Success      201  {object}  VerifyOTPResponse "JWS Token for later use"
-// @Failure      400  {object}  ErrorResponse "Invalid request body"
-// @Failure      400  {object}  ErrorResponse "OTP is invalid or expired"
-// @Failure      500  {object}  ErrorResponse "Internal server error"
+// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
+// @Failure      400  {object}  server.ErrorResponse "OTP is invalid or expired"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Router       /auth/verify [post]
 func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	var req VerifyOTPRequest
