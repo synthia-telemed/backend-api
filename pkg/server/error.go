@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	sentrygin "github.com/getsentry/sentry-go/gin"
@@ -9,8 +9,8 @@ import (
 
 var (
 	ErrInvalidRequestBody = ErrorResponse{Message: "Invalid request body"}
-	ErrPatientNotFound    = ErrorResponse{"Patient not found"}
-	ErrInvalidOTP         = ErrorResponse{"OTP is invalid or expired"}
+	ErrPatientNotFound    = ErrorResponse{Message: "Patient not found"}
+	ErrInvalidOTP         = ErrorResponse{Message: "OTP is invalid or expired"}
 	// Payment
 
 	ErrFailedToAddCreditCard = ErrorResponse{Message: "Failed to add credit card"}
