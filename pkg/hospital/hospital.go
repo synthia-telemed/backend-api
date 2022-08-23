@@ -84,7 +84,7 @@ func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, pas
 }
 
 func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error) {
-	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: username}})
+	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: username, Mode: QueryModeDefault}})
 	if err != nil {
 		return nil, err
 	}

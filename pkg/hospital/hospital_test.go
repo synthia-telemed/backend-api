@@ -74,4 +74,22 @@ var _ = Describe("Hospital Client", func() {
 			})
 		})
 	})
+
+	Context("FindDoctorByUsername", func() {
+		When("doctor is not found", func() {
+			It("should return nil with no error", func() {
+				doctor, err := graphQLClient.FindDoctorByUsername(context.Background(), "awdasdwasdwad")
+				Expect(err).To(BeNil())
+				Expect(doctor).To(BeNil())
+			})
+		})
+
+		When("doctor is found", func() {
+			It("should return doctor", func() {
+				doctor, err := graphQLClient.FindDoctorByUsername(context.Background(), "Jonathon_Kshlerin19")
+				Expect(err).To(BeNil())
+				Expect(doctor.Id).To(Equal("10"))
+			})
+		})
+	})
 })
