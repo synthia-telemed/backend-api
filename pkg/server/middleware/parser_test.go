@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +21,7 @@ var _ = Describe("Parser Middleware", func() {
 		rec = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(rec)
 		c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
-		handlerFunc = middleware.ParsePatientID
+		handlerFunc = middleware.ParseUserID
 	})
 
 	JustBeforeEach(func() {
@@ -51,7 +51,7 @@ var _ = Describe("Parser Middleware", func() {
 		})
 		It("should return 200", func() {
 			Expect(rec.Code).To(Equal(http.StatusOK))
-			id, ok := c.Get("patientID")
+			id, ok := c.Get("UserID")
 			Expect(ok).To(BeTrue())
 			Expect(id).To(Equal(uint(99)))
 		})

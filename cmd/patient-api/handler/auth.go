@@ -16,6 +16,12 @@ import (
 	"time"
 )
 
+var (
+	ErrInvalidRequestBody = server.NewErrorResponse("Invalid request body")
+	ErrPatientNotFound    = server.NewErrorResponse("Patient not found")
+	ErrInvalidOTP         = server.NewErrorResponse("OTP is invalid or expired")
+)
+
 type AuthHandler struct {
 	patientDataStore  datastore.PatientDataStore
 	hospitalSysClient hospital.SystemClient
@@ -23,6 +29,7 @@ type AuthHandler struct {
 	cacheClient       cache.Client
 	logger            *zap.SugaredLogger
 	tokenService      token.Service
+	server.GinHandler
 }
 
 func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, logger *zap.SugaredLogger) *AuthHandler {
@@ -33,6 +40,7 @@ func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospi
 		cacheClient:       cache,
 		logger:            logger,
 		tokenService:      tokenService,
+		GinHandler:        server.GinHandler{Logger: logger},
 	}
 }
 
@@ -63,32 +71,32 @@ type SigninResponse struct {
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
 	patientInfo, err := h.hospitalSysClient.FindPatientByGovCredential(context.Background(), req.Credential)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.FindPatientByGovCredential error")
+		h.InternalServerError(c, err, "h.hospitalSysClient.FindPatientByGovCredential error")
 		return
 	}
 	if patientInfo == nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, server.ErrPatientNotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrPatientNotFound)
 		return
 	}
 
 	otp, err := gonanoid.Generate("1234567890", 6)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "gonanoid.Generate error")
+		h.InternalServerError(c, err, "gonanoid.Generate error")
 		return
 	}
 
 	if err := h.cacheClient.Set(context.Background(), otp, patientInfo.Id, time.Minute*10); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.cacheClient.Set error")
+		h.InternalServerError(c, err, "h.cacheClient.Set error")
 		return
 	}
 	if err := h.smsClient.Send(patientInfo.PhoneNumber, fmt.Sprintf("Your OTP is %s", otp)); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.smsClient.Send error")
+		h.InternalServerError(c, err, "h.smsClient.Send error")
 		return
 	}
 
@@ -118,29 +126,29 @@ type VerifyOTPResponse struct {
 func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	var req VerifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
 	refID, err := h.cacheClient.Get(context.Background(), req.OTP, true)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.cacheClient.Get error")
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidOTP)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidOTP)
 		return
 	}
 
 	patient := &datastore.Patient{RefID: refID}
 	if err := h.patientDataStore.FindOrCreate(patient); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByRefID error")
+		h.InternalServerError(c, err, "h.patientDataStore.FindByRefID error")
 		return
 	}
 
 	jws, err := h.tokenService.GenerateToken(uint64(patient.ID), "Patient")
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
+		h.InternalServerError(c, err, "h.tokenService.GenerateToken error")
 		return
 	}
 	c.JSON(http.StatusCreated, VerifyOTPResponse{Token: jws})

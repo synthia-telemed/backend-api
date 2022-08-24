@@ -15,10 +15,6 @@ import (
 	"time"
 )
 
-type Handler interface {
-	Register(r *gin.RouterGroup)
-}
-
 type Server struct {
 	*gin.Engine
 	logger *zap.SugaredLogger

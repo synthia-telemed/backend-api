@@ -11,19 +11,26 @@ import (
 	"net/http"
 )
 
+var (
+	ErrInvalidRequestBody = server.NewErrorResponse("Invalid request body")
+	ErrInvalidCredential  = server.NewErrorResponse("Invalid credential")
+)
+
 type AuthHandler struct {
 	hospitalSysClient hospital.SystemClient
-	logger            *zap.SugaredLogger
 	tokenService      token.Service
 	doctorDataStore   datastore.DoctorDataStore
+	logger            *zap.SugaredLogger
+	server.GinHandler
 }
 
 func NewAuthHandler(h hospital.SystemClient, t token.Service, ds datastore.DoctorDataStore, l *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		hospitalSysClient: h,
-		logger:            l,
 		tokenService:      t,
 		doctorDataStore:   ds,
+		logger:            l,
+		GinHandler:        server.GinHandler{Logger: l},
 	}
 }
 
@@ -45,43 +52,43 @@ type SigninResponse struct {
 // @Summary      Signin doctor with credential
 // @Tags         Auth
 // @Param 	  	 SigninRequest body SigninRequest true "Username and password of the doctor"
-// @Success      201  {object}  SigninResponse "Token is return when authentication is successes"
-// @Failure      400  {object}  server.ErrorResponse "Invalid request body"
-// @Failure      401  {object}  server.ErrorResponse "Provided credential is not in the hospital system"
-// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Success      201  {object}  SigninResponse 		   "Token is return when authentication is successes"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
+// @Failure      401  {object}  server.ErrorResponse   "Provided credential is not in the hospital system"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
 // @Router       /auth/signin [post]
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
 	isCredValid, err := h.hospitalSysClient.AssertDoctorCredential(context.Background(), req.Username, req.Password)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.AssertDoctorCredential error")
+		h.InternalServerError(c, err, "h.hospitalSysClient.AssertDoctorCredential error")
 		return
 	}
 	if !isCredValid {
-		c.JSON(http.StatusUnauthorized, server.ErrInvalidCredential)
+		c.JSON(http.StatusUnauthorized, ErrInvalidCredential)
 		return
 	}
 
 	d, err := h.hospitalSysClient.FindDoctorByUsername(context.Background(), req.Username)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.FindDoctorByUsername error")
+		h.InternalServerError(c, err, "h.hospitalSysClient.FindDoctorByUsername error")
 		return
 	}
 
 	doctor := &datastore.Doctor{RefID: d.Id}
 	if err := h.doctorDataStore.FindOrCreate(doctor); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.doctorDataStore.FindOrCreate error")
+		h.InternalServerError(c, err, "h.doctorDataStore.FindOrCreate error")
 		return
 	}
 
 	jws, err := h.tokenService.GenerateToken(uint64(doctor.ID), "Doctor")
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
+		h.InternalServerError(c, err, "h.tokenService.GenerateToken error")
 		return
 	}
 	c.JSON(http.StatusCreated, SigninResponse{Token: jws})

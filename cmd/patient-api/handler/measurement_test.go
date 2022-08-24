@@ -37,7 +37,7 @@ var _ = Describe("Measurement Handler", func() {
 		rec = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(rec)
 		patientID = uint(rand.Uint32())
-		c.Set("patientID", patientID)
+		c.Set("UserID", patientID)
 
 		mockMeasurementDataStore = mock_datastore.NewMockMeasurementDataStore(mockCtrl)
 		h = handler.NewMeasurementHandler(mockMeasurementDataStore, zap.NewNop().Sugar())
