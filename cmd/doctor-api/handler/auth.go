@@ -29,7 +29,7 @@ func NewAuthHandler(h hospital.SystemClient, t token.Service, ds datastore.Docto
 
 func (h AuthHandler) Register(r *gin.RouterGroup) {
 	authGroup := r.Group("/auth")
-	authGroup.POST("/signin", h.signin)
+	authGroup.POST("/signin", h.Signin)
 }
 
 type SigninRequest struct {
@@ -50,7 +50,7 @@ type SigninResponse struct {
 // @Failure      401  {object}  server.ErrorResponse   "Provided credential is not in the hospital system"
 // @Failure      500  {object}  server.ErrorResponse   "Internal server error"
 // @Router       /auth/signin [post]
-func (h AuthHandler) signin(c *gin.Context) {
+func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
