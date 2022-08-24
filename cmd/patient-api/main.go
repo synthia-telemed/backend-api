@@ -15,6 +15,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"github.com/synthia-telemed/backend-api/pkg/token"
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -58,31 +59,20 @@ func main() {
 	defer sentry.Flush(2 * time.Second)
 
 	db, err := gorm.Open(postgres.Open(cfg.DB.DSN()), &gorm.Config{})
-	if err != nil {
-		sugaredLogger.Fatalw("Failed to connect to database", "error", err)
-	}
+	assertFatalError(sugaredLogger, err, "Failed to connect to database")
+
 	patientDataStore, err := datastore.NewGormPatientDataStore(db)
-	if err != nil {
-		sugaredLogger.Fatalw("Failed to create patient data store", "error", err)
-	}
+	assertFatalError(sugaredLogger, err, "Failed to create patient data store")
 	measurementDataStore, err := datastore.NewGormMeasurementDataStore(db)
-	if err != nil {
-		sugaredLogger.Fatalw("Failed to create measurement data store", "error", err)
-	}
+	assertFatalError(sugaredLogger, err, "Failed to create measurement data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
 	cacheClient := cache.NewRedisClient(&cfg.Cache)
 	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
-	if err != nil {
-		sentry.CaptureException(err)
-		sugaredLogger.Fatalw("Failed to create token service", "error", err)
-	}
+	assertFatalError(sugaredLogger, err, "Failed to create token service")
 	paymentClient, err := payment.NewOmisePaymentClient(&cfg.Payment)
-	if err != nil {
-		sentry.CaptureException(err)
-		sugaredLogger.Fatalw("Failed to create payment client", "error", err)
-	}
+	assertFatalError(sugaredLogger, err, "Failed to create payment client")
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
@@ -93,4 +83,13 @@ func main() {
 	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, measurementHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
+}
+
+func assertFatalError(logger *zap.SugaredLogger, err error, msg string) {
+	if err == nil {
+		return
+	}
+	sentry.CaptureException(err)
+	sentry.Flush(time.Second * 2)
+	logger.Fatalw(msg, "error", err)
 }
