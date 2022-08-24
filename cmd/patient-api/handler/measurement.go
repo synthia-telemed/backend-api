@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"time"

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 
 	"net/http"
 	"net/http/httptest"
