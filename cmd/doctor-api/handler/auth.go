@@ -13,17 +13,17 @@ import (
 
 type AuthHandler struct {
 	hospitalSysClient hospital.SystemClient
-	logger            *zap.SugaredLogger
 	tokenService      token.Service
 	doctorDataStore   datastore.DoctorDataStore
+	server.GinHandler
 }
 
 func NewAuthHandler(h hospital.SystemClient, t token.Service, ds datastore.DoctorDataStore, l *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		hospitalSysClient: h,
-		logger:            l,
 		tokenService:      t,
 		doctorDataStore:   ds,
+		GinHandler:        server.GinHandler{Logger: l},
 	}
 }
 
@@ -59,7 +59,7 @@ func (h AuthHandler) Signin(c *gin.Context) {
 
 	isCredValid, err := h.hospitalSysClient.AssertDoctorCredential(context.Background(), req.Username, req.Password)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.AssertDoctorCredential error")
+		h.InternalServerError(c, err, "h.hospitalSysClient.AssertDoctorCredential error")
 		return
 	}
 	if !isCredValid {
@@ -69,19 +69,19 @@ func (h AuthHandler) Signin(c *gin.Context) {
 
 	d, err := h.hospitalSysClient.FindDoctorByUsername(context.Background(), req.Username)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.hospitalSysClient.FindDoctorByUsername error")
+		h.InternalServerError(c, err, "h.hospitalSysClient.FindDoctorByUsername error")
 		return
 	}
 
 	doctor := &datastore.Doctor{RefID: d.Id}
 	if err := h.doctorDataStore.FindOrCreate(doctor); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.doctorDataStore.FindOrCreate error")
+		h.InternalServerError(c, err, "h.doctorDataStore.FindOrCreate error")
 		return
 	}
 
 	jws, err := h.tokenService.GenerateToken(uint64(doctor.ID), "Doctor")
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.tokenService.GenerateToken error")
+		h.InternalServerError(c, err, "h.tokenService.GenerateToken error")
 		return
 	}
 	c.JSON(http.StatusCreated, SigninResponse{Token: jws})
