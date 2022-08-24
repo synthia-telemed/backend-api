@@ -51,7 +51,7 @@ type BloodPressureRequest struct {
 func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 	var req BloodPressureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 	id, _ := c.Get("patientID")
@@ -91,7 +91,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 	var req GlucoseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Debug(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 	id, _ := c.Get("patientID")

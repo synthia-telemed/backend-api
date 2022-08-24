@@ -16,6 +16,12 @@ import (
 	"time"
 )
 
+var (
+	ErrInvalidRequestBody = server.NewErrorResponse("Invalid request body")
+	ErrPatientNotFound    = server.NewErrorResponse("Patient not found")
+	ErrInvalidOTP         = server.NewErrorResponse("OTP is invalid or expired")
+)
+
 type AuthHandler struct {
 	patientDataStore  datastore.PatientDataStore
 	hospitalSysClient hospital.SystemClient
@@ -65,7 +71,7 @@ type SigninResponse struct {
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -75,7 +81,7 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 	if patientInfo == nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, server.ErrPatientNotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrPatientNotFound)
 		return
 	}
 
@@ -120,7 +126,7 @@ type VerifyOTPResponse struct {
 func (h AuthHandler) VerifyOTP(c *gin.Context) {
 	var req VerifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -130,7 +136,7 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 	if len(refID) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidOTP)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidOTP)
 		return
 	}
 

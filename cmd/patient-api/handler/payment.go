@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+var (
+	ErrFailedToAddCreditCard = server.NewErrorResponse("Failed to add credit card")
+)
+
 type PaymentHandler struct {
 	paymentClient    payment.Client
 	patientDataStore datastore.PatientDataStore
@@ -55,7 +59,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -79,7 +83,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	}
 
 	if err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrFailedToAddCreditCard)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrFailedToAddCreditCard)
 		return
 	}
 
