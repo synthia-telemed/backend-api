@@ -22,3 +22,8 @@ func (h GinHandler) InternalServerError(c *gin.Context, err error, msg string) {
 	h.Logger.Errorw(msg, "error", err.Error())
 	c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
 }
+
+func (h GinHandler) GetUserID(c *gin.Context) uint {
+	id, _ := c.Get("UserID")
+	return id.(uint)
+}

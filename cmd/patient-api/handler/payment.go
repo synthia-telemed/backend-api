@@ -54,8 +54,7 @@ type AddCreditCardRequest struct {
 // @Security     JWSToken
 // @Router       /payment/credit-card [post]
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
-	id, _ := c.Get("UserID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,8 +99,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Security     JWSToken
 // @Router       /payment/credit-card [get]
 func (h PaymentHandler) GetCreditCards(c *gin.Context) {
-	id, _ := c.Get("UserID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
