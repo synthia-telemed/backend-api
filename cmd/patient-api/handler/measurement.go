@@ -25,7 +25,7 @@ func NewMeasurementHandler(m datastore.MeasurementDataStore, l *zap.SugaredLogge
 }
 
 func (h MeasurementHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("/measurement", middleware.ParsePatientID)
+	g := r.Group("/measurement", middleware.ParseUserID)
 	g.POST("/blood-pressure", h.CreateBloodPressure)
 	g.POST("/glucose", h.CreateGlucose)
 }
@@ -54,7 +54,7 @@ func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
-	id, _ := c.Get("patientID")
+	id, _ := c.Get("UserID")
 	patientID := id.(uint)
 
 	bp := &datastore.BloodPressure{
@@ -94,7 +94,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
-	id, _ := c.Get("patientID")
+	id, _ := c.Get("UserID")
 	patientID := id.(uint)
 
 	g := &datastore.Glucose{
