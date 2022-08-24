@@ -2,18 +2,23 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
+)
+
+var (
+	ErrFailedToAddCreditCard = server.NewErrorResponse("Failed to add credit card")
 )
 
 type PaymentHandler struct {
 	paymentClient    payment.Client
 	patientDataStore datastore.PatientDataStore
 	logger           *zap.SugaredLogger
+	server.GinHandler
 }
 
 func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, logger *zap.SugaredLogger) *PaymentHandler {
@@ -21,11 +26,12 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 		paymentClient:    paymentClient,
 		patientDataStore: pds,
 		logger:           logger,
+		GinHandler:       server.GinHandler{Logger: logger},
 	}
 }
 
 func (h PaymentHandler) Register(r *gin.RouterGroup) {
-	paymentGroup := r.Group("/payment", middleware.ParsePatientID)
+	paymentGroup := r.Group("/payment", middleware.ParseUserID)
 	paymentGroup.POST("/credit-card", h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
 
@@ -48,36 +54,35 @@ type AddCreditCardRequest struct {
 // @Security     JWSToken
 // @Router       /payment/credit-card [post]
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
-	id, _ := c.Get("patientID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
 		return
 	}
 
 	if patient.PaymentCustomerID == nil {
 		cusID, err := h.paymentClient.CreateCustomer(patientID)
 		if err != nil {
-			server.InternalServerError(c, h.logger, err, "h.paymentClient.CreateCustomer error")
+			h.InternalServerError(c, err, "h.paymentClient.CreateCustomer error")
 			return
 		}
 		patient.PaymentCustomerID = &cusID
 		if err := h.patientDataStore.Save(patient); err != nil {
-			server.InternalServerError(c, h.logger, err, "h.patientDataStore.Save error")
+			h.InternalServerError(c, err, "h.patientDataStore.Save error")
 			return
 		}
 	}
 
 	if err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrFailedToAddCreditCard)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrFailedToAddCreditCard)
 		return
 	}
 
@@ -94,12 +99,11 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Security     JWSToken
 // @Router       /payment/credit-card [get]
 func (h PaymentHandler) GetCreditCards(c *gin.Context) {
-	id, _ := c.Get("patientID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
 		return
 	}
 	if patient.PaymentCustomerID == nil {
@@ -109,7 +113,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 
 	cards, err := h.paymentClient.ListCards(*patient.PaymentCustomerID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.paymentClient.ListCards error")
+		h.InternalServerError(c, err, "h.paymentClient.ListCards error")
 		return
 	}
 	c.JSON(http.StatusOK, cards)

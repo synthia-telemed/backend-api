@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler/middleware"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -13,17 +13,19 @@ import (
 type MeasurementHandler struct {
 	measurementDataStore datastore.MeasurementDataStore
 	logger               *zap.SugaredLogger
+	server.GinHandler
 }
 
 func NewMeasurementHandler(m datastore.MeasurementDataStore, l *zap.SugaredLogger) *MeasurementHandler {
 	return &MeasurementHandler{
 		measurementDataStore: m,
 		logger:               l,
+		GinHandler:           server.GinHandler{Logger: l},
 	}
 }
 
 func (h MeasurementHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("/measurement", middleware.ParsePatientID)
+	g := r.Group("/measurement", middleware.ParseUserID)
 	g.POST("/blood-pressure", h.CreateBloodPressure)
 	g.POST("/glucose", h.CreateGlucose)
 }
@@ -49,11 +51,10 @@ type BloodPressureRequest struct {
 func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 	var req BloodPressureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
-	id, _ := c.Get("patientID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	bp := &datastore.BloodPressure{
 		PatientID: patientID,
@@ -63,7 +64,7 @@ func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 		Pulse:     req.Pulse,
 	}
 	if err := h.measurementDataStore.CreateBloodPressure(bp); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateBloodPressure error")
+		h.InternalServerError(c, err, "h.measurementDataStore.CreateBloodPressure error")
 	}
 	c.JSON(http.StatusCreated, bp)
 }
@@ -89,11 +90,10 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 	var req GlucoseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Debug(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
-	id, _ := c.Get("patientID")
-	patientID := id.(uint)
+	patientID := h.GetUserID(c)
 
 	g := &datastore.Glucose{
 		PatientID:    patientID,
@@ -102,7 +102,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 		IsBeforeMeal: *req.IsBeforeMeal,
 	}
 	if err := h.measurementDataStore.CreateGlucose(g); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateGlucose error")
+		h.InternalServerError(c, err, "h.measurementDataStore.CreateGlucose error")
 	}
 	c.JSON(http.StatusCreated, g)
 }

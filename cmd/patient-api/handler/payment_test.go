@@ -39,7 +39,7 @@ var _ = Describe("Payment Handler", func() {
 		rec = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(rec)
 		patientID = uint(rand.Uint32())
-		c.Set("patientID", patientID)
+		c.Set("UserID", patientID)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockPaymentClient = mock_payment.NewMockClient(mockCtrl)
