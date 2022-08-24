@@ -14,6 +14,7 @@ type PaymentHandler struct {
 	paymentClient    payment.Client
 	patientDataStore datastore.PatientDataStore
 	logger           *zap.SugaredLogger
+	server.GinHandler
 }
 
 func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, logger *zap.SugaredLogger) *PaymentHandler {
@@ -21,6 +22,7 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 		paymentClient:    paymentClient,
 		patientDataStore: pds,
 		logger:           logger,
+		GinHandler:       server.GinHandler{Logger: logger},
 	}
 }
 
@@ -59,19 +61,19 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
 		return
 	}
 
 	if patient.PaymentCustomerID == nil {
 		cusID, err := h.paymentClient.CreateCustomer(patientID)
 		if err != nil {
-			server.InternalServerError(c, h.logger, err, "h.paymentClient.CreateCustomer error")
+			h.InternalServerError(c, err, "h.paymentClient.CreateCustomer error")
 			return
 		}
 		patient.PaymentCustomerID = &cusID
 		if err := h.patientDataStore.Save(patient); err != nil {
-			server.InternalServerError(c, h.logger, err, "h.patientDataStore.Save error")
+			h.InternalServerError(c, err, "h.patientDataStore.Save error")
 			return
 		}
 	}
@@ -99,7 +101,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 
 	patient, err := h.patientDataStore.FindByID(patientID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.patientDataStore.FindByID error")
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
 		return
 	}
 	if patient.PaymentCustomerID == nil {
@@ -109,7 +111,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 
 	cards, err := h.paymentClient.ListCards(*patient.PaymentCustomerID)
 	if err != nil {
-		server.InternalServerError(c, h.logger, err, "h.paymentClient.ListCards error")
+		h.InternalServerError(c, err, "h.paymentClient.ListCards error")
 		return
 	}
 	c.JSON(http.StatusOK, cards)

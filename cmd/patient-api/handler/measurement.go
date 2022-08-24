@@ -13,12 +13,14 @@ import (
 type MeasurementHandler struct {
 	measurementDataStore datastore.MeasurementDataStore
 	logger               *zap.SugaredLogger
+	server.GinHandler
 }
 
 func NewMeasurementHandler(m datastore.MeasurementDataStore, l *zap.SugaredLogger) *MeasurementHandler {
 	return &MeasurementHandler{
 		measurementDataStore: m,
 		logger:               l,
+		GinHandler:           server.GinHandler{Logger: l},
 	}
 }
 
@@ -63,7 +65,7 @@ func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 		Pulse:     req.Pulse,
 	}
 	if err := h.measurementDataStore.CreateBloodPressure(bp); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateBloodPressure error")
+		h.InternalServerError(c, err, "h.measurementDataStore.CreateBloodPressure error")
 	}
 	c.JSON(http.StatusCreated, bp)
 }
@@ -102,7 +104,7 @@ func (h MeasurementHandler) CreateGlucose(c *gin.Context) {
 		IsBeforeMeal: *req.IsBeforeMeal,
 	}
 	if err := h.measurementDataStore.CreateGlucose(g); err != nil {
-		server.InternalServerError(c, h.logger, err, "h.measurementDataStore.CreateGlucose error")
+		h.InternalServerError(c, err, "h.measurementDataStore.CreateGlucose error")
 	}
 	c.JSON(http.StatusCreated, g)
 }
