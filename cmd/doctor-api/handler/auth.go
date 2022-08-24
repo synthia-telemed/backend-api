@@ -11,10 +11,16 @@ import (
 	"net/http"
 )
 
+var (
+	ErrInvalidRequestBody = server.NewErrorResponse("Invalid request body")
+	ErrInvalidCredential  = server.NewErrorResponse("Invalid credential")
+)
+
 type AuthHandler struct {
 	hospitalSysClient hospital.SystemClient
 	tokenService      token.Service
 	doctorDataStore   datastore.DoctorDataStore
+	logger            *zap.SugaredLogger
 	server.GinHandler
 }
 
@@ -23,6 +29,7 @@ func NewAuthHandler(h hospital.SystemClient, t token.Service, ds datastore.Docto
 		hospitalSysClient: h,
 		tokenService:      t,
 		doctorDataStore:   ds,
+		logger:            l,
 		GinHandler:        server.GinHandler{Logger: l},
 	}
 }
@@ -53,7 +60,7 @@ type SigninResponse struct {
 func (h AuthHandler) Signin(c *gin.Context) {
 	var req SigninRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, server.ErrInvalidRequestBody)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
 
@@ -63,7 +70,7 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 	if !isCredValid {
-		c.JSON(http.StatusUnauthorized, server.ErrInvalidCredential)
+		c.JSON(http.StatusUnauthorized, ErrInvalidCredential)
 		return
 	}
 
