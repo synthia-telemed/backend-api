@@ -34,44 +34,20 @@ func (c OmisePaymentClient) CreateCustomer(patientID uint) (string, error) {
 	return customer.ID, nil
 }
 
-func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) error {
-	addCardOps := &operations.UpdateCustomer{
+func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) (*Card, error) {
+	customer, addCardOps := &omise.Customer{}, &operations.UpdateCustomer{
 		CustomerID: customerID,
 		Card:       cardToken,
 	}
-	return c.client.Do(nil, addCardOps)
-}
-
-func (c OmisePaymentClient) ListCards(customerID string) ([]Card, error) {
-	customer, retrieveCustomerOps := &omise.Customer{}, &operations.RetrieveCustomer{CustomerID: customerID}
-	if err := c.client.Do(customer, retrieveCustomerOps); err != nil {
+	if err := c.client.Do(customer, addCardOps); err != nil {
 		return nil, err
 	}
-	cards := make([]Card, customer.Cards.Total)
-	for i, c := range customer.Cards.Data {
-		cards[i] = Card{
-			ID:         c.ID,
-			LastDigits: c.LastDigits,
-			Brand:      c.Brand,
-			Default:    customer.DefaultCard == c.ID,
-		}
-	}
-	return cards, nil
-}
-
-func (c OmisePaymentClient) IsOwnCreditCard(customerID, cardID string) (bool, error) {
-	card, retrieveCardOps := &omise.Card{}, &operations.RetrieveCard{
-		CustomerID: customerID,
-		CardID:     cardID,
-	}
-	if err := c.client.Do(card, retrieveCardOps); err != nil {
-		e := err.(*omise.Error)
-		if e.Code == "not_found" {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
+	card := customer.Cards.Data[customer.Cards.Total-1]
+	return &Card{
+		ID:          card.ID,
+		Last4Digits: card.LastDigits,
+		Brand:       card.Brand,
+	}, nil
 }
 
 func (c OmisePaymentClient) PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error) {

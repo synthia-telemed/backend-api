@@ -35,11 +35,12 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // AddCreditCard mocks base method.
-func (m *MockClient) AddCreditCard(customerID, cardToken string) error {
+func (m *MockClient) AddCreditCard(customerID, cardToken string) (*payment.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddCreditCard", customerID, cardToken)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*payment.Card)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AddCreditCard indicates an expected call of AddCreditCard.
@@ -61,36 +62,6 @@ func (m *MockClient) CreateCustomer(patientID uint) (string, error) {
 func (mr *MockClientMockRecorder) CreateCustomer(patientID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomer", reflect.TypeOf((*MockClient)(nil).CreateCustomer), patientID)
-}
-
-// IsOwnCreditCard mocks base method.
-func (m *MockClient) IsOwnCreditCard(customerID, cardID string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsOwnCreditCard", customerID, cardID)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsOwnCreditCard indicates an expected call of IsOwnCreditCard.
-func (mr *MockClientMockRecorder) IsOwnCreditCard(customerID, cardID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwnCreditCard", reflect.TypeOf((*MockClient)(nil).IsOwnCreditCard), customerID, cardID)
-}
-
-// ListCards mocks base method.
-func (m *MockClient) ListCards(customerID string) ([]payment.Card, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListCards", customerID)
-	ret0, _ := ret[0].([]payment.Card)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListCards indicates an expected call of ListCards.
-func (mr *MockClientMockRecorder) ListCards(customerID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCards", reflect.TypeOf((*MockClient)(nil).ListCards), customerID)
 }
 
 // PayWithCreditCard mocks base method.

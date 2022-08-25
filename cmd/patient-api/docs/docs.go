@@ -234,7 +234,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/payment.Card"
+                                "$ref": "#/definitions/datastore.CreditCard"
                             }
                         }
                     },
@@ -267,7 +267,7 @@ const docTemplate = `{
                 "summary": "Add new credit card",
                 "parameters": [
                     {
-                        "description": "Token from Omise",
+                        "description": "Token from Omise and name of credit card",
                         "name": "AddCreditCardRequest",
                         "in": "body",
                         "required": true,
@@ -281,7 +281,7 @@ const docTemplate = `{
                         "description": "Created"
                     },
                     "400": {
-                        "description": "Failed to add credit card",
+                        "description": "Limited number of credit cards is reached",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -335,6 +335,35 @@ const docTemplate = `{
                 }
             }
         },
+        "datastore.CreditCard": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "last_4_digits": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patient_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "datastore.Glucose": {
             "type": "object",
             "properties": {
@@ -379,10 +408,14 @@ const docTemplate = `{
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
-                "card_token"
+                "card_token",
+                "name"
             ],
             "properties": {
                 "card_token": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -463,23 +496,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "payment.Card": {
-            "type": "object",
-            "properties": {
-                "brand": {
-                    "type": "string"
-                },
-                "default": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_digits": {
                     "type": "string"
                 }
             }

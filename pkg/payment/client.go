@@ -4,17 +4,14 @@ import "time"
 
 type Client interface {
 	CreateCustomer(patientID uint) (string, error)
-	AddCreditCard(customerID, cardToken string) error
-	ListCards(customerID string) ([]Card, error)
+	AddCreditCard(customerID, cardToken string) (*Card, error)
 	PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error)
-	IsOwnCreditCard(customerID, cardID string) (bool, error)
 }
 
 type Card struct {
-	ID         string `json:"id"`
-	LastDigits string `json:"last_digits"`
-	Brand      string `json:"brand"`
-	Default    bool   `json:"default"`
+	ID          string `json:"id"`
+	Last4Digits string `json:"last_4_digits"`
+	Brand       string `json:"brand"`
 }
 
 type Payment struct {

@@ -1,11 +1,13 @@
 package handler_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
@@ -17,7 +19,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"time"
 )
 
 var _ = Describe("Payment Handler", func() {
@@ -29,8 +31,9 @@ var _ = Describe("Payment Handler", func() {
 		handlerFunc gin.HandlerFunc
 		patientID   uint
 
-		mockPatientDataStore *mock_datastore.MockPatientDataStore
-		mockPaymentClient    *mock_payment.MockClient
+		mockPatientDataStore    *mock_datastore.MockPatientDataStore
+		mockCreditCardDataStore *mock_datastore.MockCreditCardDataStore
+		mockPaymentClient       *mock_payment.MockClient
 	)
 
 	BeforeEach(func() {
@@ -42,8 +45,9 @@ var _ = Describe("Payment Handler", func() {
 		c.Set("UserID", patientID)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
+		mockCreditCardDataStore = mock_datastore.NewMockCreditCardDataStore(mockCtrl)
 		mockPaymentClient = mock_payment.NewMockClient(mockCtrl)
-		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, zap.NewNop().Sugar())
+		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, mockCreditCardDataStore, zap.NewNop().Sugar())
 	})
 
 	JustBeforeEach(func() {
@@ -56,16 +60,18 @@ var _ = Describe("Payment Handler", func() {
 
 	Context("Add credit card", func() {
 		var (
-			patient   *datastore.Patient
-			cardToken string
+			patient *datastore.Patient
+			req     *handler.AddCreditCardRequest
 		)
 
 		BeforeEach(func() {
 			handlerFunc = h.AddCreditCard
-			cardToken = "token"
+
 			patient = &datastore.Patient{PaymentCustomerID: nil}
-			reqBody := strings.NewReader(fmt.Sprintf(`{"card_token": "%s"}`, cardToken))
-			c.Request = httptest.NewRequest("POST", "/", reqBody)
+			req = &handler.AddCreditCardRequest{CardToken: uuid.New().String(), Name: "test_card"}
+			reqBody, err := json.Marshal(&req)
+			Expect(err).To(BeNil())
+			c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
 		})
 
 		When("card_token is not present in request body", func() {
@@ -79,6 +85,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("find patient by id error", func() {
 			BeforeEach(func() {
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("error")).Times(1)
 			})
 			It("should return 500", func() {
@@ -88,6 +95,7 @@ var _ = Describe("Payment Handler", func() {
 
 		Context("haven't added any credit card", func() {
 			BeforeEach(func() {
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
 			})
 
@@ -114,9 +122,22 @@ var _ = Describe("Payment Handler", func() {
 				BeforeEach(func() {
 					cusID := "cus_id"
 					p := &datastore.Patient{PaymentCustomerID: &cusID}
+					c := payment.Card{
+						ID:          uuid.New().String(),
+						Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
+						Brand:       "MasterCard",
+					}
 					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return(cusID, nil).Times(1)
 					mockPatientDataStore.EXPECT().Save(p).Return(nil).Times(1)
-					mockPaymentClient.EXPECT().AddCreditCard(cusID, cardToken).Return(nil).Times(1)
+					mockPaymentClient.EXPECT().AddCreditCard(cusID, req.CardToken).Return(&c, nil).Times(1)
+					mockCreditCardDataStore.EXPECT().Create(&datastore.CreditCard{
+						IsDefault:   true,
+						Last4Digits: c.Last4Digits,
+						Brand:       c.Brand,
+						PatientID:   patientID,
+						CardID:      c.ID,
+						Name:        req.Name,
+					})
 				})
 				It("should return 201", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
@@ -124,24 +145,13 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 
-		When("already added credit card", func() {
-			BeforeEach(func() {
-				cusID := "cus_id"
-				p := &datastore.Patient{PaymentCustomerID: &cusID}
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
-				mockPaymentClient.EXPECT().AddCreditCard(cusID, cardToken).Return(nil).Times(1)
-			})
-			It("should return 201", func() {
-				Expect(rec.Code).To(Equal(http.StatusCreated))
-			})
-		})
-
 		When("add credit card error", func() {
 			BeforeEach(func() {
 				cusID := "cus_id"
 				p := &datastore.Patient{PaymentCustomerID: &cusID}
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
-				mockPaymentClient.EXPECT().AddCreditCard(cusID, cardToken).Return(errors.New("error")).Times(1)
+				mockPaymentClient.EXPECT().AddCreditCard(cusID, req.CardToken).Return(nil, errors.New("error")).Times(1)
 			})
 			It("should return 400", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -155,19 +165,9 @@ var _ = Describe("Payment Handler", func() {
 			c.Request = httptest.NewRequest("GET", "/", nil)
 		})
 
-		When("find patient by id error", func() {
-			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("error")).Times(1)
-			})
-			It("should return 500", func() {
-				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
-			})
-		})
-
 		When("patient has no credit cards", func() {
 			BeforeEach(func() {
-				patient := &datastore.Patient{PaymentCustomerID: nil}
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 			})
 			It("should return 200 with empty list", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
@@ -176,43 +176,33 @@ var _ = Describe("Payment Handler", func() {
 		})
 
 		When("patient has at least one credit card", func() {
-			var cards []payment.Card
+			var cards []datastore.CreditCard
 			BeforeEach(func() {
 				cards = generatePaymentCard(3)
-				cusID := "cus_id"
-				patient := &datastore.Patient{PaymentCustomerID: &cusID}
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
-				mockPaymentClient.EXPECT().ListCards(cusID).Return(cards, nil)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(cards, nil).Times(1)
 			})
 			It("should return 200 with list of cards", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
-				var c []payment.Card
+				var c []datastore.CreditCard
 				Expect(json.Unmarshal(rec.Body.Bytes(), &c)).To(Succeed())
-				Expect(c).To(Equal(cards))
-			})
-		})
-
-		When("payment client error when getting list of cards", func() {
-			BeforeEach(func() {
-				cusID := "cus_id"
-				patient := &datastore.Patient{PaymentCustomerID: &cusID}
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(patient, nil).Times(1)
-				mockPaymentClient.EXPECT().ListCards(cusID).Return(nil, errors.New("error"))
-			})
-			It("should return 200 with list of cards", func() {
-				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				Expect(c).To(HaveLen(len(cards)))
 			})
 		})
 	})
 })
 
-func generatePaymentCard(n int) []payment.Card {
-	cards := make([]payment.Card, n)
+func generatePaymentCard(n int) []datastore.CreditCard {
+	cards := make([]datastore.CreditCard, n)
 	for i := 0; i < n; i++ {
-		cards[i] = payment.Card{
-			ID:         fmt.Sprintf("id-%d", rand.Int()),
-			LastDigits: fmt.Sprintf("%d", rand.Intn(10000)),
-			Brand:      "Visa",
+		cards[i] = datastore.CreditCard{
+			ID:          uint(rand.Uint32()),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			IsDefault:   false,
+			Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
+			Brand:       "Visa",
+			PatientID:   uint(rand.Uint32()),
+			CardID:      uuid.New().String(),
 		}
 	}
 	return cards
