@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -19,7 +18,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
-	"time"
 )
 
 var _ = Describe("Payment Handler", func() {
@@ -95,7 +93,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("Patient has maximum number of card", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generatePaymentCards(5), nil).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generateCreditCards(5), nil).Times(1)
 			})
 			It("should return 400", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -136,7 +134,7 @@ var _ = Describe("Payment Handler", func() {
 			When("patient already has some cards", func() {
 				BeforeEach(func() {
 					dCard.IsDefault = false
-					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generatePaymentCards(3), nil).Times(1)
+					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generateCreditCards(3), nil).Times(1)
 				})
 				It("should return 201", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
@@ -174,7 +172,7 @@ var _ = Describe("Payment Handler", func() {
 		When("patient has at least one credit card", func() {
 			var cards []datastore.CreditCard
 			BeforeEach(func() {
-				cards = generatePaymentCards(3)
+				cards = generateCreditCards(3)
 				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(cards, nil).Times(1)
 			})
 			It("should return 200 with list of cards", func() {
@@ -253,37 +251,3 @@ var _ = Describe("Payment Handler", func() {
 		})
 	})
 })
-
-func generatePaymentCards(n int) []datastore.CreditCard {
-	cards := make([]datastore.CreditCard, n)
-	for i := 0; i < n; i++ {
-		cards[i] = datastore.CreditCard{
-			ID:          uint(rand.Uint32()),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-			IsDefault:   false,
-			Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
-			Brand:       "Visa",
-			PatientID:   uint(rand.Uint32()),
-			CardID:      uuid.New().String(),
-		}
-	}
-	return cards
-}
-
-func generatePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card, *datastore.CreditCard) {
-	pCard := &payment.Card{
-		ID:          uuid.New().String(),
-		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
-		Brand:       "MasterCard",
-	}
-	dCard := &datastore.CreditCard{
-		IsDefault:   false,
-		Last4Digits: pCard.Last4Digits,
-		Brand:       pCard.Brand,
-		PatientID:   patientID,
-		CardID:      pCard.ID,
-		Name:        name,
-	}
-	return pCard, dCard
-}
