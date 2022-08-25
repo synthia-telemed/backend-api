@@ -1,8 +1,8 @@
 package datastore_test
 
 import (
-	"fmt"
 	"github.com/caarlos0/env/v6"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -124,7 +124,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 })
 
 func generatePatient() *datastore.Patient {
-	return &datastore.Patient{RefID: fmt.Sprintf("HN-%d", rand.Uint32())}
+	return &datastore.Patient{RefID: uuid.New().String()}
 }
 
 func generatePatients(num int) []*datastore.Patient {

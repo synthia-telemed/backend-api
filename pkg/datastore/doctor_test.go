@@ -1,8 +1,8 @@
 package datastore_test
 
 import (
-	"fmt"
 	"github.com/caarlos0/env/v6"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -49,7 +49,7 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 			doctor *datastore.Doctor
 		)
 		BeforeEach(func() {
-			refID = fmt.Sprintf("ref-%d", rand.Int())
+			refID = uuid.New().String()
 			doctor = &datastore.Doctor{RefID: refID}
 		})
 		JustBeforeEach(func() {
@@ -78,7 +78,7 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 func generateDoctors(num int) []*datastore.Doctor {
 	doctors := make([]*datastore.Doctor, num)
 	for i := 0; i < num; i++ {
-		doctors[i] = &datastore.Doctor{RefID: fmt.Sprintf("DOC-%d", rand.Int())}
+		doctors[i] = &datastore.Doctor{RefID: uuid.New().String()}
 	}
 	return doctors
 }
