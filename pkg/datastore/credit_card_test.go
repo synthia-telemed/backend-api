@@ -17,6 +17,7 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		db                  *gorm.DB
 		creditCardDataStore datastore.CreditCardDataStore
 		patient             *datastore.Patient
+		card                *datastore.CreditCard
 	)
 
 	BeforeAll(func() {
@@ -34,9 +35,12 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		var err error
 		creditCardDataStore, err = datastore.NewGormCreditCardDataStore(db)
 		Expect(err).To(BeNil())
+
+		patient = generatePatient()
 		Expect(db.AutoMigrate(&datastore.Patient{})).To(Succeed())
-		patient = &datastore.Patient{RefID: fmt.Sprintf("ref-id-%d", rand.Int())}
 		Expect(db.Create(patient).Error).To(Succeed())
+		card = generateCreditCard(patient.ID)
+		Expect(db.Create(card).Error).To(Succeed())
 	})
 
 	AfterEach(func() {
@@ -44,16 +48,12 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 	})
 
 	Context("Create credit card", func() {
-		var card *datastore.CreditCard
-		BeforeEach(func() {
-			card = generateCreditCard(patient.ID)
-		})
-
 		It("should create new credit card", func() {
-			Expect(creditCardDataStore.Create(card)).To(Succeed())
+			newCard := generateCreditCard(patient.ID)
+			Expect(creditCardDataStore.Create(newCard)).To(Succeed())
 			var retrievedCard datastore.CreditCard
-			Expect(db.First(&retrievedCard, card.ID).Error).To(Succeed())
-			Expect(card.Last4Digits).To(Equal(retrievedCard.Last4Digits))
+			Expect(db.First(&retrievedCard, newCard.ID).Error).To(Succeed())
+			Expect(newCard.Last4Digits).To(Equal(retrievedCard.Last4Digits))
 		})
 
 		When("patient ID is not valid", func() {
@@ -65,11 +65,28 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			})
 		})
 	})
+
+	Context("Is credit card existed", func() {
+		When("card is not existed in db", func() {
+			It("should return false", func() {
+				isExisted, err := creditCardDataStore.IsExisted("not-existed-fingerprint")
+				Expect(err).To(BeNil())
+				Expect(isExisted).To(BeFalse())
+			})
+		})
+		When("card is existed in db", func() {
+			It("should return true", func() {
+				isExisted, err := creditCardDataStore.IsExisted(card.Fingerprint)
+				Expect(err).To(BeNil())
+				Expect(isExisted).To(BeTrue())
+			})
+		})
+	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
 	return &datastore.CreditCard{
-		Fingerprint: "fp",
+		Fingerprint: fmt.Sprintf("fingerprint-%d", rand.Int()),
 		IsDefault:   true,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
