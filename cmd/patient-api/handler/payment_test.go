@@ -68,7 +68,7 @@ var _ = Describe("Payment Handler", func() {
 			handlerFunc = h.AddCreditCard
 
 			patient = &datastore.Patient{PaymentCustomerID: nil}
-			req = &handler.AddCreditCardRequest{CardToken: uuid.New().String()}
+			req = &handler.AddCreditCardRequest{CardToken: uuid.New().String(), Name: "test_card"}
 			reqBody, err := json.Marshal(&req)
 			Expect(err).To(BeNil())
 			c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
@@ -136,6 +136,7 @@ var _ = Describe("Payment Handler", func() {
 						Brand:       c.Brand,
 						PatientID:   patientID,
 						CardID:      c.ID,
+						Name:        req.Name,
 					})
 				})
 				It("should return 201", func() {

@@ -9,12 +9,13 @@ type CreditCard struct {
 	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
+	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 	IsDefault   bool           `json:"is_default"`
 	Last4Digits string         `json:"last_4_digits"`
 	Brand       string         `json:"brand"`
 	PatientID   uint           `json:"patient_id" gorm:"not null"`
-	CardID      string
+	Name        string         `json:"name"`
+	CardID      string         `json:"-"`
 }
 
 type CreditCardDataStore interface {

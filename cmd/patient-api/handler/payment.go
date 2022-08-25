@@ -41,6 +41,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 }
 
 type AddCreditCardRequest struct {
+	Name      string `json:"name" binding:"required"`
 	CardToken string `json:"card_token" binding:"required"`
 }
 
@@ -106,6 +107,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		Brand:       card.Brand,
 		PatientID:   patientID,
 		CardID:      card.ID,
+		Name:        req.Name,
 	}
 	if err := h.creditCardDataStore.Create(newCard); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")

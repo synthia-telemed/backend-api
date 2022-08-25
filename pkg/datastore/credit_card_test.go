@@ -102,5 +102,6 @@ func generateCreditCard(patientID uint) *datastore.CreditCard {
 		Brand:       "Visa",
 		PatientID:   patientID,
 		CardID:      uuid.New().String(),
+		Name:        "test_card",
 	}
 }
