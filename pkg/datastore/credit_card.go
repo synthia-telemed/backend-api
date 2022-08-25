@@ -58,5 +58,5 @@ func (g GormCreditCardDataStore) FindByPatientID(patientID uint) ([]CreditCard, 
 }
 
 func (g GormCreditCardDataStore) Delete(id uint) error {
-	return g.db.Delete(id).Error
+	return g.db.Delete(&CreditCard{}, id).Error
 }

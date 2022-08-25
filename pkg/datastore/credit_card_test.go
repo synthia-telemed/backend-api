@@ -3,6 +3,7 @@ package datastore_test
 import (
 	"fmt"
 	"github.com/caarlos0/env/v6"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -82,15 +83,42 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			})
 		})
 	})
+
+	Context("Find by patientID", func() {
+		When("patient has no card", func() {
+			It("should return empty slice", func() {
+				cards, err := creditCardDataStore.FindByPatientID(uint(rand.Uint32()))
+				Expect(err).To(BeNil())
+				Expect(cards).To(HaveLen(0))
+			})
+		})
+		When("patient has cards", func() {
+			It("should return slice of credit card", func() {
+				cards, err := creditCardDataStore.FindByPatientID(patient.ID)
+				Expect(err).To(BeNil())
+				Expect(cards).To(HaveLen(1))
+			})
+		})
+	})
+
+	Context("Delete credit card", func() {
+		It("should soft delete credit card", func() {
+			Expect(creditCardDataStore.Delete(card.ID)).To(Succeed())
+			var deletedCard datastore.CreditCard
+			Expect(db.First(&deletedCard, card.ID).Error).To(Equal(gorm.ErrRecordNotFound))
+			Expect(db.Unscoped().First(&deletedCard, card.ID).Error).To(Succeed())
+			Expect(deletedCard.Fingerprint).To(Equal(card.Fingerprint))
+		})
+	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
 	return &datastore.CreditCard{
-		Fingerprint: fmt.Sprintf("fingerprint-%d", rand.Int()),
+		Fingerprint: uuid.New().String(),
 		IsDefault:   true,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
 		PatientID:   patientID,
-		CardID:      fmt.Sprintf("test_%d", rand.Int()),
+		CardID:      uuid.New().String(),
 	}
 }
