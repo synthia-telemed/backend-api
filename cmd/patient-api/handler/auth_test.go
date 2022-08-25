@@ -37,9 +37,7 @@ var _ = Describe("Auth Handler", func() {
 	)
 
 	BeforeEach(func() {
-		mockCtrl = gomock.NewController(GinkgoT())
-		rec = httptest.NewRecorder()
-		c, _ = gin.CreateTestContext(rec)
+		mockCtrl, rec, c = initHandlerTest()
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)

@@ -35,9 +35,8 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 
 func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup := r.Group("/payment", middleware.ParseUserID)
-	paymentGroup.POST("/credit-card", h.AddCreditCard)
+	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
-
 }
 
 type AddCreditCardRequest struct {
@@ -60,6 +59,7 @@ type AddCreditCardRequest struct {
 // @Router       /payment/credit-card [post]
 func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	patientID := h.GetUserID(c)
+	customerID := h.GetCustomerID(c)
 
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,26 +77,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByID(patientID)
-	if err != nil {
-		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
-		return
-	}
-
-	if patient.PaymentCustomerID == nil {
-		cusID, err := h.paymentClient.CreateCustomer(patientID)
-		if err != nil {
-			h.InternalServerError(c, err, "h.paymentClient.CreateCustomer error")
-			return
-		}
-		patient.PaymentCustomerID = &cusID
-		if err := h.patientDataStore.Save(patient); err != nil {
-			h.InternalServerError(c, err, "h.patientDataStore.Save error")
-			return
-		}
-	}
-
-	card, err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken)
+	card, err := h.paymentClient.AddCreditCard(customerID, req.CardToken)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrTokenHasBeenUsed)
 		return
@@ -114,7 +95,6 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")
 		return
 	}
-
 	c.AbortWithStatus(http.StatusCreated)
 }
 
@@ -135,4 +115,33 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, cards)
+}
+
+func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
+	patientID := h.GetUserID(c)
+	patient, err := h.patientDataStore.FindByID(patientID)
+	if err != nil {
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
+		return
+	}
+
+	if patient.PaymentCustomerID == nil {
+		cusID, err := h.paymentClient.CreateCustomer(patientID)
+		if err != nil {
+			h.InternalServerError(c, err, "h.paymentClient.CreateCustomer error")
+			return
+		}
+		patient.PaymentCustomerID = &cusID
+		if err := h.patientDataStore.Save(patient); err != nil {
+			h.InternalServerError(c, err, "h.patientDataStore.Save error")
+			return
+		}
+	}
+	c.Set("CustomerID", *patient.PaymentCustomerID)
+}
+
+func (h PaymentHandler) GetCustomerID(c *gin.Context) string {
+	cusID, _ := c.Get("CustomerID")
+	h.logger.Info(cusID)
+	return cusID.(string)
 }
