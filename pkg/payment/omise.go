@@ -45,7 +45,6 @@ func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) (*Card, 
 	card := customer.Cards.Data[customer.Cards.Total-1]
 	return &Card{
 		ID:          card.ID,
-		Fingerprint: card.Fingerprint,
 		Last4Digits: card.LastDigits,
 		Brand:       card.Brand,
 	}, nil

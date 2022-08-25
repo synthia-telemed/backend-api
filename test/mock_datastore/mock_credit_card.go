@@ -76,18 +76,3 @@ func (mr *MockCreditCardDataStoreMockRecorder) FindByPatientID(patientID interfa
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPatientID", reflect.TypeOf((*MockCreditCardDataStore)(nil).FindByPatientID), patientID)
 }
-
-// IsExisted mocks base method.
-func (m *MockCreditCardDataStore) IsExisted(fingerprint string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsExisted", fingerprint)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsExisted indicates an expected call of IsExisted.
-func (mr *MockCreditCardDataStoreMockRecorder) IsExisted(fingerprint interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsExisted", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsExisted), fingerprint)
-}

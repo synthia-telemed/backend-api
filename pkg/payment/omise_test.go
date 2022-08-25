@@ -59,7 +59,11 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 
 		It("should add credit card to Omise's customer", func() {
-			Expect(paymentClient.AddCreditCard(testCustomerID, cardToken)).To(Succeed())
+			card, err := paymentClient.AddCreditCard(testCustomerID, cardToken)
+			Expect(err).To(BeNil())
+			Expect(card.ID).NotTo(BeEmpty())
+			Expect(card.Brand).NotTo(BeEmpty())
+			Expect(card.Last4Digits).NotTo(BeEmpty())
 
 			customer, getCustomer := &omise.Customer{}, &operations.RetrieveCustomer{CustomerID: testCustomerID}
 			Expect(client.Do(customer, getCustomer)).To(Succeed())

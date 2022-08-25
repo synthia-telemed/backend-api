@@ -10,7 +10,6 @@ type Client interface {
 
 type Card struct {
 	ID          string `json:"id"`
-	Fingerprint string `json:"fingerprint"`
 	Last4Digits string `json:"last_4_digits"`
 	Brand       string `json:"brand"`
 }
