@@ -148,6 +148,15 @@ var _ = Describe("Payment Handler", func() {
 			c.Request = httptest.NewRequest("GET", "/", nil)
 		})
 
+		When("query error", func() {
+			BeforeEach(func() {
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
 		When("patient has no credit cards", func() {
 			BeforeEach(func() {
 				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
