@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -11,7 +10,6 @@ type CreditCard struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Fingerprint string         `gorm:"unique"`
 	IsDefault   bool           `json:"is_default"`
 	Last4Digits string         `json:"last_4_digits"`
 	Brand       string         `json:"brand"`
@@ -21,7 +19,6 @@ type CreditCard struct {
 
 type CreditCardDataStore interface {
 	Create(card *CreditCard) error
-	IsExisted(fingerprint string) (bool, error)
 	FindByPatientID(patientID uint) ([]CreditCard, error)
 	Delete(id uint) error
 }
@@ -36,17 +33,6 @@ func NewGormCreditCardDataStore(db *gorm.DB) (CreditCardDataStore, error) {
 
 func (g GormCreditCardDataStore) Create(card *CreditCard) error {
 	return g.db.Create(card).Error
-}
-
-func (g GormCreditCardDataStore) IsExisted(fingerprint string) (bool, error) {
-	var c CreditCard
-	if err := g.db.Where(&CreditCard{Fingerprint: fingerprint}).First(&c).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
 }
 
 func (g GormCreditCardDataStore) FindByPatientID(patientID uint) ([]CreditCard, error) {

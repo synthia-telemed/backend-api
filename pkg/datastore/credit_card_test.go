@@ -67,23 +67,6 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		})
 	})
 
-	Context("Is credit card existed", func() {
-		When("card is not existed in db", func() {
-			It("should return false", func() {
-				isExisted, err := creditCardDataStore.IsExisted("not-existed-fingerprint")
-				Expect(err).To(BeNil())
-				Expect(isExisted).To(BeFalse())
-			})
-		})
-		When("card is existed in db", func() {
-			It("should return true", func() {
-				isExisted, err := creditCardDataStore.IsExisted(card.Fingerprint)
-				Expect(err).To(BeNil())
-				Expect(isExisted).To(BeTrue())
-			})
-		})
-	})
-
 	Context("Find by patientID", func() {
 		When("patient has no card", func() {
 			It("should return empty slice", func() {
@@ -107,14 +90,13 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			var deletedCard datastore.CreditCard
 			Expect(db.First(&deletedCard, card.ID).Error).To(Equal(gorm.ErrRecordNotFound))
 			Expect(db.Unscoped().First(&deletedCard, card.ID).Error).To(Succeed())
-			Expect(deletedCard.Fingerprint).To(Equal(card.Fingerprint))
+			Expect(deletedCard.CardID).To(Equal(card.CardID))
 		})
 	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
 	return &datastore.CreditCard{
-		Fingerprint: uuid.New().String(),
 		IsDefault:   true,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
