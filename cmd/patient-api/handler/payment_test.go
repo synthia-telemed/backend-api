@@ -29,8 +29,9 @@ var _ = Describe("Payment Handler", func() {
 		handlerFunc gin.HandlerFunc
 		patientID   uint
 
-		mockPatientDataStore *mock_datastore.MockPatientDataStore
-		mockPaymentClient    *mock_payment.MockClient
+		mockPatientDataStore    *mock_datastore.MockPatientDataStore
+		mockCreditCardDataStore *mock_datastore.MockCreditCardDataStore
+		mockPaymentClient       *mock_payment.MockClient
 	)
 
 	BeforeEach(func() {
@@ -42,8 +43,9 @@ var _ = Describe("Payment Handler", func() {
 		c.Set("UserID", patientID)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
+		mockCreditCardDataStore = mock_datastore.NewMockCreditCardDataStore(mockCtrl)
 		mockPaymentClient = mock_payment.NewMockClient(mockCtrl)
-		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, zap.NewNop().Sugar())
+		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, mockCreditCardDataStore, zap.NewNop().Sugar())
 	})
 
 	JustBeforeEach(func() {

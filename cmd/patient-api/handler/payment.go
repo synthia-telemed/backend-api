@@ -15,18 +15,20 @@ var (
 )
 
 type PaymentHandler struct {
-	paymentClient    payment.Client
-	patientDataStore datastore.PatientDataStore
-	logger           *zap.SugaredLogger
+	paymentClient       payment.Client
+	patientDataStore    datastore.PatientDataStore
+	creditCardDataStore datastore.CreditCardDataStore
+	logger              *zap.SugaredLogger
 	server.GinHandler
 }
 
-func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, logger *zap.SugaredLogger) *PaymentHandler {
+func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
-		paymentClient:    paymentClient,
-		patientDataStore: pds,
-		logger:           logger,
-		GinHandler:       server.GinHandler{Logger: logger},
+		paymentClient:       paymentClient,
+		patientDataStore:    pds,
+		logger:              logger,
+		creditCardDataStore: cds,
+		GinHandler:          server.GinHandler{Logger: logger},
 	}
 }
 
