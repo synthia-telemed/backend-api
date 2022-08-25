@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrFailedToAddCreditCard          = server.NewErrorResponse("Failed to add credit card")
-	ErrLimitNumberOfCreditCardReached = server.NewErrorResponse("Limited number of credit cards reached")
+	ErrTokenHasBeenUsed               = server.NewErrorResponse("Token has been used")
+	ErrLimitNumberOfCreditCardReached = server.NewErrorResponse("Limited number of credit cards is reached")
 )
 
 type PaymentHandler struct {
@@ -48,10 +48,11 @@ type AddCreditCardRequest struct {
 // AddCreditCard godoc
 // @Summary      Add new credit card
 // @Tags         Payment
-// @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token and fingerprint from Omise"
+// @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token from Omise and name of credit card"
 // @Success      201
 // @Failure      400  {object}  server.ErrorResponse "Invalid request body"
-// @Failure      400  {object}  server.ErrorResponse "Failed to add credit card"
+// @Failure      400  {object}  server.ErrorResponse "Token has been used"
+// @Failure      400  {object}  server.ErrorResponse "Limited number of credit cards is reached"
 // @Failure      401  {object}  server.ErrorResponse "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
@@ -97,7 +98,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 
 	card, err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrFailedToAddCreditCard)
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrTokenHasBeenUsed)
 		return
 	}
 
@@ -120,7 +121,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // GetCreditCards godoc
 // @Summary      Get lists of saved credit cards
 // @Tags         Payment
-// @Success      200  {array}   payment.Card  "List of saved cards"
+// @Success      200  {array}   datastore.CreditCard "List of saved cards"
 // @Failure      401  {object}  server.ErrorResponse "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
