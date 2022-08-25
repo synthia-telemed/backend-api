@@ -45,7 +45,6 @@ var _ = Describe("Payment Handler", func() {
 		patientID = uint(rand.Uint32())
 		customerID = uuid.New().String()
 		c.Set("UserID", patientID)
-		c.Set("CustomerID", customerID)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockCreditCardDataStore = mock_datastore.NewMockCreditCardDataStore(mockCtrl)
@@ -63,9 +62,7 @@ var _ = Describe("Payment Handler", func() {
 
 	Context("Add credit card", func() {
 		var (
-			req   *handler.AddCreditCardRequest
-			pCard *payment.Card
-			dCard *datastore.CreditCard
+			req *handler.AddCreditCardRequest
 		)
 
 		BeforeEach(func() {
@@ -75,7 +72,7 @@ var _ = Describe("Payment Handler", func() {
 			reqBody, err := json.Marshal(&req)
 			Expect(err).To(BeNil())
 			c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
-			pCard, dCard = generatePaymentAndDataStoreCard(patientID, req.Name)
+			c.Set("CustomerID", customerID)
 		})
 
 		When("card_token is not present in request body", func() {
@@ -116,7 +113,13 @@ var _ = Describe("Payment Handler", func() {
 		})
 
 		Context("successfully added credit card", func() {
+			var (
+				pCard *payment.Card
+				dCard *datastore.CreditCard
+			)
+
 			BeforeEach(func() {
+				pCard, dCard = generatePaymentAndDataStoreCard(patientID, req.Name)
 				mockPaymentClient.EXPECT().AddCreditCard(customerID, req.CardToken).Return(pCard, nil).Times(1)
 				mockCreditCardDataStore.EXPECT().Create(dCard).Return(nil).Times(1)
 			})
@@ -146,6 +149,7 @@ var _ = Describe("Payment Handler", func() {
 		BeforeEach(func() {
 			handlerFunc = h.GetCreditCards
 			c.Request = httptest.NewRequest("GET", "/", nil)
+			c.Set("CustomerID", customerID)
 		})
 
 		When("query error", func() {
@@ -178,6 +182,73 @@ var _ = Describe("Payment Handler", func() {
 				var c []datastore.CreditCard
 				Expect(json.Unmarshal(rec.Body.Bytes(), &c)).To(Succeed())
 				Expect(c).To(HaveLen(len(cards)))
+			})
+		})
+	})
+
+	Context("Create or parse customerID", func() {
+		BeforeEach(func() {
+			handlerFunc = h.CreateOrParseCustomer
+		})
+
+		When("Find patient by ID error", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		Context("Patient doesn't have customerID", func() {
+			BeforeEach(func() {
+				p := &datastore.Patient{PaymentCustomerID: nil}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+			})
+
+			When("create payment customer error", func() {
+				BeforeEach(func() {
+					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return("", errors.New("err")).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+
+			When("save customerID error", func() {
+				BeforeEach(func() {
+					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return(customerID, nil).Times(1)
+					pp := &datastore.Patient{PaymentCustomerID: &customerID}
+					mockPatientDataStore.EXPECT().Save(pp).Return(errors.New("err")).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+
+			When("no error occurred", func() {
+				BeforeEach(func() {
+					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return(customerID, nil).Times(1)
+					pp := &datastore.Patient{PaymentCustomerID: &customerID}
+					mockPatientDataStore.EXPECT().Save(pp).Return(nil).Times(1)
+				})
+				It("should set ID to CustomerID", func() {
+					id, ok := c.Get("CustomerID")
+					Expect(ok).To(BeTrue())
+					Expect(id).To(Equal(customerID))
+				})
+			})
+		})
+
+		When("patient already has customer ID", func() {
+			BeforeEach(func() {
+				p := &datastore.Patient{PaymentCustomerID: &customerID}
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+			})
+			It("should set ID to CustomerID", func() {
+				id, ok := c.Get("CustomerID")
+				Expect(ok).To(BeTrue())
+				Expect(id).To(Equal(customerID))
 			})
 		})
 	})
