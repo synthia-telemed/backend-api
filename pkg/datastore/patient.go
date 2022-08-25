@@ -24,6 +24,7 @@ type Patient struct {
 	PaymentCustomerID *string         `gorm:"unique"`
 	BloodPressure     []BloodPressure `gorm:"foreignKey:PatientID"`
 	Glucose           []Glucose       `gorm:"foreignKey:PatientID"`
+	CreditCards       []CreditCard    `gorm:"foreignKey:PatientID"`
 	//BirthDate   time.Time      `json:"birthDate"`
 	//BloodType   BloodType      `json:"bloodType"`
 	//FirstnameEn string         `json:"firstname_en"`
