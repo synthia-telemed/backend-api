@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	ErrFailedToAddCreditCard = server.NewErrorResponse("Failed to add credit card")
+	ErrFailedToAddCreditCard          = server.NewErrorResponse("Failed to add credit card")
+	ErrLimitNumberOfCreditCardReached = server.NewErrorResponse("Limited number of credit cards reached")
 )
 
 type PaymentHandler struct {
@@ -46,7 +47,7 @@ type AddCreditCardRequest struct {
 // AddCreditCard godoc
 // @Summary      Add new credit card
 // @Tags         Payment
-// @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token from Omise"
+// @Param 	  	 AddCreditCardRequest body AddCreditCardRequest true "Token and fingerprint from Omise"
 // @Success      201
 // @Failure      400  {object}  server.ErrorResponse "Invalid request body"
 // @Failure      400  {object}  server.ErrorResponse "Failed to add credit card"
@@ -61,6 +62,16 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	var req AddCreditCardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
+
+	cards, err := h.creditCardDataStore.FindByPatientID(patientID)
+	if err != nil {
+		h.InternalServerError(c, err, "h.creditCardDataStore.FindByPatientID error")
+		return
+	}
+	if len(cards) >= 5 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrLimitNumberOfCreditCardReached)
 		return
 	}
 
@@ -83,8 +94,21 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		}
 	}
 
-	if err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken); err != nil {
+	card, err := h.paymentClient.AddCreditCard(*patient.PaymentCustomerID, req.CardToken)
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrFailedToAddCreditCard)
+		return
+	}
+
+	newCard := &datastore.CreditCard{
+		IsDefault:   len(cards) == 0,
+		Last4Digits: card.Last4Digits,
+		Brand:       card.Brand,
+		PatientID:   patientID,
+		CardID:      card.ID,
+	}
+	if err := h.creditCardDataStore.Create(newCard); err != nil {
+		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")
 		return
 	}
 
@@ -102,18 +126,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 // @Router       /payment/credit-card [get]
 func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 	patientID := h.GetUserID(c)
-
-	patient, err := h.patientDataStore.FindByID(patientID)
-	if err != nil {
-		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
-		return
-	}
-	if patient.PaymentCustomerID == nil {
-		c.JSON(http.StatusOK, []payment.Card{})
-		return
-	}
-
-	cards, err := h.paymentClient.ListCards(*patient.PaymentCustomerID)
+	cards, err := h.creditCardDataStore.FindByPatientID(patientID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.paymentClient.ListCards error")
 		return
