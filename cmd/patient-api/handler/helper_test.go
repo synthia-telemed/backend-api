@@ -2,12 +2,24 @@ package handler_test
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"math/rand"
+	"net/http/httptest"
 	"time"
 )
+
+func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Context) {
+	rand.Seed(GinkgoRandomSeed())
+	mockCtrl := gomock.NewController(GinkgoT())
+	rec := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(rec)
+	return mockCtrl, rec, c
+}
 
 func generateCreditCards(n int) []datastore.CreditCard {
 	cards := make([]datastore.CreditCard, n)

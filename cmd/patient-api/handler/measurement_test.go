@@ -32,10 +32,7 @@ var _ = Describe("Measurement Handler", func() {
 	)
 
 	BeforeEach(func() {
-		rand.Seed(GinkgoRandomSeed())
-		mockCtrl = gomock.NewController(GinkgoT())
-		rec = httptest.NewRecorder()
-		c, _ = gin.CreateTestContext(rec)
+		mockCtrl, rec, c = initHandlerTest()
 		patientID = uint(rand.Uint32())
 		c.Set("UserID", patientID)
 
