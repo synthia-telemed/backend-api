@@ -87,7 +87,25 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 
-		When("add credit card error", func() {
+		When("List card by patient ID error", func() {
+			BeforeEach(func() {
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("Patient has maximum number of card", func() {
+			BeforeEach(func() {
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generatePaymentCards(5), nil).Times(1)
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+
+		When("add credit card to Omise error", func() {
 			BeforeEach(func() {
 				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 				mockPaymentClient.EXPECT().AddCreditCard(customerID, req.CardToken).Return(nil, errors.New("error")).Times(1)
