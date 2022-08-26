@@ -78,3 +78,17 @@ func (mr *MockClientMockRecorder) PayWithCreditCard(customerID, cardID, refID, a
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PayWithCreditCard", reflect.TypeOf((*MockClient)(nil).PayWithCreditCard), customerID, cardID, refID, amount)
 }
+
+// RemoveCreditCard mocks base method.
+func (m *MockClient) RemoveCreditCard(customerID, cardID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveCreditCard", customerID, cardID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveCreditCard indicates an expected call of RemoveCreditCard.
+func (mr *MockClientMockRecorder) RemoveCreditCard(customerID, cardID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCreditCard", reflect.TypeOf((*MockClient)(nil).RemoveCreditCard), customerID, cardID)
+}
