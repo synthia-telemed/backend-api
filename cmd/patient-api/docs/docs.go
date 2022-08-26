@@ -234,7 +234,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/payment.Card"
+                                "$ref": "#/definitions/datastore.CreditCard"
                             }
                         }
                     },
@@ -267,7 +267,7 @@ const docTemplate = `{
                 "summary": "Add new credit card",
                 "parameters": [
                     {
-                        "description": "Token from Omise",
+                        "description": "Token from Omise and name of credit card",
                         "name": "AddCreditCardRequest",
                         "in": "body",
                         "required": true,
@@ -281,13 +281,73 @@ const docTemplate = `{
                         "description": "Created"
                     },
                     "400": {
-                        "description": "Failed to add credit card",
+                        "description": "Limited number of credit cards is reached",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/credit-card/{userID}": {
+            "delete": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Delete saved credit card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the credit card to delete",
+                        "name": "cardID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid credit card ID",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the specified credit card",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Credit card not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -328,6 +388,32 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "systolic": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "datastore.CreditCard": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_4_digits": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patient_id": {
                     "type": "integer"
                 },
                 "updated_at": {
@@ -379,10 +465,14 @@ const docTemplate = `{
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
-                "card_token"
+                "card_token",
+                "name"
             ],
             "properties": {
                 "card_token": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -463,23 +553,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "payment.Card": {
-            "type": "object",
-            "properties": {
-                "brand": {
-                    "type": "string"
-                },
-                "default": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_digits": {
                     "type": "string"
                 }
             }

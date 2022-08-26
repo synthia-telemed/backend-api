@@ -59,7 +59,11 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 
 		It("should add credit card to Omise's customer", func() {
-			Expect(paymentClient.AddCreditCard(testCustomerID, cardToken)).To(Succeed())
+			card, err := paymentClient.AddCreditCard(testCustomerID, cardToken)
+			Expect(err).To(BeNil())
+			Expect(card.ID).NotTo(BeEmpty())
+			Expect(card.Brand).NotTo(BeEmpty())
+			Expect(card.Last4Digits).NotTo(BeEmpty())
 
 			customer, getCustomer := &omise.Customer{}, &operations.RetrieveCustomer{CustomerID: testCustomerID}
 			Expect(client.Do(customer, getCustomer)).To(Succeed())
@@ -68,68 +72,21 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 	})
 
-	Context("List cards", func() {
-		When("Customer has multiple card", func() {
-			var n int
-			BeforeEach(func() {
-				n = 3
-				for i := 0; i < n; i++ {
-					t, _ := createCardToken(client, "4242424242424242")
-					attachCardToCustomer(client, testCustomerID, t)
-				}
-			})
-			It("should list cards of Omise's customer", func() {
-				cards, err := paymentClient.ListCards(testCustomerID)
-				Expect(err).To(BeNil())
-				Expect(cards).To(HaveLen(n))
-				for _, c := range cards {
-					Expect(c).To(HaveExistingField("ID"))
-					Expect(c).To(HaveExistingField("LastDigits"))
-					Expect(c).To(HaveExistingField("Brand"))
-					Expect(c).To(HaveExistingField("Default"))
-				}
-			})
-		})
-
-		When("Customer has no card", func() {
-			It("should return empty list", func() {
-				cards, err := paymentClient.ListCards(testCustomerID)
-				Expect(err).To(BeNil())
-				Expect(cards).To(HaveLen(0))
-			})
-		})
-	})
-
-	Context("Check is own card", func() {
-		var cardID, token string
+	Context("Remove credit card", func() {
+		var cardID string
 		BeforeEach(func() {
+			var token string
 			token, cardID = createCardToken(client, "4242424242424242")
-		})
-		When("customer own the card", func() {
-			BeforeEach(func() {
-				attachCardToCustomer(client, testCustomerID, token)
-			})
-			It("should return true", func() {
-				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
-				Expect(err).To(BeNil())
-				Expect(isOwn).To(BeTrue())
-			})
+			attachCardToCustomer(client, testCustomerID, token)
 		})
 
-		When("customer doesn't down the card", func() {
-			var anotherCusID string
-			BeforeEach(func() {
-				anotherCusID = createCustomer(client)
-				attachCardToCustomer(client, anotherCusID, token)
-			})
-			It("should return false", func() {
-				isOwn, err := paymentClient.IsOwnCreditCard(testCustomerID, cardID)
-				Expect(err).To(BeNil())
-				Expect(isOwn).To(BeFalse())
-			})
-			AfterEach(func() {
-				deleteCustomer(client, anotherCusID)
-			})
+		It("should remove credit card", func() {
+			Expect(paymentClient.RemoveCreditCard(testCustomerID, cardID)).To(Succeed())
+			getCard := &operations.RetrieveCard{
+				CustomerID: testCustomerID,
+				CardID:     cardID,
+			}
+			Expect(client.Do(nil, getCard)).ToNot(Succeed())
 		})
 	})
 
