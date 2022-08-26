@@ -110,6 +110,23 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			})
 		})
 	})
+
+	Context("FindByID", func() {
+		When("card is not existed", func() {
+			It("should return nil with no error", func() {
+				c, err := creditCardDataStore.FindByID(uint(rand.Uint32()))
+				Expect(err).To(BeNil())
+				Expect(c).To(BeNil())
+			})
+		})
+		When("card is existed", func() {
+			It("should return the card with no error", func() {
+				c, err := creditCardDataStore.FindByID(card.ID)
+				Expect(err).To(BeNil())
+				Expect(c.ID).To(Equal(card.ID))
+			})
+		})
+	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
