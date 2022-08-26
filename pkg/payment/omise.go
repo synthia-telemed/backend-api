@@ -73,3 +73,11 @@ func (c OmisePaymentClient) PayWithCreditCard(customerID, cardID, refID string, 
 		FailureMessage: charge.FailureMessage,
 	}, nil
 }
+
+func (c OmisePaymentClient) RemoveCreditCard(customerID, cardID string) error {
+	destroy := &operations.DestroyCard{
+		CustomerID: customerID,
+		CardID:     cardID,
+	}
+	return c.client.Do(nil, destroy)
+}
