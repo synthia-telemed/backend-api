@@ -122,6 +122,19 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 	c.JSON(http.StatusOK, cards)
 }
 
+// DeleteCreditCard godoc
+// @Summary      Delete saved credit card
+// @Tags         Payment
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to delete"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "Patient doesn't own the specified credit card"
+// @Failure      404  {object}  server.ErrorResponse "Credit card not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /payment/credit-card/{userID} [delete]
 func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 	customerID := h.GetCustomerID(c)
 	rawCard, ok := c.Get("CreditCard")
