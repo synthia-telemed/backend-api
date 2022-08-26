@@ -21,19 +21,23 @@ func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Con
 	return mockCtrl, rec, c
 }
 
+func generateCreditCard() *datastore.CreditCard {
+	return &datastore.CreditCard{
+		ID:          uint(rand.Uint32()),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		IsDefault:   false,
+		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
+		Brand:       "Visa",
+		PatientID:   uint(rand.Uint32()),
+		CardID:      uuid.New().String(),
+	}
+}
+
 func generateCreditCards(n int) []datastore.CreditCard {
 	cards := make([]datastore.CreditCard, n)
 	for i := 0; i < n; i++ {
-		cards[i] = datastore.CreditCard{
-			ID:          uint(rand.Uint32()),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-			IsDefault:   false,
-			Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
-			Brand:       "Visa",
-			PatientID:   uint(rand.Uint32()),
-			CardID:      uuid.New().String(),
-		}
+		cards[i] = *generateCreditCard()
 	}
 	return cards
 }

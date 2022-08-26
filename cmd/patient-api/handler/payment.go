@@ -128,10 +128,12 @@ func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 	rawCard, ok := c.Get("CreditCard")
 	if !ok {
 		h.InternalServerError(c, errors.New("CreditCard not found"), "c.Get(\"CreditCard\") error")
+		return
 	}
 	creditCard, ok := rawCard.(*datastore.CreditCard)
 	if !ok {
 		h.InternalServerError(c, errors.New("CreditCard type casting error"), "rawCard.(*datastore.CreditCard)")
+		return
 	}
 
 	if err := h.paymentClient.RemoveCreditCard(customerID, creditCard.CardID); err != nil {
@@ -170,7 +172,6 @@ func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
 
 func (h PaymentHandler) GetCustomerID(c *gin.Context) string {
 	cusID, _ := c.Get("CustomerID")
-	h.logger.Info(cusID)
 	return cusID.(string)
 }
 

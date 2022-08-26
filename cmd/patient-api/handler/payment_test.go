@@ -293,4 +293,59 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 	})
+
+	Context("DeleteCreditCard", func() {
+		var (
+			card *datastore.CreditCard
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.DeleteCreditCard
+			c.Set("CustomerID", customerID)
+			card = generateCreditCard()
+		})
+
+		When("credit card is not set", func() {
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("credit card parsing is failed", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", "just-string")
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("remove credit card from payment client failed", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("remove credit card from data store failed", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(nil).Times(1)
+				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("no error occurred", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(nil).Times(1)
+				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(nil).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
 })
