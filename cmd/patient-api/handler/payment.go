@@ -42,7 +42,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup := r.Group("/payment", middleware.ParseUserID)
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
-	paymentGroup.DELETE("/credit-card/:cardID", h.DeleteCreditCard)
+	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
 }
 
 type AddCreditCardRequest struct {
