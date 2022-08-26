@@ -62,6 +62,21 @@ func (mr *MockCreditCardDataStoreMockRecorder) Delete(id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCreditCardDataStore)(nil).Delete), id)
 }
 
+// FindByID mocks base method.
+func (m *MockCreditCardDataStore) FindByID(id uint) (*datastore.CreditCard, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(*datastore.CreditCard)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockCreditCardDataStoreMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockCreditCardDataStore)(nil).FindByID), id)
+}
+
 // FindByPatientID mocks base method.
 func (m *MockCreditCardDataStore) FindByPatientID(patientID uint) ([]datastore.CreditCard, error) {
 	m.ctrl.T.Helper()
@@ -75,4 +90,19 @@ func (m *MockCreditCardDataStore) FindByPatientID(patientID uint) ([]datastore.C
 func (mr *MockCreditCardDataStoreMockRecorder) FindByPatientID(patientID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPatientID", reflect.TypeOf((*MockCreditCardDataStore)(nil).FindByPatientID), patientID)
+}
+
+// IsOwnCreditCard mocks base method.
+func (m *MockCreditCardDataStore) IsOwnCreditCard(patientID, cardID uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsOwnCreditCard", patientID, cardID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsOwnCreditCard indicates an expected call of IsOwnCreditCard.
+func (mr *MockCreditCardDataStoreMockRecorder) IsOwnCreditCard(patientID, cardID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwnCreditCard", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsOwnCreditCard), patientID, cardID)
 }

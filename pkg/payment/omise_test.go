@@ -72,6 +72,24 @@ var _ = Describe("Omise Payment Client", func() {
 		})
 	})
 
+	Context("Remove credit card", func() {
+		var cardID string
+		BeforeEach(func() {
+			var token string
+			token, cardID = createCardToken(client, "4242424242424242")
+			attachCardToCustomer(client, testCustomerID, token)
+		})
+
+		It("should remove credit card", func() {
+			Expect(paymentClient.RemoveCreditCard(testCustomerID, cardID)).To(Succeed())
+			getCard := &operations.RetrieveCard{
+				CustomerID: testCustomerID,
+				CardID:     cardID,
+			}
+			Expect(client.Do(nil, getCard)).ToNot(Succeed())
+		})
+	})
+
 	Context("Pay with credit card", func() {
 		var (
 			refID  string

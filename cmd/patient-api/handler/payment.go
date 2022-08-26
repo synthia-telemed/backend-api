@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
@@ -8,11 +9,15 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 )
 
 var (
 	ErrTokenHasBeenUsed               = server.NewErrorResponse("Token has been used")
 	ErrLimitNumberOfCreditCardReached = server.NewErrorResponse("Limited number of credit cards is reached")
+	ErrInvalidCreditCardID            = server.NewErrorResponse("Invalid credit card ID")
+	ErrCreditCardOwnership            = server.NewErrorResponse("Patient doesn't own the specified credit card")
+	ErrCreditCardNotFound             = server.NewErrorResponse("Credit card not found")
 )
 
 type PaymentHandler struct {
@@ -37,6 +42,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup := r.Group("/payment", middleware.ParseUserID)
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
+	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
 }
 
 type AddCreditCardRequest struct {
@@ -84,7 +90,6 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	}
 
 	newCard := &datastore.CreditCard{
-		IsDefault:   len(cards) == 0,
 		Last4Digits: card.Last4Digits,
 		Brand:       card.Brand,
 		PatientID:   patientID,
@@ -117,6 +122,43 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 	c.JSON(http.StatusOK, cards)
 }
 
+// DeleteCreditCard godoc
+// @Summary      Delete saved credit card
+// @Tags         Payment
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to delete"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "Patient doesn't own the specified credit card"
+// @Failure      404  {object}  server.ErrorResponse "Credit card not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /payment/credit-card/{userID} [delete]
+func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
+	customerID := h.GetCustomerID(c)
+	rawCard, ok := c.Get("CreditCard")
+	if !ok {
+		h.InternalServerError(c, errors.New("CreditCard not found"), "c.Get(\"CreditCard\") error")
+		return
+	}
+	creditCard, ok := rawCard.(*datastore.CreditCard)
+	if !ok {
+		h.InternalServerError(c, errors.New("CreditCard type casting error"), "rawCard.(*datastore.CreditCard)")
+		return
+	}
+
+	if err := h.creditCardDataStore.Delete(creditCard.ID); err != nil {
+		h.InternalServerError(c, err, "h.creditCardDataStore.Delete error")
+		return
+	}
+	if err := h.paymentClient.RemoveCreditCard(customerID, creditCard.CardID); err != nil {
+		h.InternalServerError(c, err, "h.paymentClient.RemoveCreditCard error")
+		return
+	}
+	c.AbortWithStatus(http.StatusOK)
+}
+
 func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
 	patientID := h.GetUserID(c)
 	patient, err := h.patientDataStore.FindByID(patientID)
@@ -142,6 +184,28 @@ func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
 
 func (h PaymentHandler) GetCustomerID(c *gin.Context) string {
 	cusID, _ := c.Get("CustomerID")
-	h.logger.Info(cusID)
 	return cusID.(string)
+}
+
+func (h PaymentHandler) VerifyCreditCardOwnership(c *gin.Context) {
+	cardID, err := strconv.ParseUint(c.Param("cardID"), 10, 32)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidCreditCardID)
+		return
+	}
+	patientID := h.GetUserID(c)
+	card, err := h.creditCardDataStore.FindByID(uint(cardID))
+	if err != nil {
+		h.InternalServerError(c, err, "h.creditCardDataStore.FindByID error")
+		return
+	}
+	if card == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrCreditCardNotFound)
+		return
+	}
+	if card.PatientID != patientID {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrCreditCardOwnership)
+		return
+	}
+	c.Set("CreditCard", card)
 }

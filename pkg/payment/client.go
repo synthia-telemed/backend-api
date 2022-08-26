@@ -5,6 +5,7 @@ import "time"
 type Client interface {
 	CreateCustomer(patientID uint) (string, error)
 	AddCreditCard(customerID, cardToken string) (*Card, error)
+	RemoveCreditCard(customerID, cardID string) error
 	PayWithCreditCard(customerID, cardID, refID string, amount int) (*Payment, error)
 }
 

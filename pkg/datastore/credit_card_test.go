@@ -93,11 +93,44 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			Expect(deletedCard.CardID).To(Equal(card.CardID))
 		})
 	})
+
+	Context("IsOwnCreditCard", func() {
+		When("patient doesn't own the card", func() {
+			It("should return false with no error", func() {
+				isOwn, err := creditCardDataStore.IsOwnCreditCard(uint(rand.Uint32()), card.ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeFalse())
+			})
+		})
+		When("patient own the card", func() {
+			It("should return true with no error", func() {
+				isOwn, err := creditCardDataStore.IsOwnCreditCard(patient.ID, card.ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeTrue())
+			})
+		})
+	})
+
+	Context("FindByID", func() {
+		When("card is not existed", func() {
+			It("should return nil with no error", func() {
+				c, err := creditCardDataStore.FindByID(uint(rand.Uint32()))
+				Expect(err).To(BeNil())
+				Expect(c).To(BeNil())
+			})
+		})
+		When("card is existed", func() {
+			It("should return the card with no error", func() {
+				c, err := creditCardDataStore.FindByID(card.ID)
+				Expect(err).To(BeNil())
+				Expect(c.ID).To(Equal(card.ID))
+			})
+		})
+	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
 	return &datastore.CreditCard{
-		IsDefault:   true,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
 		PatientID:   patientID,
