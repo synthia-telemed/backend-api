@@ -136,12 +136,12 @@ func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 		return
 	}
 
-	if err := h.paymentClient.RemoveCreditCard(customerID, creditCard.CardID); err != nil {
-		h.InternalServerError(c, err, "h.paymentClient.RemoveCreditCard error")
-		return
-	}
 	if err := h.creditCardDataStore.Delete(creditCard.ID); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Delete error")
+		return
+	}
+	if err := h.paymentClient.RemoveCreditCard(customerID, creditCard.CardID); err != nil {
+		h.InternalServerError(c, err, "h.paymentClient.RemoveCreditCard error")
 		return
 	}
 	c.AbortWithStatus(http.StatusOK)
