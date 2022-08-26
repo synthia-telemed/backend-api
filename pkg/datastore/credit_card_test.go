@@ -93,6 +93,23 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			Expect(deletedCard.CardID).To(Equal(card.CardID))
 		})
 	})
+
+	Context("IsOwnCreditCard", func() {
+		When("patient doesn't own the card", func() {
+			It("should return false with no error", func() {
+				isOwn, err := creditCardDataStore.IsOwnCreditCard(uint(rand.Uint32()), card.ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeFalse())
+			})
+		})
+		When("patient own the card", func() {
+			It("should return true with no error", func() {
+				isOwn, err := creditCardDataStore.IsOwnCreditCard(patient.ID, card.ID)
+				Expect(err).To(BeNil())
+				Expect(isOwn).To(BeTrue())
+			})
+		})
+	})
 })
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {

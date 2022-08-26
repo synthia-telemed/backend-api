@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -21,6 +22,7 @@ type CreditCard struct {
 type CreditCardDataStore interface {
 	Create(card *CreditCard) error
 	FindByPatientID(patientID uint) ([]CreditCard, error)
+	IsOwnCreditCard(patientID, cardID uint) (bool, error)
 	Delete(id uint) error
 }
 
@@ -42,6 +44,17 @@ func (g GormCreditCardDataStore) FindByPatientID(patientID uint) ([]CreditCard, 
 		return nil, err
 	}
 	return cards, nil
+}
+
+func (g GormCreditCardDataStore) IsOwnCreditCard(patientID, id uint) (bool, error) {
+	var c CreditCard
+	if err := g.db.Where(&CreditCard{PatientID: patientID, ID: id}).First(&c).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (g GormCreditCardDataStore) Delete(id uint) error {
