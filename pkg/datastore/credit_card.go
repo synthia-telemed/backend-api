@@ -11,7 +11,6 @@ type CreditCard struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
-	IsDefault   bool           `json:"is_default"`
 	Last4Digits string         `json:"last_4_digits"`
 	Brand       string         `json:"brand"`
 	PatientID   uint           `json:"patient_id" gorm:"not null"`

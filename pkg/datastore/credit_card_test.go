@@ -131,7 +131,6 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 
 func generateCreditCard(patientID uint) *datastore.CreditCard {
 	return &datastore.CreditCard{
-		IsDefault:   true,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
 		PatientID:   patientID,

@@ -26,7 +26,6 @@ func generateCreditCard() *datastore.CreditCard {
 		ID:          uint(rand.Uint32()),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-		IsDefault:   false,
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
 		PatientID:   uint(rand.Uint32()),
@@ -49,7 +48,6 @@ func generatePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card
 		Brand:       "MasterCard",
 	}
 	dCard := &datastore.CreditCard{
-		IsDefault:   false,
 		Last4Digits: pCard.Last4Digits,
 		Brand:       pCard.Brand,
 		PatientID:   patientID,

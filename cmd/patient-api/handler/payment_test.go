@@ -122,7 +122,6 @@ var _ = Describe("Payment Handler", func() {
 
 			When("it's the first credit card", func() {
 				BeforeEach(func() {
-					dCard.IsDefault = true
 					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
 				})
 				It("should return 201", func() {
@@ -131,7 +130,6 @@ var _ = Describe("Payment Handler", func() {
 			})
 			When("patient already has some cards", func() {
 				BeforeEach(func() {
-					dCard.IsDefault = false
 					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generateCreditCards(3), nil).Times(1)
 				})
 				It("should return 201", func() {
@@ -321,6 +319,7 @@ var _ = Describe("Payment Handler", func() {
 		When("remove credit card from payment client failed", func() {
 			BeforeEach(func() {
 				c.Set("CreditCard", card)
+				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(nil).Times(1)
 				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {
@@ -330,7 +329,6 @@ var _ = Describe("Payment Handler", func() {
 		When("remove credit card from data store failed", func() {
 			BeforeEach(func() {
 				c.Set("CreditCard", card)
-				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(nil).Times(1)
 				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {

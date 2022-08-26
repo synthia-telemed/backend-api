@@ -90,7 +90,6 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 	}
 
 	newCard := &datastore.CreditCard{
-		IsDefault:   len(cards) == 0,
 		Last4Digits: card.Last4Digits,
 		Brand:       card.Brand,
 		PatientID:   patientID,
