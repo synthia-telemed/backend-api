@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -244,6 +245,51 @@ var _ = Describe("Payment Handler", func() {
 				id, ok := c.Get("CustomerID")
 				Expect(ok).To(BeTrue())
 				Expect(id).To(Equal(customerID))
+			})
+		})
+	})
+
+	Context("VerifyCreditCardOwnership", func() {
+		var cardID uint
+		BeforeEach(func() {
+			handlerFunc = h.VerifyCreditCardOwnership
+			cardID = uint(rand.Uint32())
+		})
+
+		When("cardID is in invalid format", func() {
+			BeforeEach(func() {
+				c.AddParam("cardID", "not-uint")
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		When("find credit card by ID error", func() {
+			BeforeEach(func() {
+				c.AddParam("cardID", fmt.Sprintf("%v", cardID))
+				mockCreditCardDataStore.EXPECT().FindByID(cardID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("credit card is not found", func() {
+			BeforeEach(func() {
+				c.AddParam("cardID", fmt.Sprintf("%v", cardID))
+				mockCreditCardDataStore.EXPECT().FindByID(cardID).Return(nil, nil).Times(1)
+			})
+			It("should return 404", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
+			})
+		})
+		When("patient doesn't own the credit card", func() {
+			BeforeEach(func() {
+				c.AddParam("cardID", fmt.Sprintf("%v", cardID))
+				card := &datastore.CreditCard{PatientID: uint(rand.Uint32())}
+				mockCreditCardDataStore.EXPECT().FindByID(cardID).Return(card, nil).Times(1)
+			})
+			It("should return 403", func() {
+				Expect(rec.Code).To(Equal(http.StatusForbidden))
 			})
 		})
 	})
