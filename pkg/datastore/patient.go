@@ -54,7 +54,7 @@ type GormPatientDataStore struct {
 	db *gorm.DB
 }
 
-func NewGormPatientDataStore(db *gorm.DB) (*GormPatientDataStore, error) {
+func NewGormPatientDataStore(db *gorm.DB) (PatientDataStore, error) {
 	return &GormPatientDataStore{db}, db.AutoMigrate(&Patient{})
 }
 
