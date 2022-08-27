@@ -77,7 +77,3 @@ var _ = Describe("Measurement Datastore", Ordered, func() {
 		})
 	})
 })
-
-func assertRecord(db *gorm.DB, t interface{}) {
-	Expect(db.Where(t).First(t).Error).To(Succeed())
-}
