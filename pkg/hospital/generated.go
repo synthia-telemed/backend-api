@@ -1230,15 +1230,12 @@ func (v *getDoctorResponse) GetDoctor() *getDoctorDoctor { return v.Doctor }
 
 // getInvoiceInvoice includes the requested fields of the GraphQL type Invoice.
 type getInvoiceInvoice struct {
-	AppointmentId int       `json:"appointmentId"`
-	CreatedAt     time.Time `json:"createdAt"`
-	Id            string    `json:"id"`
-	Paid          bool      `json:"paid"`
-	Total         float64   `json:"total"`
+	CreatedAt   time.Time                     `json:"createdAt"`
+	Id          string                        `json:"id"`
+	Paid        bool                          `json:"paid"`
+	Total       float64                       `json:"total"`
+	Appointment *getInvoiceInvoiceAppointment `json:"appointment"`
 }
-
-// GetAppointmentId returns getInvoiceInvoice.AppointmentId, and is useful for accessing the field via an interface.
-func (v *getInvoiceInvoice) GetAppointmentId() int { return v.AppointmentId }
 
 // GetCreatedAt returns getInvoiceInvoice.CreatedAt, and is useful for accessing the field via an interface.
 func (v *getInvoiceInvoice) GetCreatedAt() time.Time { return v.CreatedAt }
@@ -1251,6 +1248,21 @@ func (v *getInvoiceInvoice) GetPaid() bool { return v.Paid }
 
 // GetTotal returns getInvoiceInvoice.Total, and is useful for accessing the field via an interface.
 func (v *getInvoiceInvoice) GetTotal() float64 { return v.Total }
+
+// GetAppointment returns getInvoiceInvoice.Appointment, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetAppointment() *getInvoiceInvoiceAppointment { return v.Appointment }
+
+// getInvoiceInvoiceAppointment includes the requested fields of the GraphQL type Appointment.
+type getInvoiceInvoiceAppointment struct {
+	Id        string `json:"id"`
+	PatientId string `json:"patientId"`
+}
+
+// GetId returns getInvoiceInvoiceAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoiceAppointment) GetId() string { return v.Id }
+
+// GetPatientId returns getInvoiceInvoiceAppointment.PatientId, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoiceAppointment) GetPatientId() string { return v.PatientId }
 
 // getInvoiceResponse is returned by getInvoice on success.
 type getInvoiceResponse struct {
@@ -1453,11 +1465,14 @@ func getInvoice(
 		Query: `
 query getInvoice ($where: InvoiceWhereInput!) {
 	invoice(where: $where) {
-		appointmentId
 		createdAt
 		id
 		paid
 		total
+		appointment {
+			id
+			patientId
+		}
 	}
 }
 `,

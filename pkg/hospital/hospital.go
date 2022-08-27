@@ -64,11 +64,14 @@ type Doctor struct {
 }
 
 type Invoice struct {
-	AppointmentId int       `json:"appointmentId"`
-	CreatedAt     time.Time `json:"createdAt"`
-	Id            string    `json:"id"`
-	Paid          bool      `json:"paid"`
-	Total         float64   `json:"total"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Id          string    `json:"id"`
+	Paid        bool      `json:"paid"`
+	Total       float64   `json:"total"`
+	Appointment struct {
+		Id        string `json:"id"`
+		PatientId string `json:"patientId"`
+	} `json:"appointment"`
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
@@ -107,7 +110,22 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, e
 	if err != nil {
 		return nil, err
 	}
-	return (*Invoice)(resp.Invoice), nil
+	if resp.Invoice == nil {
+		return nil, nil
+	}
+	return &Invoice{
+		CreatedAt: resp.Invoice.CreatedAt,
+		Id:        resp.Invoice.Id,
+		Paid:      resp.Invoice.Paid,
+		Total:     resp.Invoice.Total,
+		Appointment: struct {
+			Id        string `json:"id"`
+			PatientId string `json:"patientId"`
+		}{
+			Id:        resp.Invoice.Appointment.Id,
+			PatientId: resp.Invoice.Appointment.PatientId,
+		},
+	}, nil
 }
 
 func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
