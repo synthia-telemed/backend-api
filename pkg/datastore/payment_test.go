@@ -2,6 +2,7 @@ package datastore_test
 
 import (
 	"github.com/caarlos0/env/v6"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -64,5 +65,31 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 			Entry("failed payment", datastore.FailedPaymentStatus),
 			Entry("pending payment", datastore.PendingPaymentStatus),
 		)
+	})
+
+	Context("FindByInvoiceID", func() {
+		Context("Credit Card Payment", func() {
+			var payment *datastore.Payment
+			BeforeEach(func() {
+				payment = generateCreditCardPayment(datastore.SuccessPaymentStatus, creditCard.ID)
+				Expect(db.Create(payment).Error).To(Succeed())
+			})
+			When("payment is not found", func() {
+				It("should return nil with no error", func() {
+					p, err := paymentDataStore.FindByInvoiceID(uuid.New().String())
+					Expect(err).To(BeNil())
+					Expect(p).To(BeNil())
+				})
+			})
+			When("payment is found", func() {
+				It("should return payment with credit card preloaded", func() {
+					p, err := paymentDataStore.FindByInvoiceID(payment.InvoiceID)
+					Expect(err).To(BeNil())
+					Expect(p).ToNot(BeNil())
+					Expect(*p.CreditCardID).To(Equal(creditCard.ID))
+					Expect(p.CreditCard.CardID).To(Equal(creditCard.CardID))
+				})
+			})
+		})
 	})
 })
