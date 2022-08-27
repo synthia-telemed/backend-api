@@ -53,6 +53,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
 	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
+	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
 }
 
 type AddCreditCardRequest struct {
