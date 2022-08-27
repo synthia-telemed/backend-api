@@ -1,9 +1,7 @@
 package datastore_test
 
 import (
-	"fmt"
 	"github.com/caarlos0/env/v6"
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -128,13 +126,3 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		})
 	})
 })
-
-func generateCreditCard(patientID uint) *datastore.CreditCard {
-	return &datastore.CreditCard{
-		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
-		Brand:       "Visa",
-		PatientID:   patientID,
-		CardID:      uuid.New().String(),
-		Name:        "test_card",
-	}
-}
