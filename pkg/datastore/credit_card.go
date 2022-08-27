@@ -16,6 +16,7 @@ type CreditCard struct {
 	PatientID   uint           `json:"patient_id" gorm:"not null"`
 	Name        string         `json:"name"`
 	CardID      string         `json:"-"`
+	Payments    []Payment      `gorm:"foreignKey:CreditCardID"`
 }
 
 type CreditCardDataStore interface {
