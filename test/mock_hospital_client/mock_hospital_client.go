@@ -65,6 +65,21 @@ func (mr *MockSystemClientMockRecorder) FindDoctorByUsername(ctx, username inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindDoctorByUsername", reflect.TypeOf((*MockSystemClient)(nil).FindDoctorByUsername), ctx, username)
 }
 
+// FindInvoiceByID mocks base method.
+func (m *MockSystemClient) FindInvoiceByID(ctx context.Context, id int) (*hospital.Invoice, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindInvoiceByID", ctx, id)
+	ret0, _ := ret[0].(*hospital.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindInvoiceByID indicates an expected call of FindInvoiceByID.
+func (mr *MockSystemClientMockRecorder) FindInvoiceByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindInvoiceByID", reflect.TypeOf((*MockSystemClient)(nil).FindInvoiceByID), ctx, id)
+}
+
 // FindPatientByGovCredential mocks base method.
 func (m *MockSystemClient) FindPatientByGovCredential(ctx context.Context, cred string) (*hospital.Patient, error) {
 	m.ctrl.T.Helper()
@@ -78,4 +93,18 @@ func (m *MockSystemClient) FindPatientByGovCredential(ctx context.Context, cred 
 func (mr *MockSystemClientMockRecorder) FindPatientByGovCredential(ctx, cred interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPatientByGovCredential", reflect.TypeOf((*MockSystemClient)(nil).FindPatientByGovCredential), ctx, cred)
+}
+
+// PaidInvoice mocks base method.
+func (m *MockSystemClient) PaidInvoice(ctx context.Context, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PaidInvoice", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PaidInvoice indicates an expected call of PaidInvoice.
+func (mr *MockSystemClientMockRecorder) PaidInvoice(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaidInvoice", reflect.TypeOf((*MockSystemClient)(nil).PaidInvoice), ctx, id)
 }

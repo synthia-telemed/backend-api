@@ -10,6 +10,8 @@ type SystemClient interface {
 	FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error)
 	AssertDoctorCredential(ctx context.Context, username, password string) (bool, error)
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
+	FindInvoiceByID(ctx context.Context, id int) (*Invoice, error)
+	PaidInvoice(ctx context.Context, id int) error
 }
 
 type Config struct {
