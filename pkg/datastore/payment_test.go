@@ -2,7 +2,6 @@ package datastore_test
 
 import (
 	"github.com/caarlos0/env/v6"
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -76,7 +75,7 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 			})
 			When("payment is not found", func() {
 				It("should return nil with no error", func() {
-					p, err := paymentDataStore.FindByInvoiceID(uuid.New().String())
+					p, err := paymentDataStore.FindByInvoiceID(int(rand.Int31()))
 					Expect(err).To(BeNil())
 					Expect(p).To(BeNil())
 				})
