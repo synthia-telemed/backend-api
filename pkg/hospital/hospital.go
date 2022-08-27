@@ -3,6 +3,7 @@ package hospital
 import (
 	"context"
 	"github.com/Khan/genqlient/graphql"
+	"strconv"
 	"time"
 )
 
@@ -65,7 +66,7 @@ type Doctor struct {
 
 type Invoice struct {
 	CreatedAt     time.Time
-	Id            string
+	Id            int
 	Paid          bool
 	Total         float64
 	AppointmentID string
@@ -111,9 +112,13 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, e
 	if resp.Invoice == nil {
 		return nil, nil
 	}
+	invoiceID, err := strconv.ParseInt(resp.Invoice.Id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
 	return &Invoice{
 		CreatedAt:     resp.Invoice.CreatedAt,
-		Id:            resp.Invoice.Id,
+		Id:            int(invoiceID),
 		Paid:          resp.Invoice.Paid,
 		Total:         resp.Invoice.Total,
 		AppointmentID: resp.Invoice.Appointment.Id,
