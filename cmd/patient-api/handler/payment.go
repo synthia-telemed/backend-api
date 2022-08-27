@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -19,6 +20,9 @@ var (
 	ErrInvalidCreditCardID            = server.NewErrorResponse("Invalid credit card ID")
 	ErrCreditCardOwnership            = server.NewErrorResponse("Patient doesn't own the specified credit card")
 	ErrCreditCardNotFound             = server.NewErrorResponse("Credit card not found")
+	ErrInvalidInvoiceID               = server.NewErrorResponse("Invalid invoice ID")
+	ErrInvoiceNotFound                = server.NewErrorResponse("Invoice not found")
+	ErrInvoiceOwnership               = server.NewErrorResponse("Patient doesn't down the specified invoice")
 )
 
 type PaymentHandler struct {
@@ -230,6 +234,31 @@ func (h PaymentHandler) VerifyCreditCardOwnership(c *gin.Context) {
 	c.Set("CreditCard", card)
 }
 
-func (h PaymentHandler) ParseInvoice(c *gin.Context) {
+func (h PaymentHandler) ParseAndVerifyInvoiceOwnership(c *gin.Context) {
+	invoiceID, err := strconv.ParseInt(c.Param("invoiceID"), 10, 32)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidInvoiceID)
+		return
+	}
+	patientID := h.GetUserID(c)
+	invoice, err := h.hospitalSysClient.FindInvoiceByID(context.Background(), int(invoiceID))
+	if err != nil {
+		h.InternalServerError(c, err, "h.hospitalSysClient.FindInvoiceByID error")
+		return
+	}
+	if invoice == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrInvoiceNotFound)
+		return
+	}
 
+	patient, err := h.patientDataStore.FindByID(patientID)
+	if err != nil {
+		h.InternalServerError(c, err, " h.patientDataStore.FindByID error")
+		return
+	}
+	if invoice.PatientID != patient.RefID {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrInvoiceOwnership)
+		return
+	}
+	c.Set("Invoice", invoice)
 }

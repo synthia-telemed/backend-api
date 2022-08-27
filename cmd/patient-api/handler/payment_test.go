@@ -12,8 +12,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
+	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_payment"
 	"go.uber.org/zap"
 	"math/rand"
@@ -34,6 +36,8 @@ var _ = Describe("Payment Handler", func() {
 		mockPatientDataStore    *mock_datastore.MockPatientDataStore
 		mockCreditCardDataStore *mock_datastore.MockCreditCardDataStore
 		mockPaymentClient       *mock_payment.MockClient
+		mockPaymentDataStore    *mock_datastore.MockPaymentDataStore
+		mockhospitalSysClient   *mock_hospital_client.MockSystemClient
 	)
 
 	BeforeEach(func() {
@@ -44,8 +48,10 @@ var _ = Describe("Payment Handler", func() {
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockCreditCardDataStore = mock_datastore.NewMockCreditCardDataStore(mockCtrl)
+		mockPaymentDataStore = mock_datastore.NewMockPaymentDataStore(mockCtrl)
 		mockPaymentClient = mock_payment.NewMockClient(mockCtrl)
-		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, mockCreditCardDataStore, zap.NewNop().Sugar())
+		mockhospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
+		h = handler.NewPaymentHandler(mockPaymentClient, mockPatientDataStore, mockCreditCardDataStore, mockhospitalSysClient, mockPaymentDataStore, zap.NewNop().Sugar())
 	})
 
 	JustBeforeEach(func() {
@@ -341,8 +347,83 @@ var _ = Describe("Payment Handler", func() {
 				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(nil).Times(1)
 				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(nil).Times(1)
 			})
-			It("should return 500", func() {
+			It("should return 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
+
+	Context("ParseAndVerifyInvoiceOwnership", func() {
+		var invoiceID int
+		BeforeEach(func() {
+			handlerFunc = h.ParseAndVerifyInvoiceOwnership
+			invoiceID = int(rand.Int31())
+		})
+		When("invoiceID is invalid", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", "not-int-ka")
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		When("find invoice by ID with hospital sys client error", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("invoice is not found", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(nil, nil).Times(1)
+			})
+			It("should return 404", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
+			})
+		})
+		When("find patient by ID error", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
+				i := &hospital.Invoice{PatientID: p.RefID}
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("patient's refID is not equal to patient ID in invoice", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
+				i := &hospital.Invoice{PatientID: uuid.New().String()}
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+			})
+			It("should return 403", func() {
+				Expect(rec.Code).To(Equal(http.StatusForbidden))
+			})
+		})
+		When("no error occurred", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
+				i := &hospital.Invoice{Id: invoiceID, PatientID: p.RefID}
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
+			})
+			It("set invoice to the context", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				i, ok := c.Get("Invoice")
+				Expect(ok).To(BeTrue())
+				invoice, ok := i.(*hospital.Invoice)
+				Expect(ok).To(BeTrue())
+				Expect(invoice.Id).To(Equal(invoiceID))
 			})
 		})
 	})
