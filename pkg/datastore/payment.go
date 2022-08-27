@@ -38,7 +38,7 @@ type GormPaymentDataStore struct {
 	db *gorm.DB
 }
 
-func NewGormPaymentDataStore(db *gorm.DB) (*GormPaymentDataStore, error) {
+func NewGormPaymentDataStore(db *gorm.DB) (PaymentDataStore, error) {
 	return &GormPaymentDataStore{db: db}, db.AutoMigrate(&Payment{})
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"gorm.io/gorm"
 	"math/rand"
+	"time"
 )
 
 func generatePatient() *datastore.Patient {
@@ -52,5 +53,22 @@ func generateCreditCard(patientID uint) *datastore.CreditCard {
 		PatientID:   patientID,
 		CardID:      uuid.New().String(),
 		Name:        "test_card",
+	}
+}
+
+func generateCreditCardPayment(status datastore.PaymentStatus, creditCardID uint) *datastore.Payment {
+	var paidAt *time.Time
+	if status == datastore.SuccessPaymentStatus {
+		now := time.Now()
+		paidAt = &now
+	}
+	return &datastore.Payment{
+		Method:       datastore.CreditCardPaymentMethod,
+		Amount:       rand.Float64(),
+		PaidAt:       paidAt,
+		ChargeID:     uuid.New().String(),
+		InvoiceID:    uuid.New().String(),
+		Status:       status,
+		CreditCardID: &creditCardID,
 	}
 }
