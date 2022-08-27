@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -168,20 +169,48 @@ func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 	c.AbortWithStatus(http.StatusOK)
 }
 
-//func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
-//	patientID := h.GetUserID(c)
-//	customerID := h.GetCustomerID(c)
-//	rawCard, ok := c.Get("CreditCard")
-//	if !ok {
-//		h.InternalServerError(c, errors.New("CreditCard not found"), "c.Get(\"CreditCard\") error")
-//		return
-//	}
-//	creditCard, ok := rawCard.(*datastore.CreditCard)
-//	if !ok {
-//		h.InternalServerError(c, errors.New("CreditCard type casting error"), "rawCard.(*datastore.CreditCard)")
-//		return
-//	}
-//}
+type PayInvoiceWithCreditCardResponse struct {
+	*datastore.Payment
+	FailureMessage *string `json:"failure_message"`
+}
+
+func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
+	customerID := h.GetCustomerID(c)
+	rawCard, _ := c.Get("CreditCard")
+	creditCard, _ := rawCard.(*datastore.CreditCard)
+	rawInvoice, _ := c.Get("Invoice")
+	invoice, _ := rawInvoice.(*hospital.Invoice)
+
+	paymentCharge, err := h.paymentClient.PayWithCreditCard(customerID, creditCard.CardID, fmt.Sprintf("%d", invoice.Id), int(invoice.Total*100))
+	if err != nil {
+		h.InternalServerError(c, err, "h.paymentClient.PayWithCreditCard error")
+		return
+	}
+	status := datastore.SuccessPaymentStatus
+	if !paymentCharge.Success {
+		status = datastore.FailedPaymentStatus
+	}
+	p := &datastore.Payment{
+		Method:       datastore.CreditCardPaymentMethod,
+		Amount:       invoice.Total,
+		PaidAt:       &paymentCharge.CreatedAt,
+		ChargeID:     paymentCharge.ID,
+		InvoiceID:    invoice.Id,
+		Status:       status,
+		CreditCard:   creditCard,
+		CreditCardID: &creditCard.ID,
+	}
+	if err := h.paymentDataStore.Create(p); err != nil {
+		h.InternalServerError(c, err, "h.paymentDataStore.Create error")
+		return
+	}
+	if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
+		h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
+		return
+	}
+	res := &PayInvoiceWithCreditCardResponse{Payment: p, FailureMessage: paymentCharge.FailureMessage}
+	c.JSON(http.StatusCreated, res)
+}
 
 func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
 	patientID := h.GetUserID(c)
