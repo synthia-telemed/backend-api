@@ -67,6 +67,8 @@ func main() {
 	assertFatalError(sugaredLogger, err, "Failed to create measurement data store")
 	creditCardDataStore, err := datastore.NewGormCreditCardDataStore(db)
 	assertFatalError(sugaredLogger, err, "Failed to create credit card data store")
+	paymentDataStore, err := datastore.NewGormPaymentDataStore(db)
+	assertFatalError(sugaredLogger, err, "Failed to create payment data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
@@ -78,7 +80,7 @@ func main() {
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
-	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, sugaredLogger)
+	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, sugaredLogger)
 	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)

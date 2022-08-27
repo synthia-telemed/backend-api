@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
@@ -24,16 +25,20 @@ type PaymentHandler struct {
 	paymentClient       payment.Client
 	patientDataStore    datastore.PatientDataStore
 	creditCardDataStore datastore.CreditCardDataStore
+	hospitalSysClient   hospital.SystemClient
+	paymentDataStore    datastore.PaymentDataStore
 	logger              *zap.SugaredLogger
 	server.GinHandler
 }
 
-func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, logger *zap.SugaredLogger) *PaymentHandler {
+func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
 		paymentClient:       paymentClient,
 		patientDataStore:    pds,
 		logger:              logger,
 		creditCardDataStore: cds,
+		hospitalSysClient:   hsc,
+		paymentDataStore:    pay,
 		GinHandler:          server.GinHandler{Logger: logger},
 	}
 }
@@ -159,6 +164,21 @@ func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 	c.AbortWithStatus(http.StatusOK)
 }
 
+//func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
+//	patientID := h.GetUserID(c)
+//	customerID := h.GetCustomerID(c)
+//	rawCard, ok := c.Get("CreditCard")
+//	if !ok {
+//		h.InternalServerError(c, errors.New("CreditCard not found"), "c.Get(\"CreditCard\") error")
+//		return
+//	}
+//	creditCard, ok := rawCard.(*datastore.CreditCard)
+//	if !ok {
+//		h.InternalServerError(c, errors.New("CreditCard type casting error"), "rawCard.(*datastore.CreditCard)")
+//		return
+//	}
+//}
+
 func (h PaymentHandler) CreateOrParseCustomer(c *gin.Context) {
 	patientID := h.GetUserID(c)
 	patient, err := h.patientDataStore.FindByID(patientID)
@@ -208,4 +228,8 @@ func (h PaymentHandler) VerifyCreditCardOwnership(c *gin.Context) {
 		return
 	}
 	c.Set("CreditCard", card)
+}
+
+func (h PaymentHandler) ParseInvoice(c *gin.Context) {
+
 }
