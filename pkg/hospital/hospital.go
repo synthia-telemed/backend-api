@@ -10,6 +10,8 @@ type SystemClient interface {
 	FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error)
 	AssertDoctorCredential(ctx context.Context, username, password string) (bool, error)
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
+	FindInvoiceByID(ctx context.Context, id int) (*Invoice, error)
+	PaidInvoice(ctx context.Context, id int) error
 }
 
 type Config struct {
@@ -61,6 +63,14 @@ type Doctor struct {
 	Username     string    `json:"username"`
 }
 
+type Invoice struct {
+	AppointmentId int       `json:"appointmentId"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Id            string    `json:"id"`
+	Paid          bool      `json:"paid"`
+	Total         float64   `json:"total"`
+}
+
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
 	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
 		OR: []*PatientWhereInput{
@@ -90,4 +100,17 @@ func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string
 		return nil, err
 	}
 	return (*Doctor)(resp.Doctor), nil
+}
+
+func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, error) {
+	resp, err := getInvoice(ctx, c.client, &InvoiceWhereInput{Id: &IntFilter{Equals: id}})
+	if err != nil {
+		return nil, err
+	}
+	return (*Invoice)(resp.Invoice), nil
+}
+
+func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
+	_, err := paidInvoice(ctx, c.client, float64(id))
+	return err
 }

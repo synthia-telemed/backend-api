@@ -941,6 +941,7 @@ type Mutation {
     createMedicine(medicine: MedicineCreateInput!): Medicine!
     createPatient(patient: PatientCreateInput!): Patient!
     createPrescription(prescription: PrescriptionCreateInput!): Prescription!
+    paidInvoice(id: Float!): Invoice!
 }
 
 input NestedBoolFilter {

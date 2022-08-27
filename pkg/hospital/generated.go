@@ -1134,6 +1134,14 @@ type __getDoctorInput struct {
 // GetWhere returns __getDoctorInput.Where, and is useful for accessing the field via an interface.
 func (v *__getDoctorInput) GetWhere() *DoctorWhereInput { return v.Where }
 
+// __getInvoiceInput is used internally by genqlient
+type __getInvoiceInput struct {
+	Where *InvoiceWhereInput `json:"where,omitempty"`
+}
+
+// GetWhere returns __getInvoiceInput.Where, and is useful for accessing the field via an interface.
+func (v *__getInvoiceInput) GetWhere() *InvoiceWhereInput { return v.Where }
+
 // __getPatientInput is used internally by genqlient
 type __getPatientInput struct {
 	Where *PatientWhereInput `json:"where,omitempty"`
@@ -1141,6 +1149,14 @@ type __getPatientInput struct {
 
 // GetWhere returns __getPatientInput.Where, and is useful for accessing the field via an interface.
 func (v *__getPatientInput) GetWhere() *PatientWhereInput { return v.Where }
+
+// __paidInvoiceInput is used internally by genqlient
+type __paidInvoiceInput struct {
+	PaidInvoiceId float64 `json:"paidInvoiceId"`
+}
+
+// GetPaidInvoiceId returns __paidInvoiceInput.PaidInvoiceId, and is useful for accessing the field via an interface.
+func (v *__paidInvoiceInput) GetPaidInvoiceId() float64 { return v.PaidInvoiceId }
 
 // assertDoctorCredentialResponse is returned by assertDoctorCredential on success.
 type assertDoctorCredentialResponse struct {
@@ -1211,6 +1227,38 @@ type getDoctorResponse struct {
 
 // GetDoctor returns getDoctorResponse.Doctor, and is useful for accessing the field via an interface.
 func (v *getDoctorResponse) GetDoctor() *getDoctorDoctor { return v.Doctor }
+
+// getInvoiceInvoice includes the requested fields of the GraphQL type Invoice.
+type getInvoiceInvoice struct {
+	AppointmentId int       `json:"appointmentId"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Id            string    `json:"id"`
+	Paid          bool      `json:"paid"`
+	Total         float64   `json:"total"`
+}
+
+// GetAppointmentId returns getInvoiceInvoice.AppointmentId, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetAppointmentId() int { return v.AppointmentId }
+
+// GetCreatedAt returns getInvoiceInvoice.CreatedAt, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetCreatedAt() time.Time { return v.CreatedAt }
+
+// GetId returns getInvoiceInvoice.Id, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetId() string { return v.Id }
+
+// GetPaid returns getInvoiceInvoice.Paid, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetPaid() bool { return v.Paid }
+
+// GetTotal returns getInvoiceInvoice.Total, and is useful for accessing the field via an interface.
+func (v *getInvoiceInvoice) GetTotal() float64 { return v.Total }
+
+// getInvoiceResponse is returned by getInvoice on success.
+type getInvoiceResponse struct {
+	Invoice *getInvoiceInvoice `json:"invoice"`
+}
+
+// GetInvoice returns getInvoiceResponse.Invoice, and is useful for accessing the field via an interface.
+func (v *getInvoiceResponse) GetInvoice() *getInvoiceInvoice { return v.Invoice }
 
 // getPatientPatient includes the requested fields of the GraphQL type Patient.
 type getPatientPatient struct {
@@ -1292,6 +1340,34 @@ type getPatientResponse struct {
 // GetPatient returns getPatientResponse.Patient, and is useful for accessing the field via an interface.
 func (v *getPatientResponse) GetPatient() *getPatientPatient { return v.Patient }
 
+// paidInvoicePaidInvoice includes the requested fields of the GraphQL type Invoice.
+type paidInvoicePaidInvoice struct {
+	Id            string  `json:"id"`
+	Paid          bool    `json:"paid"`
+	Total         float64 `json:"total"`
+	AppointmentId int     `json:"appointmentId"`
+}
+
+// GetId returns paidInvoicePaidInvoice.Id, and is useful for accessing the field via an interface.
+func (v *paidInvoicePaidInvoice) GetId() string { return v.Id }
+
+// GetPaid returns paidInvoicePaidInvoice.Paid, and is useful for accessing the field via an interface.
+func (v *paidInvoicePaidInvoice) GetPaid() bool { return v.Paid }
+
+// GetTotal returns paidInvoicePaidInvoice.Total, and is useful for accessing the field via an interface.
+func (v *paidInvoicePaidInvoice) GetTotal() float64 { return v.Total }
+
+// GetAppointmentId returns paidInvoicePaidInvoice.AppointmentId, and is useful for accessing the field via an interface.
+func (v *paidInvoicePaidInvoice) GetAppointmentId() int { return v.AppointmentId }
+
+// paidInvoiceResponse is returned by paidInvoice on success.
+type paidInvoiceResponse struct {
+	PaidInvoice *paidInvoicePaidInvoice `json:"paidInvoice"`
+}
+
+// GetPaidInvoice returns paidInvoiceResponse.PaidInvoice, and is useful for accessing the field via an interface.
+func (v *paidInvoiceResponse) GetPaidInvoice() *paidInvoicePaidInvoice { return v.PaidInvoice }
+
 func assertDoctorCredential(
 	ctx context.Context,
 	client graphql.Client,
@@ -1367,6 +1443,42 @@ query getDoctor ($where: DoctorWhereInput!) {
 	return &data, err
 }
 
+func getInvoice(
+	ctx context.Context,
+	client graphql.Client,
+	where *InvoiceWhereInput,
+) (*getInvoiceResponse, error) {
+	req := &graphql.Request{
+		OpName: "getInvoice",
+		Query: `
+query getInvoice ($where: InvoiceWhereInput!) {
+	invoice(where: $where) {
+		appointmentId
+		createdAt
+		id
+		paid
+		total
+	}
+}
+`,
+		Variables: &__getInvoiceInput{
+			Where: where,
+		},
+	}
+	var err error
+
+	var data getInvoiceResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func getPatient(
 	ctx context.Context,
 	client graphql.Client,
@@ -1404,6 +1516,41 @@ query getPatient ($where: PatientWhereInput!) {
 	var err error
 
 	var data getPatientResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func paidInvoice(
+	ctx context.Context,
+	client graphql.Client,
+	paidInvoiceId float64,
+) (*paidInvoiceResponse, error) {
+	req := &graphql.Request{
+		OpName: "paidInvoice",
+		Query: `
+mutation paidInvoice ($paidInvoiceId: Float!) {
+	paidInvoice(id: $paidInvoiceId) {
+		id
+		paid
+		total
+		appointmentId
+	}
+}
+`,
+		Variables: &__paidInvoiceInput{
+			PaidInvoiceId: paidInvoiceId,
+		},
+	}
+	var err error
+
+	var data paidInvoiceResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
