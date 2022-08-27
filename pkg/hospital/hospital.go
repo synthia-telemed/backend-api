@@ -29,45 +29,45 @@ func NewGraphQLClient(config *Config) *GraphQLClient {
 }
 
 type Patient struct {
-	BirthDate    time.Time `json:"birthDate"`
-	BloodType    BloodType `json:"bloodType"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Height       float64   `json:"height"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	NationalId   string    `json:"nationalId"`
-	Nationality  string    `json:"nationality"`
-	PassportId   string    `json:"passportId"`
-	PhoneNumber  string    `json:"phoneNumber"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Weight       float64   `json:"weight"`
+	BirthDate    time.Time
+	BloodType    BloodType
+	CreatedAt    time.Time
+	Firstname_en string
+	Firstname_th string
+	Height       float64
+	Id           string
+	Initial_en   string
+	Initial_th   string
+	Lastname_en  string
+	Lastname_th  string
+	NationalId   string
+	Nationality  string
+	PassportId   string
+	PhoneNumber  string
+	UpdatedAt    time.Time
+	Weight       float64
 }
 
 type Doctor struct {
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	Password     string    `json:"password"`
-	Position     string    `json:"position"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Username     string    `json:"username"`
+	CreatedAt    time.Time
+	Firstname_en string
+	Firstname_th string
+	Id           string
+	Initial_en   string
+	Initial_th   string
+	Lastname_en  string
+	Lastname_th  string
+	Password     string
+	Position     string
+	UpdatedAt    time.Time
+	Username     string
 }
 
 type Invoice struct {
-	CreatedAt     time.Time `json:"createdAt"`
-	Id            string    `json:"id"`
-	Paid          bool      `json:"paid"`
-	Total         float64   `json:"total"`
+	CreatedAt     time.Time
+	Id            string
+	Paid          bool
+	Total         float64
 	AppointmentID string
 	PatientID     string
 }
