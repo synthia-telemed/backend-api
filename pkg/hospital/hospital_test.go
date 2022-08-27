@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"math/rand"
 )
 
 var _ = Describe("Hospital Client", func() {
@@ -17,6 +18,7 @@ var _ = Describe("Hospital Client", func() {
 	)
 
 	BeforeEach(func() {
+		rand.Seed(GinkgoRandomSeed())
 		var c hospital.Config
 		Expect(env.Parse(&c)).To(Succeed())
 		mockCtrl = gomock.NewController(GinkgoT())
@@ -89,6 +91,23 @@ var _ = Describe("Hospital Client", func() {
 				doctor, err := graphQLClient.FindDoctorByUsername(context.Background(), "Jonathon_Kshlerin19")
 				Expect(err).To(BeNil())
 				Expect(doctor.Id).To(Equal("10"))
+			})
+		})
+	})
+
+	Context("FindInvoiceByID", func() {
+		When("invoice not found", func() {
+			It("should return nil with no error", func() {
+				invoice, err := graphQLClient.FindInvoiceByID(context.Background(), int(rand.Int31()))
+				Expect(err).To(BeNil())
+				Expect(invoice).To(BeNil())
+			})
+		})
+		When("invoice is found", func() {
+			It("should invoice with no error", func() {
+				invoice, err := graphQLClient.FindInvoiceByID(context.Background(), 1)
+				Expect(err).To(BeNil())
+				Expect(invoice.Id).To(Equal("1"))
 			})
 		})
 	})
