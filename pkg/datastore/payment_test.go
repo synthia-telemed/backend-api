@@ -48,26 +48,21 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 	})
 
 	Context("Create payment", func() {
-		It("should create succeed payment", func() {
-			p := generateCreditCardPayment(datastore.SuccessPaymentStatus, creditCard.ID)
-			Expect(paymentDataStore.Create(p)).To(Succeed())
-			Expect(p.ID).ToNot(BeZero())
-			Expect(p.CreatedAt).ToNot(BeZero())
-			Expect(p.PaidAt).ToNot(BeNil())
-		})
-		It("should create failed payment", func() {
-			p := generateCreditCardPayment(datastore.FailedPaymentStatus, creditCard.ID)
-			Expect(paymentDataStore.Create(p)).To(Succeed())
-			Expect(p.ID).ToNot(BeZero())
-			Expect(p.CreatedAt).ToNot(BeZero())
-			Expect(p.PaidAt).To(BeNil())
-		})
-		It("should create pending payment", func() {
-			p := generateCreditCardPayment(datastore.PendingPaymentStatus, creditCard.ID)
-			Expect(paymentDataStore.Create(p)).To(Succeed())
-			Expect(p.ID).ToNot(BeZero())
-			Expect(p.CreatedAt).ToNot(BeZero())
-			Expect(p.PaidAt).To(BeNil())
-		})
+		DescribeTable("create credit card payment",
+			func(status datastore.PaymentStatus) {
+				p := generateCreditCardPayment(status, creditCard.ID)
+				Expect(paymentDataStore.Create(p)).To(Succeed())
+				Expect(p.ID).ToNot(BeZero())
+				Expect(p.CreatedAt).ToNot(BeZero())
+				if status == datastore.SuccessPaymentStatus {
+					Expect(p.PaidAt).ToNot(BeZero())
+				} else {
+					Expect(p.PaidAt).To(BeZero())
+				}
+			},
+			Entry("success payment", datastore.SuccessPaymentStatus),
+			Entry("failed payment", datastore.FailedPaymentStatus),
+			Entry("pending payment", datastore.PendingPaymentStatus),
+		)
 	})
 })
