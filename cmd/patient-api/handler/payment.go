@@ -187,9 +187,13 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 		h.InternalServerError(c, err, "h.paymentClient.PayWithCreditCard error")
 		return
 	}
-	status := datastore.SuccessPaymentStatus
-	if !paymentCharge.Success {
-		status = datastore.FailedPaymentStatus
+	status := datastore.FailedPaymentStatus
+	if paymentCharge.Success {
+		status = datastore.SuccessPaymentStatus
+		if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
+			h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
+			return
+		}
 	}
 	p := &datastore.Payment{
 		Method:       datastore.CreditCardPaymentMethod,
@@ -203,10 +207,6 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	}
 	if err := h.paymentDataStore.Create(p); err != nil {
 		h.InternalServerError(c, err, "h.paymentDataStore.Create error")
-		return
-	}
-	if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
-		h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
 		return
 	}
 	res := &PayInvoiceWithCreditCardResponse{Payment: p, FailureMessage: paymentCharge.FailureMessage}

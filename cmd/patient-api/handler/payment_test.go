@@ -41,10 +41,12 @@ var _ = Describe("Payment Handler", func() {
 	)
 
 	BeforeEach(func() {
+		gin.SetMode(gin.TestMode)
 		mockCtrl, rec, c = initHandlerTest()
 		patientID = uint(rand.Uint32())
 		customerID = uuid.New().String()
 		c.Set("UserID", patientID)
+		c.Set("CustomerID", customerID)
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockCreditCardDataStore = mock_datastore.NewMockCreditCardDataStore(mockCtrl)
@@ -74,7 +76,6 @@ var _ = Describe("Payment Handler", func() {
 			reqBody, err := json.Marshal(&req)
 			Expect(err).To(BeNil())
 			c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
-			c.Set("CustomerID", customerID)
 		})
 
 		When("card_token is not present in request body", func() {
@@ -149,7 +150,6 @@ var _ = Describe("Payment Handler", func() {
 		BeforeEach(func() {
 			handlerFunc = h.GetCreditCards
 			c.Request = httptest.NewRequest("GET", "/", nil)
-			c.Set("CustomerID", customerID)
 		})
 
 		When("query error", func() {
@@ -305,7 +305,6 @@ var _ = Describe("Payment Handler", func() {
 
 		BeforeEach(func() {
 			handlerFunc = h.DeleteCreditCard
-			c.Set("CustomerID", customerID)
 			card = generateCreditCard()
 		})
 
@@ -424,6 +423,88 @@ var _ = Describe("Payment Handler", func() {
 				invoice, ok := i.(*hospital.Invoice)
 				Expect(ok).To(BeTrue())
 				Expect(invoice.Id).To(Equal(invoiceID))
+			})
+		})
+	})
+
+	Context("PayInvoiceWithCreditCard", func() {
+		var (
+			creditCard   *datastore.CreditCard
+			invoice      *hospital.Invoice
+			invoiceIDStr string
+		)
+		BeforeEach(func() {
+			handlerFunc = h.PayInvoiceWithCreditCard
+			creditCard = generateCreditCard()
+			invoice = generateHospitalInvoice(false)
+			invoiceIDStr = fmt.Sprintf("%d", invoice.Id)
+			c.Set("CreditCard", creditCard)
+			c.Set("Invoice", invoice)
+		})
+		When("pay with credit card error", func() {
+			BeforeEach(func() {
+				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("hospital sys client PaidInvoice error", func() {
+			BeforeEach(func() {
+				p := generatePayment(true)
+				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
+				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("create payment in datastore error", func() {
+			BeforeEach(func() {
+				p := generatePayment(true)
+				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
+				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
+				mockPaymentDataStore.EXPECT().Create(gomock.Any()).Return(errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		Context("no error occurred", func() {
+			var (
+				paymentCharge *payment.Payment
+				paymentData   *datastore.Payment
+			)
+			When("payment failed", func() {
+				BeforeEach(func() {
+					paymentCharge = generatePayment(false)
+					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
+					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.FailedPaymentStatus, invoice, paymentCharge, creditCard)
+					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
+				})
+				It("should return 201 with failure message", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
+					var res handler.PayInvoiceWithCreditCardResponse
+					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+					Expect(res.FailureMessage).To(Equal(paymentCharge.FailureMessage))
+					Expect(res.Status).To(Equal(datastore.FailedPaymentStatus))
+				})
+			})
+			When("payment success", func() {
+				BeforeEach(func() {
+					paymentCharge = generatePayment(true)
+					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
+					mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
+					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.SuccessPaymentStatus, invoice, paymentCharge, creditCard)
+					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
+				})
+				It("should return 201 with no failure message", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
+					var res handler.PayInvoiceWithCreditCardResponse
+					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+					Expect(res.FailureMessage).To(BeNil())
+					Expect(res.Status).To(Equal(datastore.SuccessPaymentStatus))
+				})
 			})
 		})
 	})
