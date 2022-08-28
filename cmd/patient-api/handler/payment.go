@@ -192,7 +192,7 @@ type PayInvoiceWithCreditCardResponse struct {
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
-// @Router       /pay/{invoiceID}/credit-card/{cardID} [post]
+// @Router       /payment/pay/{invoiceID}/credit-card/{cardID} [post]
 func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	customerID := h.GetCustomerID(c)
 	rawCard, _ := c.Get("CreditCard")
