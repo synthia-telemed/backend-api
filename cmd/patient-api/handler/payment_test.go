@@ -354,10 +354,10 @@ var _ = Describe("Payment Handler", func() {
 		})
 	})
 
-	Context("ParseAndVerifyInvoiceOwnership", func() {
+	Context("ParseAndVerifyUnpaidInvoiceOwnership", func() {
 		var invoiceID int
 		BeforeEach(func() {
-			handlerFunc = h.ParseAndVerifyInvoiceOwnership
+			handlerFunc = h.ParseAndVerifyUnpaidInvoiceOwnership
 			invoiceID = int(rand.Int31())
 		})
 		When("invoiceID is invalid", func() {
@@ -384,6 +384,16 @@ var _ = Describe("Payment Handler", func() {
 			})
 			It("should return 404", func() {
 				Expect(rec.Code).To(Equal(http.StatusNotFound))
+			})
+		})
+		When("invoice is paid", func() {
+			BeforeEach(func() {
+				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
+				i := &hospital.Invoice{PatientID: uuid.New().String(), Paid: true}
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
 		When("find patient by ID error", func() {

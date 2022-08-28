@@ -25,6 +25,7 @@ var (
 	ErrInvalidInvoiceID               = server.NewErrorResponse("Invalid invoice ID")
 	ErrInvoiceNotFound                = server.NewErrorResponse("Invoice not found")
 	ErrInvoiceOwnership               = server.NewErrorResponse("Patient doesn't down the specified invoice")
+	ErrInvoicePaid                    = server.NewErrorResponse("Invoice is already paid")
 )
 
 type PaymentHandler struct {
@@ -56,7 +57,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
 	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
-	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
+	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyUnpaidInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
 }
 
 type AddCreditCardRequest struct {
@@ -283,13 +284,12 @@ func (h PaymentHandler) VerifyCreditCardOwnership(c *gin.Context) {
 	c.Set("CreditCard", card)
 }
 
-func (h PaymentHandler) ParseAndVerifyInvoiceOwnership(c *gin.Context) {
+func (h PaymentHandler) ParseAndVerifyUnpaidInvoiceOwnership(c *gin.Context) {
 	invoiceID, err := strconv.ParseInt(c.Param("invoiceID"), 10, 32)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidInvoiceID)
 		return
 	}
-	patientID := h.GetUserID(c)
 	invoice, err := h.hospitalSysClient.FindInvoiceByID(context.Background(), int(invoiceID))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalSysClient.FindInvoiceByID error")
@@ -299,8 +299,11 @@ func (h PaymentHandler) ParseAndVerifyInvoiceOwnership(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, ErrInvoiceNotFound)
 		return
 	}
-
-	patient, err := h.patientDataStore.FindByID(patientID)
+	if invoice.Paid {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvoicePaid)
+		return
+	}
+	patient, err := h.patientDataStore.FindByID(h.GetUserID(c))
 	if err != nil {
 		h.InternalServerError(c, err, " h.patientDataStore.FindByID error")
 		return
