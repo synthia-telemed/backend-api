@@ -214,76 +214,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/pay/{invoiceID}/credit-card/{cardID}": {
-            "post": {
-                "security": [
-                    {
-                        "UserID": []
-                    },
-                    {
-                        "JWSToken": []
-                    }
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "Pay invoice with credit card method",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the credit card to be charged",
-                        "name": "cardID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the invoice to pay",
-                        "name": "invoiceID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Payment information",
-                        "schema": {
-                            "$ref": "#/definitions/handler.PayInvoiceWithCreditCardResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid credit card ID or invoice ID",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Patient doesn't own the specified credit card or invoice",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Credit card or invoice not found",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/payment/credit-card": {
             "get": {
                 "security": [
@@ -418,6 +348,76 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Credit card not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/pay/{invoiceID}/credit-card/{cardID}": {
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Pay invoice with credit card method",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the credit card to be charged",
+                        "name": "cardID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the invoice to pay",
+                        "name": "invoiceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment information",
+                        "schema": {
+                            "$ref": "#/definitions/handler.PayInvoiceWithCreditCardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid credit card ID or invoice ID",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the specified credit card or invoice",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Credit card or invoice not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
