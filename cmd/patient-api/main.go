@@ -7,6 +7,7 @@ import (
 	_ "github.com/synthia-telemed/backend-api/cmd/patient-api/docs"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -67,6 +68,8 @@ func main() {
 	assertFatalError(sugaredLogger, err, "Failed to create measurement data store")
 	creditCardDataStore, err := datastore.NewGormCreditCardDataStore(db)
 	assertFatalError(sugaredLogger, err, "Failed to create credit card data store")
+	paymentDataStore, err := datastore.NewGormPaymentDataStore(db)
+	assertFatalError(sugaredLogger, err, "Failed to create payment data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
@@ -75,10 +78,11 @@ func main() {
 	assertFatalError(sugaredLogger, err, "Failed to create token service")
 	paymentClient, err := payment.NewOmisePaymentClient(&cfg.Payment)
 	assertFatalError(sugaredLogger, err, "Failed to create payment client")
+	realClock := clock.NewRealClock()
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
-	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, sugaredLogger)
+	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
 	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)

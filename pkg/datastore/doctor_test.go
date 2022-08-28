@@ -74,15 +74,3 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 		})
 	})
 })
-
-func generateDoctors(num int) []*datastore.Doctor {
-	doctors := make([]*datastore.Doctor, num)
-	for i := 0; i < num; i++ {
-		doctors[i] = &datastore.Doctor{RefID: uuid.New().String()}
-	}
-	return doctors
-}
-
-func getRandomDoctor(docs []*datastore.Doctor) *datastore.Doctor {
-	return docs[rand.Int()%len(docs)]
-}

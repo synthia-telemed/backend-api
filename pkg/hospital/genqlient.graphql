@@ -40,3 +40,25 @@ query getDoctor($where: DoctorWhereInput!) {
 query assertDoctorCredential($password: String!, $username: String!) {
     assertDoctorPassword(password: $password, username: $username)
 }
+
+query getInvoice($where: InvoiceWhereInput!) {
+    invoice(where: $where) {
+        createdAt
+        id
+        paid
+        total
+        appointment {
+            id
+            patientId
+        }
+    }
+}
+
+mutation paidInvoice($paidInvoiceId: Float!) {
+    paidInvoice(id: $paidInvoiceId) {
+        id
+        paid
+        total
+        appointmentId
+    }
+}

@@ -2,7 +2,6 @@ package datastore_test
 
 import (
 	"github.com/caarlos0/env/v6"
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -122,23 +121,3 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 		})
 	})
 })
-
-func generatePatient() *datastore.Patient {
-	return &datastore.Patient{RefID: uuid.New().String()}
-}
-
-func generatePatients(num int) []*datastore.Patient {
-	users := make([]*datastore.Patient, num)
-	for i := 0; i < num; i++ {
-		users[i] = generatePatient()
-	}
-	return users
-}
-
-func getRandomPatient(users []*datastore.Patient) *datastore.Patient {
-	return users[rand.Int()%len(users)]
-}
-
-func getRandomID() uint {
-	return uint(rand.Uint32())
-}
