@@ -175,6 +175,20 @@ type PayInvoiceWithCreditCardResponse struct {
 	FailureMessage *string `json:"failure_message"`
 }
 
+// PayInvoiceWithCreditCard godoc
+// @Summary      Pay invoice with credit card method
+// @Tags         Payment
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to be charged"
+// @Param  		 invoiceID 	path	 integer 	true "ID of the invoice to pay"
+// @Success      201  {object}	PayInvoiceWithCreditCardResponse "Payment information"
+// @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID or invoice ID"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "Patient doesn't own the specified credit card or invoice"
+// @Failure      404  {object}  server.ErrorResponse "Credit card or invoice not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /pay/{invoiceID}/credit-card/{cardID} [post]
 func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	customerID := h.GetCustomerID(c)
 	rawCard, _ := c.Get("CreditCard")
