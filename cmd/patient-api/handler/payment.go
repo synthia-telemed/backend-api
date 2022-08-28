@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
@@ -32,11 +33,12 @@ type PaymentHandler struct {
 	creditCardDataStore datastore.CreditCardDataStore
 	hospitalSysClient   hospital.SystemClient
 	paymentDataStore    datastore.PaymentDataStore
+	clock               clock.Clock
 	logger              *zap.SugaredLogger
 	server.GinHandler
 }
 
-func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, logger *zap.SugaredLogger) *PaymentHandler {
+func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, clock clock.Clock, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
 		paymentClient:       paymentClient,
 		patientDataStore:    pds,
@@ -44,6 +46,7 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 		creditCardDataStore: cds,
 		hospitalSysClient:   hsc,
 		paymentDataStore:    pay,
+		clock:               clock,
 		GinHandler:          server.GinHandler{Logger: logger},
 	}
 }
@@ -202,8 +205,10 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 		return
 	}
 	status := datastore.FailedPaymentStatus
+	paidAt := h.clock.NowPointer()
 	if paymentCharge.Success {
 		status = datastore.SuccessPaymentStatus
+		paidAt = &paymentCharge.CreatedAt
 		if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
 			h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
 			return
@@ -212,7 +217,7 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	p := &datastore.Payment{
 		Method:       datastore.CreditCardPaymentMethod,
 		Amount:       invoice.Total,
-		PaidAt:       &paymentCharge.CreatedAt,
+		PaidAt:       paidAt,
 		ChargeID:     paymentCharge.ID,
 		InvoiceID:    invoice.Id,
 		Status:       status,
