@@ -7,6 +7,7 @@ import (
 	_ "github.com/synthia-telemed/backend-api/cmd/patient-api/docs"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -77,10 +78,11 @@ func main() {
 	assertFatalError(sugaredLogger, err, "Failed to create token service")
 	paymentClient, err := payment.NewOmisePaymentClient(&cfg.Payment)
 	assertFatalError(sugaredLogger, err, "Failed to create payment client")
+	realClock := clock.NewRealClock()
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
-	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, sugaredLogger)
+	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
 	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)

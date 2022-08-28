@@ -21,6 +21,7 @@ mockgen:
 	mockgen -source=pkg/hospital/hospital.go -destination=test/mock_hospital_client/mock_hospital_client.go -package mock_hospital_client
 	mockgen -source=pkg/sms/client.go -destination=test/mock_sms_client/mock_sms_client.go -package mock_sms_client
 	mockgen -source=pkg/payment/client.go -destination=test/mock_payment/mock_payment.go -package mock_payment
+	mockgen -source=pkg/clock/clock.go -destination=test/mock_clock/mock_clock.go -package mock_clock
 	mockgen -source=pkg/datastore/patient.go -destination=test/mock_datastore/mock_patient_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/measurement.go -destination=test/mock_datastore/mock_measurement_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/doctor.go -destination=test/mock_datastore/mock_doctor_datastore.go -package mock_datastore

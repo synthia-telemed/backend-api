@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
@@ -24,6 +25,7 @@ var (
 	ErrInvalidInvoiceID               = server.NewErrorResponse("Invalid invoice ID")
 	ErrInvoiceNotFound                = server.NewErrorResponse("Invoice not found")
 	ErrInvoiceOwnership               = server.NewErrorResponse("Patient doesn't down the specified invoice")
+	ErrInvoicePaid                    = server.NewErrorResponse("Invoice is already paid")
 )
 
 type PaymentHandler struct {
@@ -32,11 +34,12 @@ type PaymentHandler struct {
 	creditCardDataStore datastore.CreditCardDataStore
 	hospitalSysClient   hospital.SystemClient
 	paymentDataStore    datastore.PaymentDataStore
+	clock               clock.Clock
 	logger              *zap.SugaredLogger
 	server.GinHandler
 }
 
-func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, logger *zap.SugaredLogger) *PaymentHandler {
+func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, clock clock.Clock, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
 		paymentClient:       paymentClient,
 		patientDataStore:    pds,
@@ -44,6 +47,7 @@ func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataSt
 		creditCardDataStore: cds,
 		hospitalSysClient:   hsc,
 		paymentDataStore:    pay,
+		clock:               clock,
 		GinHandler:          server.GinHandler{Logger: logger},
 	}
 }
@@ -53,7 +57,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
 	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
-	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
+	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyUnpaidInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
 }
 
 type AddCreditCardRequest struct {
@@ -175,6 +179,20 @@ type PayInvoiceWithCreditCardResponse struct {
 	FailureMessage *string `json:"failure_message"`
 }
 
+// PayInvoiceWithCreditCard godoc
+// @Summary      Pay invoice with credit card method
+// @Tags         Payment
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to be charged"
+// @Param  		 invoiceID 	path	 integer 	true "ID of the invoice to pay"
+// @Success      201  {object}	PayInvoiceWithCreditCardResponse "Payment information"
+// @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID or invoice ID"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "Patient doesn't own the specified credit card or invoice"
+// @Failure      404  {object}  server.ErrorResponse "Credit card or invoice not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /pay/{invoiceID}/credit-card/{cardID} [post]
 func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	customerID := h.GetCustomerID(c)
 	rawCard, _ := c.Get("CreditCard")
@@ -188,8 +206,10 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 		return
 	}
 	status := datastore.FailedPaymentStatus
+	paidAt := h.clock.NowPointer()
 	if paymentCharge.Success {
 		status = datastore.SuccessPaymentStatus
+		paidAt = &paymentCharge.CreatedAt
 		if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
 			h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
 			return
@@ -198,7 +218,7 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	p := &datastore.Payment{
 		Method:       datastore.CreditCardPaymentMethod,
 		Amount:       invoice.Total,
-		PaidAt:       &paymentCharge.CreatedAt,
+		PaidAt:       paidAt,
 		ChargeID:     paymentCharge.ID,
 		InvoiceID:    invoice.Id,
 		Status:       status,
@@ -264,13 +284,12 @@ func (h PaymentHandler) VerifyCreditCardOwnership(c *gin.Context) {
 	c.Set("CreditCard", card)
 }
 
-func (h PaymentHandler) ParseAndVerifyInvoiceOwnership(c *gin.Context) {
+func (h PaymentHandler) ParseAndVerifyUnpaidInvoiceOwnership(c *gin.Context) {
 	invoiceID, err := strconv.ParseInt(c.Param("invoiceID"), 10, 32)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidInvoiceID)
 		return
 	}
-	patientID := h.GetUserID(c)
 	invoice, err := h.hospitalSysClient.FindInvoiceByID(context.Background(), int(invoiceID))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalSysClient.FindInvoiceByID error")
@@ -280,8 +299,11 @@ func (h PaymentHandler) ParseAndVerifyInvoiceOwnership(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, ErrInvoiceNotFound)
 		return
 	}
-
-	patient, err := h.patientDataStore.FindByID(patientID)
+	if invoice.Paid {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvoicePaid)
+		return
+	}
+	patient, err := h.patientDataStore.FindByID(h.GetUserID(c))
 	if err != nil {
 		h.InternalServerError(c, err, " h.patientDataStore.FindByID error")
 		return

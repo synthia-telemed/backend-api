@@ -206,6 +206,76 @@
                 }
             }
         },
+        "/pay/{invoiceID}/credit-card/{cardID}": {
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Pay invoice with credit card method",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the credit card to be charged",
+                        "name": "cardID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the invoice to pay",
+                        "name": "invoiceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment information",
+                        "schema": {
+                            "$ref": "#/definitions/handler.PayInvoiceWithCreditCardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid credit card ID or invoice ID",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the specified credit card or invoice",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Credit card or invoice not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment/credit-card": {
             "get": {
                 "security": [
@@ -508,6 +578,44 @@
                 },
                 "value": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.PayInvoiceWithCreditCardResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creditCardID": {
+                    "type": "integer"
+                },
+                "credit_card": {
+                    "$ref": "#/definitions/datastore.CreditCard"
+                },
+                "failure_message": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
