@@ -23,9 +23,9 @@ type Payment struct {
 	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
 	Method       PaymentMethod  `json:"method" gorm:"not null"`
 	Amount       float64        `json:"amount" gorm:"not null"`
-	PaidAt       *time.Time     `json:"timestamp"`
-	ChargeID     string         `json:"charge_id" gorm:"not null"`
-	InvoiceID    string         `json:"invoice_id" gorm:"not null,unique"`
+	PaidAt       *time.Time     `json:"paid_at"`
+	ChargeID     string         `json:"-" gorm:"not null"`
+	InvoiceID    int            `json:"invoice_id" gorm:"not null,unique"`
 	Status       PaymentStatus  `json:"status" gorm:"not null"`
 	CreditCard   *CreditCard    `json:"credit_card"`
 	CreditCardID *uint
@@ -33,7 +33,7 @@ type Payment struct {
 
 type PaymentDataStore interface {
 	Create(payment *Payment) error
-	FindByInvoiceID(string string) (*Payment, error)
+	FindByInvoiceID(string int) (*Payment, error)
 }
 
 type GormPaymentDataStore struct {
@@ -48,7 +48,7 @@ func (g GormPaymentDataStore) Create(payment *Payment) error {
 	return g.db.Create(payment).Error
 }
 
-func (g GormPaymentDataStore) FindByInvoiceID(invoiceID string) (*Payment, error) {
+func (g GormPaymentDataStore) FindByInvoiceID(invoiceID int) (*Payment, error) {
 	var payment Payment
 	if err := g.db.Preload("CreditCard").Where(&Payment{InvoiceID: invoiceID}).First(&payment).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

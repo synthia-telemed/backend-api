@@ -49,7 +49,7 @@ func (mr *MockPaymentDataStoreMockRecorder) Create(payment interface{}) *gomock.
 }
 
 // FindByInvoiceID mocks base method.
-func (m *MockPaymentDataStore) FindByInvoiceID(string string) (*datastore.Payment, error) {
+func (m *MockPaymentDataStore) FindByInvoiceID(string int) (*datastore.Payment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByInvoiceID", string)
 	ret0, _ := ret[0].(*datastore.Payment)

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"math/rand"
 	"net/http/httptest"
@@ -55,4 +56,52 @@ func generatePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card
 		Name:        name,
 	}
 	return pCard, dCard
+}
+
+func generatePayment(isSuccess bool) *payment.Payment {
+	var (
+		failure *string
+	)
+	if !isSuccess {
+		f := "failed to charge"
+		failure = &f
+	}
+	return &payment.Payment{
+		ID:             uuid.New().String(),
+		Amount:         rand.Int(),
+		Currency:       "THB",
+		CreatedAt:      time.Now(),
+		Paid:           isSuccess,
+		Success:        isSuccess,
+		FailureCode:    failure,
+		FailureMessage: failure,
+	}
+}
+
+func generateHospitalInvoice(paid bool) *hospital.Invoice {
+	return &hospital.Invoice{
+		Id:            rand.Int(),
+		CreatedAt:     time.Now(),
+		Paid:          paid,
+		Total:         rand.Float64(),
+		AppointmentID: uuid.New().String(),
+		PatientID:     uuid.New().String(),
+	}
+}
+
+func generateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.Invoice, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
+	var paidAt *time.Time
+	if status != datastore.PendingPaymentStatus || method == datastore.CreditCardPaymentMethod {
+		paidAt = &p.CreatedAt
+	}
+	return &datastore.Payment{
+		Method:       method,
+		Amount:       i.Total,
+		PaidAt:       paidAt,
+		ChargeID:     p.ID,
+		InvoiceID:    i.Id,
+		Status:       status,
+		CreditCard:   c,
+		CreditCardID: &c.ID,
+	}
 }

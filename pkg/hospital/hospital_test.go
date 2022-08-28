@@ -107,7 +107,9 @@ var _ = Describe("Hospital Client", func() {
 			It("should invoice with no error", func() {
 				invoice, err := graphQLClient.FindInvoiceByID(context.Background(), 1)
 				Expect(err).To(BeNil())
-				Expect(invoice.Id).To(Equal("1"))
+				Expect(invoice.Id).To(Equal(1))
+				Expect(invoice.AppointmentID).To(Equal("9"))
+				Expect(invoice.PatientID).To(Equal("HN-265555"))
 			})
 		})
 	})

@@ -43,11 +43,14 @@ query assertDoctorCredential($password: String!, $username: String!) {
 
 query getInvoice($where: InvoiceWhereInput!) {
     invoice(where: $where) {
-        appointmentId
         createdAt
         id
         paid
         total
+        appointment {
+            id
+            patientId
+        }
     }
 }
 

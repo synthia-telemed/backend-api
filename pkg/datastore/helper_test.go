@@ -67,7 +67,7 @@ func generateCreditCardPayment(status datastore.PaymentStatus, creditCardID uint
 		Amount:       rand.Float64(),
 		PaidAt:       paidAt,
 		ChargeID:     uuid.New().String(),
-		InvoiceID:    uuid.New().String(),
+		InvoiceID:    int(rand.Int31()),
 		Status:       status,
 		CreditCardID: &creditCardID,
 	}

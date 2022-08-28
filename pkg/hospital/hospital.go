@@ -3,6 +3,7 @@ package hospital
 import (
 	"context"
 	"github.com/Khan/genqlient/graphql"
+	"strconv"
 	"time"
 )
 
@@ -29,46 +30,47 @@ func NewGraphQLClient(config *Config) *GraphQLClient {
 }
 
 type Patient struct {
-	BirthDate    time.Time `json:"birthDate"`
-	BloodType    BloodType `json:"bloodType"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Height       float64   `json:"height"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	NationalId   string    `json:"nationalId"`
-	Nationality  string    `json:"nationality"`
-	PassportId   string    `json:"passportId"`
-	PhoneNumber  string    `json:"phoneNumber"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Weight       float64   `json:"weight"`
+	BirthDate    time.Time
+	BloodType    BloodType
+	CreatedAt    time.Time
+	Firstname_en string
+	Firstname_th string
+	Height       float64
+	Id           string
+	Initial_en   string
+	Initial_th   string
+	Lastname_en  string
+	Lastname_th  string
+	NationalId   string
+	Nationality  string
+	PassportId   string
+	PhoneNumber  string
+	UpdatedAt    time.Time
+	Weight       float64
 }
 
 type Doctor struct {
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	Password     string    `json:"password"`
-	Position     string    `json:"position"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Username     string    `json:"username"`
+	CreatedAt    time.Time
+	Firstname_en string
+	Firstname_th string
+	Id           string
+	Initial_en   string
+	Initial_th   string
+	Lastname_en  string
+	Lastname_th  string
+	Password     string
+	Position     string
+	UpdatedAt    time.Time
+	Username     string
 }
 
 type Invoice struct {
-	AppointmentId int       `json:"appointmentId"`
-	CreatedAt     time.Time `json:"createdAt"`
-	Id            string    `json:"id"`
-	Paid          bool      `json:"paid"`
-	Total         float64   `json:"total"`
+	CreatedAt     time.Time
+	Id            int
+	Paid          bool
+	Total         float64
+	AppointmentID string
+	PatientID     string
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
@@ -107,7 +109,21 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, e
 	if err != nil {
 		return nil, err
 	}
-	return (*Invoice)(resp.Invoice), nil
+	if resp.Invoice == nil {
+		return nil, nil
+	}
+	invoiceID, err := strconv.ParseInt(resp.Invoice.Id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return &Invoice{
+		CreatedAt:     resp.Invoice.CreatedAt,
+		Id:            int(invoiceID),
+		Paid:          resp.Invoice.Paid,
+		Total:         resp.Invoice.Total,
+		AppointmentID: resp.Invoice.Appointment.Id,
+		PatientID:     resp.Invoice.Appointment.PatientId,
+	}, nil
 }
 
 func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
