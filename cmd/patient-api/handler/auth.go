@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/server"
@@ -29,10 +30,11 @@ type AuthHandler struct {
 	cacheClient       cache.Client
 	logger            *zap.SugaredLogger
 	tokenService      token.Service
+	clock             clock.Clock
 	server.GinHandler
 }
 
-func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, logger *zap.SugaredLogger) *AuthHandler {
+func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, clock clock.Clock, logger *zap.SugaredLogger) *AuthHandler {
 	return &AuthHandler{
 		patientDataStore:  patientDataStore,
 		hospitalSysClient: hosClient,
@@ -40,6 +42,7 @@ func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospi
 		cacheClient:       cache,
 		logger:            logger,
 		tokenService:      tokenService,
+		clock:             clock,
 		GinHandler:        server.GinHandler{Logger: logger},
 	}
 }
@@ -55,7 +58,8 @@ type SigninRequest struct {
 }
 
 type SigninResponse struct {
-	PhoneNumber string `json:"phone_number"`
+	PhoneNumber string    `json:"phone_number"`
+	ExpiredAt   time.Time `json:"expired_at"`
 }
 
 // Signin godoc
@@ -91,7 +95,8 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 
-	if err := h.cacheClient.Set(context.Background(), otp, patientInfo.Id, time.Minute*10); err != nil {
+	expiredIn := time.Minute * 10
+	if err := h.cacheClient.Set(context.Background(), otp, patientInfo.Id, expiredIn); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Set error")
 		return
 	}
@@ -100,8 +105,9 @@ func (h AuthHandler) Signin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"phone_number": h.censorPhoneNumber(patientInfo.PhoneNumber),
+	c.JSON(http.StatusCreated, &SigninResponse{
+		PhoneNumber: h.censorPhoneNumber(patientInfo.PhoneNumber),
+		ExpiredAt:   h.clock.Now().Add(expiredIn),
 	})
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
+	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_sms_client"
@@ -34,6 +35,7 @@ var _ = Describe("Auth Handler", func() {
 		mockSmsClient         *mock_sms_client.MockClient
 		mockCacheClient       *mock_cache_client.MockClient
 		mockTokenService      *mock_token_service.MockService
+		mockClock             *mock_clock.MockClock
 	)
 
 	BeforeEach(func() {
@@ -44,7 +46,8 @@ var _ = Describe("Auth Handler", func() {
 		mockSmsClient = mock_sms_client.NewMockClient(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockTokenService = mock_token_service.NewMockService(mockCtrl)
-		h = handler.NewAuthHandler(mockPatientDataStore, mockHospitalSysClient, mockSmsClient, mockCacheClient, mockTokenService, zap.NewNop().Sugar())
+		mockClock = mock_clock.NewMockClock(mockCtrl)
+		h = handler.NewAuthHandler(mockPatientDataStore, mockHospitalSysClient, mockSmsClient, mockCacheClient, mockTokenService, mockClock, zap.NewNop().Sugar())
 	})
 
 	JustBeforeEach(func() {
@@ -78,13 +81,17 @@ var _ = Describe("Auth Handler", func() {
 		})
 
 		When("patient is found", func() {
-			p := &hospital.Patient{Id: "HN-1234", PhoneNumber: "0812223330"}
+			var otpExpiredTime time.Time
 			BeforeEach(func() {
 				reqBody := strings.NewReader(`{"credential": "1234567890"}`)
 				c.Request, _ = http.NewRequest(http.MethodPost, "/", reqBody)
+				p := &hospital.Patient{Id: "HN-1234", PhoneNumber: "0812223330"}
 				mockHospitalSysClient.EXPECT().FindPatientByGovCredential(context.Background(), "1234567890").Return(p, nil).Times(1)
-				mockCacheClient.EXPECT().Set(context.Background(), gomock.Any(), p.Id, time.Minute*10).Return(nil).Times(1)
+				mockCacheClient.EXPECT().Set(gomock.Any(), gomock.Any(), p.Id, time.Minute*10).Return(nil).Times(1)
 				mockSmsClient.EXPECT().Send(p.PhoneNumber, gomock.Any()).Return(nil).Times(1)
+				now := time.Now()
+				mockClock.EXPECT().Now().Return(now).Times(1)
+				otpExpiredTime = now.Add(10 * time.Minute)
 			})
 
 			It("should return 201 with phone number", func() {
@@ -92,6 +99,7 @@ var _ = Describe("Auth Handler", func() {
 				var res handler.SigninResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.PhoneNumber).To(Equal("081***3330"))
+				Expect(res.ExpiredAt.Equal(otpExpiredTime)).To(BeTrue())
 			})
 		})
 
