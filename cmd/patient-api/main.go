@@ -81,7 +81,7 @@ func main() {
 	realClock := clock.NewRealClock()
 
 	// Handler
-	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, sugaredLogger)
+	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, realClock, sugaredLogger)
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
 	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 
