@@ -13,6 +13,7 @@ type SystemClient interface {
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
 	FindInvoiceByID(ctx context.Context, id int) (*Invoice, error)
 	PaidInvoice(ctx context.Context, id int) error
+	ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*Appointment, error)
 }
 
 type Config struct {
@@ -73,6 +74,21 @@ type Invoice struct {
 	PatientID     string
 }
 
+type Appointment struct {
+	Id        string
+	DateTime  time.Time
+	PatientId string
+	Status    AppointmentStatus
+	Doctor    DoctorBasicInfo
+}
+
+type DoctorBasicInfo struct {
+	Initial   string
+	Firstname string
+	Lastname  string
+	Position  string
+}
+
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
 	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
 		OR: []*PatientWhereInput{
@@ -129,4 +145,30 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, e
 func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 	_, err := paidInvoice(ctx, c.client, float64(id))
 	return err
+}
+
+func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*Appointment, error) {
+
+	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
+		PatientId: &StringFilter{Equals: patientID, Mode: QueryModeDefault},
+	})
+	if err != nil {
+		return nil, err
+	}
+	appointments := make([]*Appointment, len(resp.Appointments))
+	for i, a := range resp.Appointments {
+		appointments[i] = &Appointment{
+			Id:        a.Id,
+			DateTime:  a.DateTime,
+			PatientId: a.PatientId,
+			Status:    a.Status,
+			Doctor: DoctorBasicInfo{
+				Initial:   a.Doctor.Initial_en,
+				Firstname: a.Doctor.Firstname_en,
+				Lastname:  a.Doctor.Lastname_en,
+				Position:  a.Doctor.Position,
+			},
+		}
+	}
+	return appointments, nil
 }
