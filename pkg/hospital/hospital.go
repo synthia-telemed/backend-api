@@ -2,6 +2,7 @@ package hospital
 
 import (
 	"context"
+	"fmt"
 	"github.com/Khan/genqlient/graphql"
 	"strconv"
 	"time"
@@ -11,9 +12,10 @@ type SystemClient interface {
 	FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error)
 	AssertDoctorCredential(ctx context.Context, username, password string) (bool, error)
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
-	FindInvoiceByID(ctx context.Context, id int) (*Invoice, error)
+	FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error)
 	PaidInvoice(ctx context.Context, id int) error
-	ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*Appointment, error)
+	ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error)
+	FindAppointmentByID(ctx context.Context, appointmentID string) (Appointment, error)
 }
 
 type Config struct {
@@ -65,7 +67,7 @@ type Doctor struct {
 	Username     string
 }
 
-type Invoice struct {
+type InvoiceOverview struct {
 	CreatedAt     time.Time
 	Id            int
 	Paid          bool
@@ -74,19 +76,27 @@ type Invoice struct {
 	PatientID     string
 }
 
-type Appointment struct {
+type AppointmentOverview struct {
 	Id        string
 	DateTime  time.Time
 	PatientId string
 	Status    AppointmentStatus
-	Doctor    DoctorBasicInfo
+	Doctor    DoctorOverview
+}
+type DoctorOverview struct {
+	FullName string
+	Position string
 }
 
-type DoctorBasicInfo struct {
-	Initial   string
-	Firstname string
-	Lastname  string
-	Position  string
+type Appointment struct {
+	Id              string
+	DateTime        time.Time
+	NextAppointment time.Time
+	Detail          string
+	Status          AppointmentStatus
+	Doctor          DoctorOverview
+}
+type Invoice struct {
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
@@ -120,7 +130,7 @@ func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string
 	return (*Doctor)(resp.Doctor), nil
 }
 
-func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, error) {
+func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error) {
 	resp, err := getInvoice(ctx, c.client, &InvoiceWhereInput{Id: &IntFilter{Equals: id}})
 	if err != nil {
 		return nil, err
@@ -132,7 +142,7 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*Invoice, e
 	if err != nil {
 		return nil, err
 	}
-	return &Invoice{
+	return &InvoiceOverview{
 		CreatedAt:     resp.Invoice.CreatedAt,
 		Id:            int(invoiceID),
 		Paid:          resp.Invoice.Paid,
@@ -147,7 +157,7 @@ func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 	return err
 }
 
-func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*Appointment, error) {
+func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error) {
 
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
 		PatientId: &StringFilter{Equals: patientID, Mode: QueryModeDefault},
@@ -155,20 +165,24 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 	if err != nil {
 		return nil, err
 	}
-	appointments := make([]*Appointment, len(resp.Appointments))
+	appointments := make([]*AppointmentOverview, len(resp.Appointments))
 	for i, a := range resp.Appointments {
-		appointments[i] = &Appointment{
+		appointments[i] = &AppointmentOverview{
 			Id:        a.Id,
 			DateTime:  a.DateTime,
 			PatientId: a.PatientId,
 			Status:    a.Status,
-			Doctor: DoctorBasicInfo{
-				Initial:   a.Doctor.Initial_en,
-				Firstname: a.Doctor.Firstname_en,
-				Lastname:  a.Doctor.Lastname_en,
-				Position:  a.Doctor.Position,
+			Doctor: DoctorOverview{
+				FullName: parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
+				Position: a.Doctor.Position,
 			},
 		}
 	}
 	return appointments, nil
+}
+
+//func (c GraphQLClient)
+
+func parseFullName(init, first, last string) string {
+	return fmt.Sprintf("%s %s %s", init, first, last)
 }

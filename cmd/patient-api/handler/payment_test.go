@@ -389,7 +389,7 @@ var _ = Describe("Payment Handler", func() {
 		When("invoice is paid", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
-				i := &hospital.Invoice{PatientID: uuid.New().String(), Paid: true}
+				i := &hospital.InvoiceOverview{PatientID: uuid.New().String(), Paid: true}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 			})
 			It("should return 400", func() {
@@ -400,7 +400,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{PatientID: p.RefID}
+				i := &hospital.InvoiceOverview{PatientID: p.RefID}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
 			})
@@ -412,7 +412,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{PatientID: uuid.New().String()}
+				i := &hospital.InvoiceOverview{PatientID: uuid.New().String()}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
 			})
@@ -424,7 +424,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{Id: invoiceID, PatientID: p.RefID}
+				i := &hospital.InvoiceOverview{Id: invoiceID, PatientID: p.RefID}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
 			})
@@ -432,7 +432,7 @@ var _ = Describe("Payment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				i, ok := c.Get("Invoice")
 				Expect(ok).To(BeTrue())
-				invoice, ok := i.(*hospital.Invoice)
+				invoice, ok := i.(*hospital.InvoiceOverview)
 				Expect(ok).To(BeTrue())
 				Expect(invoice.Id).To(Equal(invoiceID))
 			})
@@ -442,7 +442,7 @@ var _ = Describe("Payment Handler", func() {
 	Context("PayInvoiceWithCreditCard", func() {
 		var (
 			creditCard   *datastore.CreditCard
-			invoice      *hospital.Invoice
+			invoice      *hospital.InvoiceOverview
 			invoiceIDStr string
 		)
 		BeforeEach(func() {
