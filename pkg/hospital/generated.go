@@ -1130,6 +1130,14 @@ func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password
 // GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
 func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
 
+// __getAppointmentInput is used internally by genqlient
+type __getAppointmentInput struct {
+	Where *AppointmentWhereInput `json:"where,omitempty"`
+}
+
+// GetWhere returns __getAppointmentInput.Where, and is useful for accessing the field via an interface.
+func (v *__getAppointmentInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
 // __getAppointmentsInput is used internally by genqlient
 type __getAppointmentsInput struct {
 	Where *AppointmentWhereInput `json:"where,omitempty"`
@@ -1179,6 +1187,140 @@ type assertDoctorCredentialResponse struct {
 func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
 	return v.AssertDoctorPassword
 }
+
+// getAppointmentAppointment includes the requested fields of the GraphQL type Appointment.
+type getAppointmentAppointment struct {
+	Id              string                                                `json:"id"`
+	DateTime        time.Time                                             `json:"dateTime"`
+	Detail          string                                                `json:"detail"`
+	Status          AppointmentStatus                                     `json:"status"`
+	NextAppointment time.Time                                             `json:"nextAppointment"`
+	Doctor          *getAppointmentAppointmentDoctor                      `json:"doctor"`
+	Invoice         *getAppointmentAppointmentInvoice                     `json:"invoice"`
+	Prescriptions   []*getAppointmentAppointmentPrescriptionsPrescription `json:"prescriptions"`
+}
+
+// GetId returns getAppointmentAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetId() string { return v.Id }
+
+// GetDateTime returns getAppointmentAppointment.DateTime, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDateTime() time.Time { return v.DateTime }
+
+// GetDetail returns getAppointmentAppointment.Detail, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDetail() string { return v.Detail }
+
+// GetStatus returns getAppointmentAppointment.Status, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetStatus() AppointmentStatus { return v.Status }
+
+// GetNextAppointment returns getAppointmentAppointment.NextAppointment, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetNextAppointment() time.Time { return v.NextAppointment }
+
+// GetDoctor returns getAppointmentAppointment.Doctor, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDoctor() *getAppointmentAppointmentDoctor { return v.Doctor }
+
+// GetInvoice returns getAppointmentAppointment.Invoice, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetInvoice() *getAppointmentAppointmentInvoice { return v.Invoice }
+
+// GetPrescriptions returns getAppointmentAppointment.Prescriptions, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetPrescriptions() []*getAppointmentAppointmentPrescriptionsPrescription {
+	return v.Prescriptions
+}
+
+// getAppointmentAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
+type getAppointmentAppointmentDoctor struct {
+	Initial_en   string `json:"initial_en"`
+	Firstname_en string `json:"firstname_en"`
+	Lastname_en  string `json:"lastname_en"`
+	Position     string `json:"position"`
+}
+
+// GetInitial_en returns getAppointmentAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetInitial_en() string { return v.Initial_en }
+
+// GetFirstname_en returns getAppointmentAppointmentDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetFirstname_en() string { return v.Firstname_en }
+
+// GetLastname_en returns getAppointmentAppointmentDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetLastname_en() string { return v.Lastname_en }
+
+// GetPosition returns getAppointmentAppointmentDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetPosition() string { return v.Position }
+
+// getAppointmentAppointmentInvoice includes the requested fields of the GraphQL type Invoice.
+type getAppointmentAppointmentInvoice struct {
+	Id           string                                                     `json:"id"`
+	Total        float64                                                    `json:"total"`
+	Paid         bool                                                       `json:"paid"`
+	InvoiceItems []*getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem `json:"invoiceItems"`
+}
+
+// GetId returns getAppointmentAppointmentInvoice.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetId() string { return v.Id }
+
+// GetTotal returns getAppointmentAppointmentInvoice.Total, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetTotal() float64 { return v.Total }
+
+// GetPaid returns getAppointmentAppointmentInvoice.Paid, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetPaid() bool { return v.Paid }
+
+// GetInvoiceItems returns getAppointmentAppointmentInvoice.InvoiceItems, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetInvoiceItems() []*getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem {
+	return v.InvoiceItems
+}
+
+// getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem includes the requested fields of the GraphQL type InvoiceItem.
+type getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem struct {
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
+}
+
+// GetName returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Name, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetName() string { return v.Name }
+
+// GetPrice returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Price, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetPrice() float64 { return v.Price }
+
+// GetQuantity returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Quantity, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetQuantity() int {
+	return v.Quantity
+}
+
+// getAppointmentAppointmentPrescriptionsPrescription includes the requested fields of the GraphQL type Prescription.
+type getAppointmentAppointmentPrescriptionsPrescription struct {
+	Amount   int                                                         `json:"amount"`
+	Medicine *getAppointmentAppointmentPrescriptionsPrescriptionMedicine `json:"medicine"`
+}
+
+// GetAmount returns getAppointmentAppointmentPrescriptionsPrescription.Amount, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescription) GetAmount() int { return v.Amount }
+
+// GetMedicine returns getAppointmentAppointmentPrescriptionsPrescription.Medicine, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescription) GetMedicine() *getAppointmentAppointmentPrescriptionsPrescriptionMedicine {
+	return v.Medicine
+}
+
+// getAppointmentAppointmentPrescriptionsPrescriptionMedicine includes the requested fields of the GraphQL type Medicine.
+type getAppointmentAppointmentPrescriptionsPrescriptionMedicine struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+// GetName returns getAppointmentAppointmentPrescriptionsPrescriptionMedicine.Name, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetName() string { return v.Name }
+
+// GetDescription returns getAppointmentAppointmentPrescriptionsPrescriptionMedicine.Description, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetDescription() string {
+	return v.Description
+}
+
+// getAppointmentResponse is returned by getAppointment on success.
+type getAppointmentResponse struct {
+	Appointment *getAppointmentAppointment `json:"appointment"`
+}
+
+// GetAppointment returns getAppointmentResponse.Appointment, and is useful for accessing the field via an interface.
+func (v *getAppointmentResponse) GetAppointment() *getAppointmentAppointment { return v.Appointment }
 
 // getAppointmentsAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
 type getAppointmentsAppointmentsAppointment struct {
@@ -1471,6 +1613,65 @@ query assertDoctorCredential ($password: String!, $username: String!) {
 	var err error
 
 	var data assertDoctorCredentialResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getAppointment(
+	ctx context.Context,
+	client graphql.Client,
+	where *AppointmentWhereInput,
+) (*getAppointmentResponse, error) {
+	req := &graphql.Request{
+		OpName: "getAppointment",
+		Query: `
+query getAppointment ($where: AppointmentWhereInput!) {
+	appointment(where: $where) {
+		id
+		dateTime
+		detail
+		status
+		nextAppointment
+		doctor {
+			initial_en
+			firstname_en
+			lastname_en
+			position
+		}
+		invoice {
+			id
+			total
+			paid
+			invoiceItems {
+				name
+				price
+				quantity
+			}
+		}
+		prescriptions {
+			amount
+			medicine {
+				name
+				description
+			}
+		}
+	}
+}
+`,
+		Variables: &__getAppointmentInput{
+			Where: where,
+		},
+	}
+	var err error
+
+	var data getAppointmentResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

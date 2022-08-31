@@ -77,3 +77,36 @@ query getAppointments($where: AppointmentWhereInput) {
         }
     }
 }
+
+query getAppointment($where: AppointmentWhereInput!) {
+    appointment(where: $where) {
+        id
+        dateTime
+        detail
+        status
+        nextAppointment
+        doctor {
+            initial_en
+            firstname_en
+            lastname_en
+            position
+        }
+        invoice {
+            id
+            total
+            paid
+            invoiceItems {
+                name
+                price
+                quantity
+            }
+        }
+        prescriptions {
+            amount
+            medicine {
+                name
+                description
+            }
+        }
+    }
+}
