@@ -114,13 +114,20 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
-	//Context("ListAppointmentsByPatientID", func() {
-	//	When("no appointment is found", func() {
-	//		It("should return empty slice with no error", func() {
-	//			appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-000001")
-	//			Expect(err).To(BeNil())
-	//
-	//		})
-	//	})
-	//})
+	Context("ListAppointmentsByPatientID", func() {
+		When("no appointment is found", func() {
+			It("should return empty slice with no error", func() {
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-something")
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(0))
+			})
+		})
+		When("appointment(s) is/are found", func() {
+			It("should return appointments", func() {
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-124623")
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(2))
+			})
+		})
+	})
 })
