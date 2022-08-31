@@ -329,6 +329,7 @@ type Doctor {
     lastname_th: String!
     password: String!
     position: String!
+    profilePicURL: String!
     updatedAt: DateTime!
     username: String!
 }
@@ -353,6 +354,7 @@ type DoctorCountAggregate {
     lastname_th: Int!
     password: Int!
     position: Int!
+    profilePicURL: Int!
     updatedAt: Int!
     username: Int!
 }
@@ -368,6 +370,7 @@ input DoctorCreateInput {
     lastname_th: String!
     password: String!
     position: String!
+    profilePicURL: String!
     updatedAt: DateTime
     username: String!
 }
@@ -393,6 +396,7 @@ input DoctorCreateWithoutAppointmentsInput {
     lastname_th: String!
     password: String!
     position: String!
+    profilePicURL: String!
     updatedAt: DateTime
     username: String!
 }
@@ -408,6 +412,7 @@ type DoctorMaxAggregate {
     lastname_th: String
     password: String
     position: String
+    profilePicURL: String
     updatedAt: DateTime
     username: String
 }
@@ -423,6 +428,7 @@ type DoctorMinAggregate {
     lastname_th: String
     password: String
     position: String
+    profilePicURL: String
     updatedAt: DateTime
     username: String
 }
@@ -439,6 +445,7 @@ input DoctorOrderByWithRelationInput {
     lastname_th: SortOrder
     password: SortOrder
     position: SortOrder
+    profilePicURL: SortOrder
     updatedAt: SortOrder
     username: SortOrder
 }
@@ -459,6 +466,7 @@ enum DoctorScalarFieldEnum {
     lastname_th
     password
     position
+    profilePicURL
     updatedAt
     username
 }
@@ -482,6 +490,7 @@ input DoctorWhereInput {
     lastname_th: StringFilter
     password: StringFilter
     position: StringFilter
+    profilePicURL: StringFilter
     updatedAt: DateTimeFilter
     username: StringFilter
 }
