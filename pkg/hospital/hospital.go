@@ -101,7 +101,7 @@ type Appointment struct {
 	Prescriptions   []*Prescription   `json:"prescriptions"`
 }
 type Invoice struct {
-	Id           string         `json:"id"`
+	Id           int            `json:"id"`
 	Total        float64        `json:"total"`
 	Paid         bool           `json:"paid"`
 	InvoiceItems []*InvoiceItem `json:"invoice_items"`
@@ -226,8 +226,9 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	}
 	in := resp.Appointment.Invoice
 	if in != nil {
+		id, _ := strconv.ParseInt(in.GetId(), 10, 32)
 		appointment.Invoice = &Invoice{
-			Id:           in.GetId(),
+			Id:           int(id),
 			Total:        in.GetTotal(),
 			Paid:         in.GetPaid(),
 			InvoiceItems: make([]*InvoiceItem, len(in.GetInvoiceItems())),
