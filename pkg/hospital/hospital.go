@@ -203,6 +203,9 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	if err != nil {
 		return nil, err
 	}
+	if resp.GetAppointment() == nil {
+		return nil, nil
+	}
 	appointment := &Appointment{
 		Id:              resp.Appointment.GetId(),
 		DateTime:        resp.Appointment.GetDateTime(),
@@ -214,7 +217,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 			Position: resp.Appointment.Doctor.GetPosition(),
 		},
 		Invoice:       nil,
-		Prescriptions: nil,
+		Prescriptions: make([]*Prescription, len(resp.Appointment.GetPrescriptions())),
 	}
 	in := resp.Appointment.Invoice
 	if in != nil {
@@ -233,9 +236,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 		}
 	}
 	pre := resp.Appointment.Prescriptions
-	preLen := len(pre)
-	if preLen != 0 {
-		appointment.Prescriptions = make([]*Prescription, preLen)
+	if len(pre) != 0 {
 		for i, p := range pre {
 			appointment.Prescriptions[i] = &Prescription{
 				Amount:      p.GetAmount(),

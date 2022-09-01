@@ -130,4 +130,32 @@ var _ = Describe("Hospital Client", func() {
 			})
 		})
 	})
+
+	Context("FindAppointmentByID", func() {
+		When("appointment is not found", func() {
+			It("should return nil with no error", func() {
+				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), int(rand.Int31()))
+				Expect(err).To(BeNil())
+				Expect(appointment).To(BeNil())
+			})
+		})
+		When("appointment has no invoice and prescriptions", func() {
+			It("should return appointment with nil on invoice and zero length prescriptions", func() {
+				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), 1)
+				Expect(err).To(BeNil())
+				Expect(appointment).ToNot(BeNil())
+				Expect(appointment.Prescriptions).To(HaveLen(0))
+				Expect(appointment.Invoice).To(BeNil())
+			})
+		})
+		When("appointment has invoice and prescriptions", func() {
+			It("should return appointment with invoice and non zero length prescriptions", func() {
+				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), 33)
+				Expect(err).To(BeNil())
+				Expect(appointment).ToNot(BeNil())
+				Expect(appointment.Prescriptions).ToNot(HaveLen(0))
+				Expect(appointment.Invoice).ToNot(BeNil())
+			})
+		})
+	})
 })
