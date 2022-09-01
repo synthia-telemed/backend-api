@@ -44,9 +44,9 @@ type Patient struct {
 	Initial_th   string
 	Lastname_en  string
 	Lastname_th  string
-	NationalId   string
+	NationalId   *string
 	Nationality  string
-	PassportId   string
+	PassportId   *string
 	PhoneNumber  string
 	UpdatedAt    time.Time
 	Weight       float64
@@ -93,7 +93,7 @@ type Appointment struct {
 	Id              string            `json:"id"`
 	PatientID       string            `json:"patient_id"`
 	DateTime        time.Time         `json:"date_time"`
-	NextAppointment time.Time         `json:"next_appointment"`
+	NextAppointment *time.Time        `json:"next_appointment"`
 	Detail          string            `json:"detail"`
 	Status          AppointmentStatus `json:"status"`
 	Doctor          DoctorOverview    `json:"doctor"`
@@ -120,8 +120,8 @@ type Prescription struct {
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
 	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
 		OR: []*PatientWhereInput{
-			{NationalId: &StringNullableFilter{Equals: cred, Mode: QueryModeDefault}},
-			{PassportId: &StringNullableFilter{Equals: cred, Mode: QueryModeDefault}},
+			{NationalId: &StringNullableFilter{Equals: &cred}},
+			{PassportId: &StringNullableFilter{Equals: &cred}},
 		},
 	})
 
@@ -141,7 +141,7 @@ func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, pas
 }
 
 func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error) {
-	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: username, Mode: QueryModeDefault}})
+	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: &username}})
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string
 }
 
 func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error) {
-	resp, err := getInvoice(ctx, c.client, &InvoiceWhereInput{Id: &IntFilter{Equals: id}})
+	resp, err := getInvoice(ctx, c.client, &InvoiceWhereInput{Id: &IntFilter{Equals: &id}})
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 
 func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error) {
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
-		PatientId: &StringFilter{Equals: patientID, Mode: QueryModeDefault},
+		PatientId: &StringFilter{Equals: &patientID},
 	})
 	if err != nil {
 		return nil, err
@@ -201,7 +201,7 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 
 func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error) {
 	resp, err := getAppointment(ctx, c.client, &AppointmentWhereInput{
-		Id: &IntFilter{Equals: appointmentID},
+		Id: &IntFilter{Equals: &appointmentID},
 	})
 	if err != nil {
 		return nil, err
