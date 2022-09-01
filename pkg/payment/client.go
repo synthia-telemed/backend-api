@@ -1,7 +1,5 @@
 package payment
 
-import "time"
-
 type Client interface {
 	CreateCustomer(patientID uint) (string, error)
 	AddCreditCard(customerID, cardToken string) (*Card, error)
@@ -16,12 +14,11 @@ type Card struct {
 }
 
 type Payment struct {
-	ID             string    `json:"id"`
-	Amount         int       `json:"amount"`
-	Currency       string    `json:"currency"`
-	CreatedAt      time.Time `json:"created_at"`
-	Paid           bool      `json:"paid"`
-	Success        bool      `json:"success"`
-	FailureCode    *string   `json:"failure_code"`
-	FailureMessage *string   `json:"failure_message"`
+	ID             string  `json:"id"`
+	Amount         int     `json:"amount"`
+	Currency       string  `json:"currency"`
+	Paid           bool    `json:"paid"`
+	Success        bool    `json:"success"`
+	FailureCode    *string `json:"failure_code"`
+	FailureMessage *string `json:"failure_message"`
 }

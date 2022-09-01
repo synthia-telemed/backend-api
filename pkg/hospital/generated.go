@@ -1191,6 +1191,7 @@ func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
 // getAppointmentAppointment includes the requested fields of the GraphQL type Appointment.
 type getAppointmentAppointment struct {
 	Id              string                                                `json:"id"`
+	PatientId       string                                                `json:"patientId"`
 	DateTime        time.Time                                             `json:"dateTime"`
 	Detail          string                                                `json:"detail"`
 	Status          AppointmentStatus                                     `json:"status"`
@@ -1202,6 +1203,9 @@ type getAppointmentAppointment struct {
 
 // GetId returns getAppointmentAppointment.Id, and is useful for accessing the field via an interface.
 func (v *getAppointmentAppointment) GetId() string { return v.Id }
+
+// GetPatientId returns getAppointmentAppointment.PatientId, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetPatientId() string { return v.PatientId }
 
 // GetDateTime returns getAppointmentAppointment.DateTime, and is useful for accessing the field via an interface.
 func (v *getAppointmentAppointment) GetDateTime() time.Time { return v.DateTime }
@@ -1645,6 +1649,7 @@ func getAppointment(
 query getAppointment ($where: AppointmentWhereInput!) {
 	appointment(where: $where) {
 		id
+		patientId
 		dateTime
 		detail
 		status
