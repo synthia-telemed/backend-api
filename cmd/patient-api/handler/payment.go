@@ -198,7 +198,7 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	rawCard, _ := c.Get("CreditCard")
 	creditCard, _ := rawCard.(*datastore.CreditCard)
 	rawInvoice, _ := c.Get("Invoice")
-	invoice, _ := rawInvoice.(*hospital.Invoice)
+	invoice, _ := rawInvoice.(*hospital.InvoiceOverview)
 
 	paymentCharge, err := h.paymentClient.PayWithCreditCard(customerID, creditCard.CardID, fmt.Sprintf("%d", invoice.Id), int(invoice.Total*100))
 	if err != nil {

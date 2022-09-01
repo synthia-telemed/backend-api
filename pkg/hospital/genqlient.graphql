@@ -62,3 +62,53 @@ mutation paidInvoice($paidInvoiceId: Float!) {
         appointmentId
     }
 }
+
+query getAppointments($where: AppointmentWhereInput) {
+    appointments(where: $where) {
+        id
+        dateTime
+        patientId
+        status
+        doctor {
+            initial_en
+            firstname_en
+            lastname_en
+            position
+            profilePicURL
+        }
+    }
+}
+
+query getAppointment($where: AppointmentWhereInput!) {
+    appointment(where: $where) {
+        id
+        dateTime
+        detail
+        status
+        nextAppointment
+        doctor {
+            initial_en
+            firstname_en
+            lastname_en
+            position
+            profilePicURL
+        }
+        invoice {
+            id
+            total
+            paid
+            invoiceItems {
+                name
+                price
+                quantity
+            }
+        }
+        prescriptions {
+            amount
+            medicine {
+                name
+                description
+            }
+        }
+    }
+}
