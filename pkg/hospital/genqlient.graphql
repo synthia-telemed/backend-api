@@ -82,6 +82,7 @@ query getAppointments($where: AppointmentWhereInput) {
 query getAppointment($where: AppointmentWhereInput!) {
     appointment(where: $where) {
         id
+        patientId
         dateTime
         detail
         status

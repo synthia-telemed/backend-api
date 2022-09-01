@@ -91,6 +91,7 @@ type DoctorOverview struct {
 
 type Appointment struct {
 	Id              string            `json:"id"`
+	PatientID       string            `json:"patient_id"`
 	DateTime        time.Time         `json:"date_time"`
 	NextAppointment time.Time         `json:"next_appointment"`
 	Detail          string            `json:"detail"`
@@ -210,6 +211,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	}
 	appointment := &Appointment{
 		Id:              resp.Appointment.GetId(),
+		PatientID:       resp.Appointment.GetPatientId(),
 		DateTime:        resp.Appointment.GetDateTime(),
 		NextAppointment: resp.Appointment.GetNextAppointment(),
 		Detail:          resp.Appointment.GetDetail(),
