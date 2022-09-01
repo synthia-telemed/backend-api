@@ -70,7 +70,6 @@ func generatePayment(isSuccess bool) *payment.Payment {
 		ID:             uuid.New().String(),
 		Amount:         rand.Int(),
 		Currency:       "THB",
-		CreatedAt:      time.Now(),
 		Paid:           isSuccess,
 		Success:        isSuccess,
 		FailureCode:    failure,
@@ -92,7 +91,8 @@ func generateHospitalInvoice(paid bool) *hospital.InvoiceOverview {
 func generateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.InvoiceOverview, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
 	var paidAt *time.Time
 	if status != datastore.PendingPaymentStatus || method == datastore.CreditCardPaymentMethod {
-		paidAt = &p.CreatedAt
+		now := time.Now()
+		paidAt = &now
 	}
 	return &datastore.Payment{
 		Method:       method,
