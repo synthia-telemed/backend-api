@@ -492,15 +492,12 @@ var _ = Describe("Payment Handler", func() {
 				paymentCharge *payment.Payment
 				paymentData   *datastore.Payment
 			)
-			BeforeEach(func() {
-				now := time.Now()
-				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
-			})
 			When("payment failed", func() {
 				BeforeEach(func() {
 					paymentCharge = generatePayment(false)
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
 					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.FailedPaymentStatus, invoice, paymentCharge, creditCard)
+					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})
 				It("should return 201 with failure message", func() {
@@ -517,9 +514,10 @@ var _ = Describe("Payment Handler", func() {
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
 					mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
 					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.SuccessPaymentStatus, invoice, paymentCharge, creditCard)
+					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})
-				It("should return 201 with no failure message", func() {
+				It("should return 201 with success message", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
 					var res handler.PayInvoiceWithCreditCardResponse
 					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
