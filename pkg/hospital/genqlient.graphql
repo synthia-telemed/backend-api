@@ -74,6 +74,7 @@ query getAppointments($where: AppointmentWhereInput) {
             firstname_en
             lastname_en
             position
+            profilePicURL
         }
     }
 }
@@ -90,6 +91,7 @@ query getAppointment($where: AppointmentWhereInput!) {
             firstname_en
             lastname_en
             position
+            profilePicURL
         }
         invoice {
             id

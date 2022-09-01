@@ -84,8 +84,9 @@ type AppointmentOverview struct {
 	Doctor    DoctorOverview
 }
 type DoctorOverview struct {
-	FullName string
-	Position string
+	FullName      string
+	Position      string
+	ProfilePicURL string
 }
 
 type Appointment struct {
@@ -188,8 +189,9 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 			PatientId: a.PatientId,
 			Status:    a.Status,
 			Doctor: DoctorOverview{
-				FullName: parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
-				Position: a.Doctor.Position,
+				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
+				Position:      a.Doctor.Position,
+				ProfilePicURL: a.Doctor.ProfilePicURL,
 			},
 		}
 	}
@@ -213,8 +215,9 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 		Detail:          resp.Appointment.GetDetail(),
 		Status:          resp.Appointment.GetStatus(),
 		Doctor: DoctorOverview{
-			FullName: parseFullName(resp.Appointment.Doctor.GetInitial_en(), resp.Appointment.Doctor.GetFirstname_en(), resp.Appointment.Doctor.GetLastname_en()),
-			Position: resp.Appointment.Doctor.GetPosition(),
+			FullName:      parseFullName(resp.Appointment.Doctor.GetInitial_en(), resp.Appointment.Doctor.GetFirstname_en(), resp.Appointment.Doctor.GetLastname_en()),
+			Position:      resp.Appointment.Doctor.GetPosition(),
+			ProfilePicURL: resp.Appointment.Doctor.GetProfilePicURL(),
 		},
 		Invoice:       nil,
 		Prescriptions: make([]*Prescription, len(resp.Appointment.GetPrescriptions())),

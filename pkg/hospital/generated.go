@@ -1228,10 +1228,11 @@ func (v *getAppointmentAppointment) GetPrescriptions() []*getAppointmentAppointm
 
 // getAppointmentAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
 type getAppointmentAppointmentDoctor struct {
-	Initial_en   string `json:"initial_en"`
-	Firstname_en string `json:"firstname_en"`
-	Lastname_en  string `json:"lastname_en"`
-	Position     string `json:"position"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
 }
 
 // GetInitial_en returns getAppointmentAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
@@ -1245,6 +1246,9 @@ func (v *getAppointmentAppointmentDoctor) GetLastname_en() string { return v.Las
 
 // GetPosition returns getAppointmentAppointmentDoctor.Position, and is useful for accessing the field via an interface.
 func (v *getAppointmentAppointmentDoctor) GetPosition() string { return v.Position }
+
+// GetProfilePicURL returns getAppointmentAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getAppointmentAppointmentInvoice includes the requested fields of the GraphQL type Invoice.
 type getAppointmentAppointmentInvoice struct {
@@ -1350,10 +1354,11 @@ func (v *getAppointmentsAppointmentsAppointment) GetDoctor() *getAppointmentsApp
 
 // getAppointmentsAppointmentsAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
 type getAppointmentsAppointmentsAppointmentDoctor struct {
-	Initial_en   string `json:"initial_en"`
-	Firstname_en string `json:"firstname_en"`
-	Lastname_en  string `json:"lastname_en"`
-	Position     string `json:"position"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
 }
 
 // GetInitial_en returns getAppointmentsAppointmentsAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
@@ -1369,6 +1374,11 @@ func (v *getAppointmentsAppointmentsAppointmentDoctor) GetLastname_en() string {
 
 // GetPosition returns getAppointmentsAppointmentsAppointmentDoctor.Position, and is useful for accessing the field via an interface.
 func (v *getAppointmentsAppointmentsAppointmentDoctor) GetPosition() string { return v.Position }
+
+// GetProfilePicURL returns getAppointmentsAppointmentsAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetProfilePicURL() string {
+	return v.ProfilePicURL
+}
 
 // getAppointmentsResponse is returned by getAppointments on success.
 type getAppointmentsResponse struct {
@@ -1644,6 +1654,7 @@ query getAppointment ($where: AppointmentWhereInput!) {
 			firstname_en
 			lastname_en
 			position
+			profilePicURL
 		}
 		invoice {
 			id
@@ -1702,6 +1713,7 @@ query getAppointments ($where: AppointmentWhereInput) {
 			firstname_en
 			lastname_en
 			position
+			profilePicURL
 		}
 	}
 }
