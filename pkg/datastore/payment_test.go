@@ -66,7 +66,7 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 		)
 	})
 
-	Context("FindByInvoiceID", func() {
+	Context("FindLatestByInvoiceIDAndStatus", func() {
 		Context("Credit Card Payment", func() {
 			var payment *datastore.Payment
 			BeforeEach(func() {
@@ -75,14 +75,14 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 			})
 			When("payment is not found", func() {
 				It("should return nil with no error", func() {
-					p, err := paymentDataStore.FindByInvoiceID(int(rand.Int31()))
+					p, err := paymentDataStore.FindLatestByInvoiceIDAndStatus(int(rand.Int31()), datastore.SuccessPaymentStatus)
 					Expect(err).To(BeNil())
 					Expect(p).To(BeNil())
 				})
 			})
 			When("payment is found", func() {
 				It("should return payment with credit card preloaded", func() {
-					p, err := paymentDataStore.FindByInvoiceID(payment.InvoiceID)
+					p, err := paymentDataStore.FindLatestByInvoiceIDAndStatus(payment.InvoiceID, datastore.SuccessPaymentStatus)
 					Expect(err).To(BeNil())
 					Expect(p).ToNot(BeNil())
 					Expect(*p.CreditCardID).To(Equal(creditCard.ID))
