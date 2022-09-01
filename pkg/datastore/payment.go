@@ -33,7 +33,7 @@ type Payment struct {
 
 type PaymentDataStore interface {
 	Create(payment *Payment) error
-	FindByInvoiceID(string int) (*Payment, error)
+	FindByInvoiceID(invoiceID int) (*Payment, error)
 }
 
 type GormPaymentDataStore struct {
