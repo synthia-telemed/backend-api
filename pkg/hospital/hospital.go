@@ -175,9 +175,10 @@ func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 	return err
 }
 
-func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error) {
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
 		PatientId: &StringFilter{Equals: patientID, Mode: QueryModeDefault},
+		DateTime:  &DateTimeFilter{Gte: since},
 	})
 	if err != nil {
 		return nil, err
