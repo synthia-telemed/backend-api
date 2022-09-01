@@ -77,43 +77,43 @@ type InvoiceOverview struct {
 }
 
 type AppointmentOverview struct {
-	Id        string
-	DateTime  time.Time
-	PatientId string
-	Status    AppointmentStatus
-	Doctor    DoctorOverview
+	Id        string            `json:"id"`
+	DateTime  time.Time         `json:"date_time"`
+	PatientId string            `json:"patient_id"`
+	Status    AppointmentStatus `json:"status"`
+	Doctor    DoctorOverview    `json:"doctor"`
 }
 type DoctorOverview struct {
-	FullName      string
-	Position      string
-	ProfilePicURL string
+	FullName      string `json:"full_name"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profile_pic_url"`
 }
 
 type Appointment struct {
-	Id              string
-	DateTime        time.Time
-	NextAppointment time.Time
-	Detail          string
-	Status          AppointmentStatus
-	Doctor          DoctorOverview
-	Invoice         *Invoice
-	Prescriptions   []*Prescription
+	Id              string            `json:"id"`
+	DateTime        time.Time         `json:"date_time"`
+	NextAppointment time.Time         `json:"next_appointment"`
+	Detail          string            `json:"detail"`
+	Status          AppointmentStatus `json:"status"`
+	Doctor          DoctorOverview    `json:"doctor"`
+	Invoice         *Invoice          `json:"invoice"`
+	Prescriptions   []*Prescription   `json:"prescriptions"`
 }
 type Invoice struct {
-	Id           string
-	Total        float64
-	Paid         bool
-	InvoiceItems []*InvoiceItem
+	Id           string         `json:"id"`
+	Total        float64        `json:"total"`
+	Paid         bool           `json:"paid"`
+	InvoiceItems []*InvoiceItem `json:"invoice_items"`
 }
 type InvoiceItem struct {
-	Name     string
-	Price    float64
-	Quantity int
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
 }
 type Prescription struct {
-	Name        string
-	Amount      int
-	Description string
+	Name        string `json:"name"`
+	Amount      int    `json:"amount"`
+	Description string `json:"description"`
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
