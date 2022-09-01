@@ -28,7 +28,7 @@ type Payment struct {
 	InvoiceID    int            `json:"invoice_id" gorm:"not null,unique"`
 	Status       PaymentStatus  `json:"status" gorm:"not null"`
 	CreditCard   *CreditCard    `json:"credit_card"`
-	CreditCardID *uint
+	CreditCardID *uint          `json:"credit_card_id"`
 }
 
 type PaymentDataStore interface {

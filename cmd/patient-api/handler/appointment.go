@@ -10,19 +10,29 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
+)
+
+var (
+	ErrAppointmentIDMissing = server.NewErrorResponse("Appointment ID is missing")
+	ErrAppointmentIDInvalid = server.NewErrorResponse("Invalid appointment ID")
+	ErrAppointmentNotFound  = server.NewErrorResponse("Appointment not found")
+	ErrForbidden            = server.NewErrorResponse("Forbidden")
 )
 
 type AppointmentHandler struct {
 	patientDataStore datastore.PatientDataStore
+	paymentDataStore datastore.PaymentDataStore
 	hospitalClient   hospital.SystemClient
 	logger           *zap.SugaredLogger
 	*server.GinHandler
 }
 
-func NewAppointmentHandler(patientDS datastore.PatientDataStore, hos hospital.SystemClient, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
 		patientDataStore: patientDS,
 		hospitalClient:   hos,
+		paymentDataStore: paymentDS,
 		logger:           logger,
 		GinHandler:       &server.GinHandler{Logger: logger},
 	}
@@ -31,6 +41,7 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, hos hospital.Sy
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.GET("", middleware.ParseUserID, h.ParsePatient, h.ListAppointments)
+	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.GetAppointment)
 }
 
 type ListAppointmentsResponse struct {
@@ -65,6 +76,67 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		case hospital.AppointmentStatusScheduled:
 			res.Scheduled = append(res.Scheduled, a)
 		}
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+type GetAppointmentResponse struct {
+	//Id              string                     `json:"id"`
+	//DateTime        time.Time                  `json:"date_time"`
+	//NextAppointment time.Time                  `json:"next_appointment"`
+	//Detail          string                     `json:"detail"`
+	//Status          hospital.AppointmentStatus `json:"status"`
+	//Doctor          hospital.DoctorOverview    `json:"doctor"`
+	//Invoice         *hospital.Invoice          `json:"invoice"`
+	//Payment         *datastore.Payment         `json:"payment"`
+	*hospital.Appointment
+	Payment *datastore.Payment `json:"payment"`
+}
+
+func (h AppointmentHandler) GetAppointment(c *gin.Context) {
+	rawPatient, exist := c.Get("Patient")
+	if !exist {
+		h.InternalServerError(c, errors.New("c.Get Patient not exist"), "c.Get Patient not exist")
+		return
+	}
+	patient, ok := rawPatient.(*datastore.Patient)
+	if !ok {
+		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
+		return
+	}
+	appointmentIDStr := c.Param("appointmentID")
+	if appointmentIDStr == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrAppointmentIDMissing)
+		return
+	}
+	appointmentID, err := strconv.ParseInt(appointmentIDStr, 10, 32)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrAppointmentIDInvalid)
+		return
+	}
+	apps, err := h.hospitalClient.FindAppointmentByID(context.Background(), int(appointmentID))
+	if err != nil {
+		h.InternalServerError(c, err, "h.hospitalClient.FindAppointmentByID error")
+		return
+	}
+	if apps == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrAppointmentNotFound)
+		return
+	}
+	if apps.PatientID != patient.RefID {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
+	}
+	res := &GetAppointmentResponse{
+		Appointment: apps,
+		Payment:     nil,
+	}
+	if apps.Status == hospital.AppointmentStatusCompleted {
+		payment, err := h.paymentDataStore.FindByInvoiceID(apps.Invoice.Id)
+		if err != nil {
+			h.InternalServerError(c, err, "h.paymentDataStore.FindByInvoiceID error")
+			return
+		}
+		res.Payment = payment
 	}
 	c.JSON(http.StatusOK, res)
 }
