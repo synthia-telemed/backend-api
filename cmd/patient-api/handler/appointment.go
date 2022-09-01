@@ -81,14 +81,6 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 }
 
 type GetAppointmentResponse struct {
-	//Id              string                     `json:"id"`
-	//DateTime        time.Time                  `json:"date_time"`
-	//NextAppointment time.Time                  `json:"next_appointment"`
-	//Detail          string                     `json:"detail"`
-	//Status          hospital.AppointmentStatus `json:"status"`
-	//Doctor          hospital.DoctorOverview    `json:"doctor"`
-	//Invoice         *hospital.Invoice          `json:"invoice"`
-	//Payment         *datastore.Payment         `json:"payment"`
 	*hospital.Appointment
 	Payment *datastore.Payment `json:"payment"`
 }
