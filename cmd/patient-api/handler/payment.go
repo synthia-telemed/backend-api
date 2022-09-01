@@ -209,7 +209,6 @@ func (h PaymentHandler) PayInvoiceWithCreditCard(c *gin.Context) {
 	paidAt := h.clock.NowPointer()
 	if paymentCharge.Success {
 		status = datastore.SuccessPaymentStatus
-		paidAt = &paymentCharge.CreatedAt
 		if err := h.hospitalSysClient.PaidInvoice(context.Background(), invoice.Id); err != nil {
 			h.InternalServerError(c, err, "h.hospitalSysClient.PaidInvoice error")
 			return
