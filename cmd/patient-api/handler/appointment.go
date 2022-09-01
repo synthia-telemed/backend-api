@@ -131,7 +131,7 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 		Payment:     nil,
 	}
 	if apps.Status == hospital.AppointmentStatusCompleted {
-		payment, err := h.paymentDataStore.FindByInvoiceID(apps.Invoice.Id)
+		payment, err := h.paymentDataStore.FindLatestByInvoiceIDAndStatus(apps.Invoice.Id, datastore.SuccessPaymentStatus)
 		if err != nil {
 			h.InternalServerError(c, err, "h.paymentDataStore.FindByInvoiceID error")
 			return
