@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"math/rand"
+	"time"
 )
 
 var _ = Describe("Hospital Client", func() {
@@ -117,16 +118,21 @@ var _ = Describe("Hospital Client", func() {
 	Context("ListAppointmentsByPatientID", func() {
 		When("no appointment is found", func() {
 			It("should return empty slice with no error", func() {
-				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-something")
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-something", time.Now())
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(0))
 			})
 		})
 		When("appointment(s) is/are found", func() {
-			It("should return appointments", func() {
-				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-124623")
+			It("should return scheduled appointments", func() {
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-124623", time.Unix(1659211832, 0))
 				Expect(err).To(BeNil())
-				Expect(appointments).To(HaveLen(2))
+				Expect(appointments).To(HaveLen(3))
+			})
+			It("should return appointments from started of 2022", func() {
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-124623", time.Unix(1640981432, 0))
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(4))
 			})
 		})
 	})

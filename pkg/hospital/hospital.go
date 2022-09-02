@@ -14,7 +14,7 @@ type SystemClient interface {
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
 	FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error)
 	PaidInvoice(ctx context.Context, id int) error
-	ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error)
+	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 }
 
@@ -205,9 +205,13 @@ func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 	return err
 }
 
-func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error) {
+	desc := SortOrderDesc
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
 		PatientId: &StringFilter{Equals: &patientID},
+		DateTime:  &DateTimeFilter{Gte: &since},
+	}, []*AppointmentOrderByWithRelationInput{
+		&AppointmentOrderByWithRelationInput{DateTime: &desc},
 	})
 	if err != nil {
 		return nil, err

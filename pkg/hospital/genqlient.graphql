@@ -63,8 +63,8 @@ mutation paidInvoice($paidInvoiceId: Float!) {
     }
 }
 
-query getAppointments($where: AppointmentWhereInput) {
-    appointments(where: $where) {
+query getAppointments($where: AppointmentWhereInput, $orderBy: [AppointmentOrderByWithRelationInput!]) {
+    appointments(where: $where, orderBy: $orderBy) {
         id
         dateTime
         patientId

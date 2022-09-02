@@ -24,6 +24,78 @@ func (v *AppointmentListRelationFilter) GetNone() *AppointmentWhereInput { retur
 // GetSome returns AppointmentListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *AppointmentListRelationFilter) GetSome() *AppointmentWhereInput { return v.Some }
 
+type AppointmentOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns AppointmentOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
+
+type AppointmentOrderByWithRelationInput struct {
+	CreatedAt       *SortOrder                                 `json:"createdAt"`
+	DateTime        *SortOrder                                 `json:"dateTime"`
+	Detail          *SortOrder                                 `json:"detail"`
+	Doctor          *DoctorOrderByWithRelationInput            `json:"doctor,omitempty"`
+	DoctorId        *SortOrder                                 `json:"doctorId"`
+	Id              *SortOrder                                 `json:"id"`
+	Invoice         *InvoiceOrderByWithRelationInput           `json:"invoice,omitempty"`
+	NextAppointment *SortOrder                                 `json:"nextAppointment"`
+	Patient         *PatientOrderByWithRelationInput           `json:"patient,omitempty"`
+	PatientId       *SortOrder                                 `json:"patientId"`
+	Prescriptions   *PrescriptionOrderByRelationAggregateInput `json:"prescriptions,omitempty"`
+	Status          *SortOrder                                 `json:"status"`
+	UpdatedAt       *SortOrder                                 `json:"updatedAt"`
+}
+
+// GetCreatedAt returns AppointmentOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetDateTime returns AppointmentOrderByWithRelationInput.DateTime, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDateTime() *SortOrder { return v.DateTime }
+
+// GetDetail returns AppointmentOrderByWithRelationInput.Detail, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDetail() *SortOrder { return v.Detail }
+
+// GetDoctor returns AppointmentOrderByWithRelationInput.Doctor, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDoctor() *DoctorOrderByWithRelationInput {
+	return v.Doctor
+}
+
+// GetDoctorId returns AppointmentOrderByWithRelationInput.DoctorId, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDoctorId() *SortOrder { return v.DoctorId }
+
+// GetId returns AppointmentOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInvoice returns AppointmentOrderByWithRelationInput.Invoice, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetInvoice() *InvoiceOrderByWithRelationInput {
+	return v.Invoice
+}
+
+// GetNextAppointment returns AppointmentOrderByWithRelationInput.NextAppointment, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetNextAppointment() *SortOrder {
+	return v.NextAppointment
+}
+
+// GetPatient returns AppointmentOrderByWithRelationInput.Patient, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPatient() *PatientOrderByWithRelationInput {
+	return v.Patient
+}
+
+// GetPatientId returns AppointmentOrderByWithRelationInput.PatientId, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPatientId() *SortOrder { return v.PatientId }
+
+// GetPrescriptions returns AppointmentOrderByWithRelationInput.Prescriptions, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPrescriptions() *PrescriptionOrderByRelationAggregateInput {
+	return v.Prescriptions
+}
+
+// GetStatus returns AppointmentOrderByWithRelationInput.Status, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetStatus() *SortOrder { return v.Status }
+
+// GetUpdatedAt returns AppointmentOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
 type AppointmentRelationFilter struct {
 	Is    *AppointmentWhereInput `json:"is,omitempty"`
 	IsNot *AppointmentWhereInput `json:"isNot,omitempty"`
@@ -203,6 +275,67 @@ func (v *DateTimeNullableFilter) GetNot() *NestedDateTimeNullableFilter { return
 
 // GetNotIn returns DateTimeNullableFilter.NotIn, and is useful for accessing the field via an interface.
 func (v *DateTimeNullableFilter) GetNotIn() []time.Time { return v.NotIn }
+
+type DoctorOrderByWithRelationInput struct {
+	Appointments  *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
+	CreatedAt     *SortOrder                                `json:"createdAt"`
+	Firstname_en  *SortOrder                                `json:"firstname_en"`
+	Firstname_th  *SortOrder                                `json:"firstname_th"`
+	Id            *SortOrder                                `json:"id"`
+	Initial_en    *SortOrder                                `json:"initial_en"`
+	Initial_th    *SortOrder                                `json:"initial_th"`
+	Lastname_en   *SortOrder                                `json:"lastname_en"`
+	Lastname_th   *SortOrder                                `json:"lastname_th"`
+	Password      *SortOrder                                `json:"password"`
+	Position      *SortOrder                                `json:"position"`
+	ProfilePicURL *SortOrder                                `json:"profilePicURL"`
+	UpdatedAt     *SortOrder                                `json:"updatedAt"`
+	Username      *SortOrder                                `json:"username"`
+}
+
+// GetAppointments returns DoctorOrderByWithRelationInput.Appointments, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetAppointments() *AppointmentOrderByRelationAggregateInput {
+	return v.Appointments
+}
+
+// GetCreatedAt returns DoctorOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetFirstname_en returns DoctorOrderByWithRelationInput.Firstname_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetFirstname_en() *SortOrder { return v.Firstname_en }
+
+// GetFirstname_th returns DoctorOrderByWithRelationInput.Firstname_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetFirstname_th() *SortOrder { return v.Firstname_th }
+
+// GetId returns DoctorOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInitial_en returns DoctorOrderByWithRelationInput.Initial_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetInitial_en() *SortOrder { return v.Initial_en }
+
+// GetInitial_th returns DoctorOrderByWithRelationInput.Initial_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetInitial_th() *SortOrder { return v.Initial_th }
+
+// GetLastname_en returns DoctorOrderByWithRelationInput.Lastname_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetLastname_en() *SortOrder { return v.Lastname_en }
+
+// GetLastname_th returns DoctorOrderByWithRelationInput.Lastname_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetLastname_th() *SortOrder { return v.Lastname_th }
+
+// GetPassword returns DoctorOrderByWithRelationInput.Password, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetPassword() *SortOrder { return v.Password }
+
+// GetPosition returns DoctorOrderByWithRelationInput.Position, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetPosition() *SortOrder { return v.Position }
+
+// GetProfilePicURL returns DoctorOrderByWithRelationInput.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetProfilePicURL() *SortOrder { return v.ProfilePicURL }
+
+// GetUpdatedAt returns DoctorOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
+// GetUsername returns DoctorOrderByWithRelationInput.Username, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetUsername() *SortOrder { return v.Username }
 
 type DoctorRelationFilter struct {
 	Is    *DoctorWhereInput `json:"is,omitempty"`
@@ -409,6 +542,13 @@ func (v *InvoiceItemListRelationFilter) GetNone() *InvoiceItemWhereInput { retur
 // GetSome returns InvoiceItemListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *InvoiceItemListRelationFilter) GetSome() *InvoiceItemWhereInput { return v.Some }
 
+type InvoiceItemOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns InvoiceItemOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *InvoiceItemOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
+
 type InvoiceItemWhereInput struct {
 	AND       []*InvoiceItemWhereInput `json:"AND,omitempty"`
 	NOT       []*InvoiceItemWhereInput `json:"NOT,omitempty"`
@@ -455,6 +595,45 @@ func (v *InvoiceItemWhereInput) GetQuantity() *IntFilter { return v.Quantity }
 
 // GetUpdatedAt returns InvoiceItemWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *InvoiceItemWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
+
+type InvoiceOrderByWithRelationInput struct {
+	Appointment   *AppointmentOrderByWithRelationInput      `json:"appointment,omitempty"`
+	AppointmentId *SortOrder                                `json:"appointmentId"`
+	CreatedAt     *SortOrder                                `json:"createdAt"`
+	Id            *SortOrder                                `json:"id"`
+	InvoiceItems  *InvoiceItemOrderByRelationAggregateInput `json:"invoiceItems,omitempty"`
+	Paid          *SortOrder                                `json:"paid"`
+	Total         *SortOrder                                `json:"total"`
+	UpdatedAt     *SortOrder                                `json:"updatedAt"`
+}
+
+// GetAppointment returns InvoiceOrderByWithRelationInput.Appointment, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetAppointment() *AppointmentOrderByWithRelationInput {
+	return v.Appointment
+}
+
+// GetAppointmentId returns InvoiceOrderByWithRelationInput.AppointmentId, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetAppointmentId() *SortOrder { return v.AppointmentId }
+
+// GetCreatedAt returns InvoiceOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetId returns InvoiceOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInvoiceItems returns InvoiceOrderByWithRelationInput.InvoiceItems, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetInvoiceItems() *InvoiceItemOrderByRelationAggregateInput {
+	return v.InvoiceItems
+}
+
+// GetPaid returns InvoiceOrderByWithRelationInput.Paid, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetPaid() *SortOrder { return v.Paid }
+
+// GetTotal returns InvoiceOrderByWithRelationInput.Total, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetTotal() *SortOrder { return v.Total }
+
+// GetUpdatedAt returns InvoiceOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
 
 type InvoiceRelationFilter struct {
 	Is    *InvoiceWhereInput `json:"is,omitempty"`
@@ -849,6 +1028,83 @@ func (v *NestedStringNullableFilter) GetNotIn() []string { return v.NotIn }
 // GetStartsWith returns NestedStringNullableFilter.StartsWith, and is useful for accessing the field via an interface.
 func (v *NestedStringNullableFilter) GetStartsWith() *string { return v.StartsWith }
 
+type PatientOrderByWithRelationInput struct {
+	Appointments *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
+	BirthDate    *SortOrder                                `json:"birthDate"`
+	BloodType    *SortOrder                                `json:"bloodType"`
+	CreatedAt    *SortOrder                                `json:"createdAt"`
+	Firstname_en *SortOrder                                `json:"firstname_en"`
+	Firstname_th *SortOrder                                `json:"firstname_th"`
+	Height       *SortOrder                                `json:"height"`
+	Id           *SortOrder                                `json:"id"`
+	Initial_en   *SortOrder                                `json:"initial_en"`
+	Initial_th   *SortOrder                                `json:"initial_th"`
+	Lastname_en  *SortOrder                                `json:"lastname_en"`
+	Lastname_th  *SortOrder                                `json:"lastname_th"`
+	NationalId   *SortOrder                                `json:"nationalId"`
+	Nationality  *SortOrder                                `json:"nationality"`
+	PassportId   *SortOrder                                `json:"passportId"`
+	PhoneNumber  *SortOrder                                `json:"phoneNumber"`
+	UpdatedAt    *SortOrder                                `json:"updatedAt"`
+	Weight       *SortOrder                                `json:"weight"`
+}
+
+// GetAppointments returns PatientOrderByWithRelationInput.Appointments, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetAppointments() *AppointmentOrderByRelationAggregateInput {
+	return v.Appointments
+}
+
+// GetBirthDate returns PatientOrderByWithRelationInput.BirthDate, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetBirthDate() *SortOrder { return v.BirthDate }
+
+// GetBloodType returns PatientOrderByWithRelationInput.BloodType, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetBloodType() *SortOrder { return v.BloodType }
+
+// GetCreatedAt returns PatientOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetFirstname_en returns PatientOrderByWithRelationInput.Firstname_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetFirstname_en() *SortOrder { return v.Firstname_en }
+
+// GetFirstname_th returns PatientOrderByWithRelationInput.Firstname_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetFirstname_th() *SortOrder { return v.Firstname_th }
+
+// GetHeight returns PatientOrderByWithRelationInput.Height, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetHeight() *SortOrder { return v.Height }
+
+// GetId returns PatientOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInitial_en returns PatientOrderByWithRelationInput.Initial_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetInitial_en() *SortOrder { return v.Initial_en }
+
+// GetInitial_th returns PatientOrderByWithRelationInput.Initial_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetInitial_th() *SortOrder { return v.Initial_th }
+
+// GetLastname_en returns PatientOrderByWithRelationInput.Lastname_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetLastname_en() *SortOrder { return v.Lastname_en }
+
+// GetLastname_th returns PatientOrderByWithRelationInput.Lastname_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetLastname_th() *SortOrder { return v.Lastname_th }
+
+// GetNationalId returns PatientOrderByWithRelationInput.NationalId, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetNationalId() *SortOrder { return v.NationalId }
+
+// GetNationality returns PatientOrderByWithRelationInput.Nationality, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetNationality() *SortOrder { return v.Nationality }
+
+// GetPassportId returns PatientOrderByWithRelationInput.PassportId, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetPassportId() *SortOrder { return v.PassportId }
+
+// GetPhoneNumber returns PatientOrderByWithRelationInput.PhoneNumber, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetPhoneNumber() *SortOrder { return v.PhoneNumber }
+
+// GetUpdatedAt returns PatientOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
+// GetWeight returns PatientOrderByWithRelationInput.Weight, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetWeight() *SortOrder { return v.Weight }
+
 type PatientRelationFilter struct {
 	Is    *PatientWhereInput `json:"is,omitempty"`
 	IsNot *PatientWhereInput `json:"isNot,omitempty"`
@@ -962,6 +1218,13 @@ func (v *PrescriptionListRelationFilter) GetNone() *PrescriptionWhereInput { ret
 // GetSome returns PrescriptionListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *PrescriptionListRelationFilter) GetSome() *PrescriptionWhereInput { return v.Some }
 
+type PrescriptionOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns PrescriptionOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *PrescriptionOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
+
 type PrescriptionWhereInput struct {
 	AND           []*PrescriptionWhereInput  `json:"AND,omitempty"`
 	NOT           []*PrescriptionWhereInput  `json:"NOT,omitempty"`
@@ -1014,6 +1277,13 @@ type QueryMode string
 const (
 	QueryModeDefault     QueryMode = "default"
 	QueryModeInsensitive QueryMode = "insensitive"
+)
+
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "asc"
+	SortOrderDesc SortOrder = "desc"
 )
 
 type StringFilter struct {
@@ -1140,11 +1410,17 @@ func (v *__getAppointmentInput) GetWhere() *AppointmentWhereInput { return v.Whe
 
 // __getAppointmentsInput is used internally by genqlient
 type __getAppointmentsInput struct {
-	Where *AppointmentWhereInput `json:"where,omitempty"`
+	Where   *AppointmentWhereInput                 `json:"where,omitempty"`
+	OrderBy []*AppointmentOrderByWithRelationInput `json:"orderBy,omitempty"`
 }
 
 // GetWhere returns __getAppointmentsInput.Where, and is useful for accessing the field via an interface.
 func (v *__getAppointmentsInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
+// GetOrderBy returns __getAppointmentsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsInput) GetOrderBy() []*AppointmentOrderByWithRelationInput {
+	return v.OrderBy
+}
 
 // __getDoctorInput is used internally by genqlient
 type __getDoctorInput struct {
@@ -1703,12 +1979,13 @@ func getAppointments(
 	ctx context.Context,
 	client graphql.Client,
 	where *AppointmentWhereInput,
+	orderBy []*AppointmentOrderByWithRelationInput,
 ) (*getAppointmentsResponse, error) {
 	req := &graphql.Request{
 		OpName: "getAppointments",
 		Query: `
-query getAppointments ($where: AppointmentWhereInput) {
-	appointments(where: $where) {
+query getAppointments ($where: AppointmentWhereInput, $orderBy: [AppointmentOrderByWithRelationInput!]) {
+	appointments(where: $where, orderBy: $orderBy) {
 		id
 		dateTime
 		patientId
@@ -1724,7 +2001,8 @@ query getAppointments ($where: AppointmentWhereInput) {
 }
 `,
 		Variables: &__getAppointmentsInput{
-			Where: where,
+			Where:   where,
+			OrderBy: orderBy,
 		},
 	}
 	var err error

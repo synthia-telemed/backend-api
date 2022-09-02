@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
+	"sort"
 	"strconv"
+	"time"
 )
 
 var (
@@ -24,15 +27,17 @@ type AppointmentHandler struct {
 	patientDataStore datastore.PatientDataStore
 	paymentDataStore datastore.PaymentDataStore
 	hospitalClient   hospital.SystemClient
+	clock            clock.Clock
 	logger           *zap.SugaredLogger
 	*server.GinHandler
 }
 
-func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
 		patientDataStore: patientDS,
 		hospitalClient:   hos,
 		paymentDataStore: paymentDS,
+		clock:            c,
 		logger:           logger,
 		GinHandler:       &server.GinHandler{Logger: logger},
 	}
@@ -61,7 +66,8 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
 		return
 	}
-	apps, err := h.hospitalClient.ListAppointmentsByPatientID(context.Background(), patient.RefID)
+	since := h.clock.Now().Add(-time.Hour * 24 * 365 * 3) // 3 years
+	apps, err := h.hospitalClient.ListAppointmentsByPatientID(context.Background(), patient.RefID, since)
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByPatientID error")
 		return
@@ -77,6 +83,8 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 			res.Scheduled = append(res.Scheduled, a)
 		}
 	}
+	// TODO: Sort the scheduled appointments ASC
+	ReverseSlice(res.Scheduled)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -145,4 +153,10 @@ func (h AppointmentHandler) ParsePatient(c *gin.Context) {
 		return
 	}
 	c.Set("Patient", patient)
+}
+
+func ReverseSlice[T comparable](s []T) {
+	sort.SliceStable(s, func(i, j int) bool {
+		return i > j
+	})
 }
