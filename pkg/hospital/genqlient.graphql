@@ -30,10 +30,10 @@ query getDoctor($where: DoctorWhereInput!) {
         initial_th
         lastname_en
         lastname_th
-        password
         position
         updatedAt
         username
+        profilePicURL
     }
 }
 
