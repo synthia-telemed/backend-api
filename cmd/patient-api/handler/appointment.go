@@ -66,7 +66,7 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
 		return
 	}
-	since := h.clock.Now().Add(-time.Hour * 24 * 365 * 3)
+	since := h.clock.Now().Add(-time.Hour * 24 * 365 * 3) // 3 years
 	apps, err := h.hospitalClient.ListAppointmentsByPatientID(context.Background(), patient.RefID, since)
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByPatientID error")
