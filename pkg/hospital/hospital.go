@@ -185,11 +185,8 @@ func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string
 
 func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error) {
 	resp, err := getInvoice(ctx, c.client, &InvoiceWhereInput{Id: &IntFilter{Equals: &id}})
-	if err != nil {
+	if err != nil || resp.Invoice == nil {
 		return nil, err
-	}
-	if resp.Invoice == nil {
-		return nil, nil
 	}
 	invoiceID, err := strconv.ParseInt(resp.Invoice.Id, 10, 32)
 	if err != nil {
@@ -238,11 +235,8 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	resp, err := getAppointment(ctx, c.client, &AppointmentWhereInput{
 		Id: &IntFilter{Equals: &appointmentID},
 	})
-	if err != nil {
+	if err != nil || resp.GetAppointment() == nil {
 		return nil, err
-	}
-	if resp.GetAppointment() == nil {
-		return nil, nil
 	}
 	appointment := &Appointment{
 		Id:              resp.Appointment.GetId(),
