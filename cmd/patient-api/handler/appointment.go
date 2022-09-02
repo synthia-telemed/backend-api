@@ -11,6 +11,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -83,6 +84,7 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		}
 	}
 	// TODO: Sort the scheduled appointments ASC
+	ReverseSlice(res.Scheduled)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -151,4 +153,10 @@ func (h AppointmentHandler) ParsePatient(c *gin.Context) {
 		return
 	}
 	c.Set("Patient", patient)
+}
+
+func ReverseSlice[T comparable](s []T) {
+	sort.SliceStable(s, func(i, j int) bool {
+		return i > j
+	})
 }
