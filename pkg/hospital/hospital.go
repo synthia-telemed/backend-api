@@ -32,39 +32,48 @@ func NewGraphQLClient(config *Config) *GraphQLClient {
 	}
 }
 
+type Name struct {
+	FullName  string
+	Initial   string
+	Firstname string
+	Lastname  string
+}
+
+func NewName(init, first, last string) *Name {
+	return &Name{
+		FullName:  parseFullName(init, first, last),
+		Initial:   init,
+		Firstname: first,
+		Lastname:  last,
+	}
+}
+
 type Patient struct {
-	BirthDate    time.Time
-	BloodType    BloodType
-	CreatedAt    time.Time
-	Firstname_en string
-	Firstname_th string
-	Height       float64
-	Id           string
-	Initial_en   string
-	Initial_th   string
-	Lastname_en  string
-	Lastname_th  string
-	NationalId   *string
-	Nationality  string
-	PassportId   *string
-	PhoneNumber  string
-	UpdatedAt    time.Time
-	Weight       float64
+	Id          string
+	NameEN      *Name
+	NameTH      *Name
+	BirthDate   time.Time
+	BloodType   BloodType
+	Height      float64
+	NationalId  *string
+	Nationality string
+	PassportId  *string
+	PhoneNumber string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Weight      float64
 }
 
 type Doctor struct {
-	CreatedAt    time.Time
-	Firstname_en string
-	Firstname_th string
-	Id           string
-	Initial_en   string
-	Initial_th   string
-	Lastname_en  string
-	Lastname_th  string
-	Password     string
-	Position     string
-	UpdatedAt    time.Time
-	Username     string
+	Id            string
+	NameEN        *Name
+	NameTH        *Name
+	Password      string
+	Position      string
+	ProfilePicURL string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Username      string
 }
 
 type InvoiceOverview struct {
@@ -129,7 +138,22 @@ func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred stri
 		return nil, err
 	}
 
-	return (*Patient)(resp.Patient), nil
+	p := resp.GetPatient()
+	return &Patient{
+		Id:          p.Id,
+		NameEN:      NewName(p.Initial_en, p.Firstname_en, p.Lastname_en),
+		NameTH:      NewName(p.Initial_th, p.Firstname_th, p.Lastname_th),
+		BirthDate:   p.BirthDate,
+		BloodType:   p.BloodType,
+		Height:      p.Height,
+		Weight:      p.Weight,
+		NationalId:  p.NationalId,
+		Nationality: p.Nationality,
+		PassportId:  p.PassportId,
+		PhoneNumber: p.PhoneNumber,
+		CreatedAt:   p.CreatedAt,
+		UpdatedAt:   p.UpdatedAt,
+	}, nil
 }
 
 func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, password string) (bool, error) {
@@ -142,10 +166,21 @@ func (c GraphQLClient) AssertDoctorCredential(ctx context.Context, username, pas
 
 func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error) {
 	resp, err := getDoctor(ctx, c.client, &DoctorWhereInput{Username: &StringFilter{Equals: &username}})
-	if err != nil {
+	if err != nil || resp.GetDoctor() == nil {
 		return nil, err
 	}
-	return (*Doctor)(resp.Doctor), nil
+	d := resp.GetDoctor()
+	return &Doctor{
+		Id:            d.Id,
+		NameEN:        NewName(d.Initial_en, d.Firstname_en, d.Lastname_en),
+		NameTH:        NewName(d.Initial_th, d.Firstname_th, d.Lastname_th),
+		Username:      d.Username,
+		Password:      d.Password,
+		Position:      d.Position,
+		ProfilePicURL: d.ProfilePicURL,
+		CreatedAt:     d.CreatedAt,
+		UpdatedAt:     d.UpdatedAt,
+	}, nil
 }
 
 func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error) {

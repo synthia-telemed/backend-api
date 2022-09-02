@@ -1396,18 +1396,19 @@ func (v *getAppointmentsResponse) GetAppointments() []*getAppointmentsAppointmen
 
 // getDoctorDoctor includes the requested fields of the GraphQL type Doctor.
 type getDoctorDoctor struct {
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	Password     string    `json:"password"`
-	Position     string    `json:"position"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Username     string    `json:"username"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Firstname_en  string    `json:"firstname_en"`
+	Firstname_th  string    `json:"firstname_th"`
+	Id            string    `json:"id"`
+	Initial_en    string    `json:"initial_en"`
+	Initial_th    string    `json:"initial_th"`
+	Lastname_en   string    `json:"lastname_en"`
+	Lastname_th   string    `json:"lastname_th"`
+	Password      string    `json:"password"`
+	Position      string    `json:"position"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	Username      string    `json:"username"`
+	ProfilePicURL string    `json:"profilePicURL"`
 }
 
 // GetCreatedAt returns getDoctorDoctor.CreatedAt, and is useful for accessing the field via an interface.
@@ -1445,6 +1446,9 @@ func (v *getDoctorDoctor) GetUpdatedAt() time.Time { return v.UpdatedAt }
 
 // GetUsername returns getDoctorDoctor.Username, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetUsername() string { return v.Username }
+
+// GetProfilePicURL returns getDoctorDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getDoctorResponse is returned by getDoctor on success.
 type getDoctorResponse struct {
@@ -1763,6 +1767,7 @@ query getDoctor ($where: DoctorWhereInput!) {
 		position
 		updatedAt
 		username
+		profilePicURL
 	}
 }
 `,
