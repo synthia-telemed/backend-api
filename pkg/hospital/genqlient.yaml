@@ -8,6 +8,6 @@ bindings:
   DateTime:
     type: time.Time
 
-#optional: pointer
+optional: pointer
 
 use_struct_references: true
