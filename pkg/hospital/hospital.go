@@ -14,7 +14,7 @@ type SystemClient interface {
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
 	FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error)
 	PaidInvoice(ctx context.Context, id int) error
-	ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*AppointmentOverview, error)
+	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 }
 

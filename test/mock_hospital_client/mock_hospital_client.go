@@ -7,6 +7,7 @@ package mock_hospital_client
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	hospital "github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -111,18 +112,18 @@ func (mr *MockSystemClientMockRecorder) FindPatientByGovCredential(ctx, cred int
 }
 
 // ListAppointmentsByPatientID mocks base method.
-func (m *MockSystemClient) ListAppointmentsByPatientID(ctx context.Context, patientID string) ([]*hospital.AppointmentOverview, error) {
+func (m *MockSystemClient) ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*hospital.AppointmentOverview, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAppointmentsByPatientID", ctx, patientID)
+	ret := m.ctrl.Call(m, "ListAppointmentsByPatientID", ctx, patientID, since)
 	ret0, _ := ret[0].([]*hospital.AppointmentOverview)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListAppointmentsByPatientID indicates an expected call of ListAppointmentsByPatientID.
-func (mr *MockSystemClientMockRecorder) ListAppointmentsByPatientID(ctx, patientID interface{}) *gomock.Call {
+func (mr *MockSystemClientMockRecorder) ListAppointmentsByPatientID(ctx, patientID, since interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAppointmentsByPatientID", reflect.TypeOf((*MockSystemClient)(nil).ListAppointmentsByPatientID), ctx, patientID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAppointmentsByPatientID", reflect.TypeOf((*MockSystemClient)(nil).ListAppointmentsByPatientID), ctx, patientID, since)
 }
 
 // PaidInvoice mocks base method.
