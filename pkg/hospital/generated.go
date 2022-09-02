@@ -1404,7 +1404,6 @@ type getDoctorDoctor struct {
 	Initial_th    string    `json:"initial_th"`
 	Lastname_en   string    `json:"lastname_en"`
 	Lastname_th   string    `json:"lastname_th"`
-	Password      string    `json:"password"`
 	Position      string    `json:"position"`
 	UpdatedAt     time.Time `json:"updatedAt"`
 	Username      string    `json:"username"`
@@ -1434,9 +1433,6 @@ func (v *getDoctorDoctor) GetLastname_en() string { return v.Lastname_en }
 
 // GetLastname_th returns getDoctorDoctor.Lastname_th, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetLastname_th() string { return v.Lastname_th }
-
-// GetPassword returns getDoctorDoctor.Password, and is useful for accessing the field via an interface.
-func (v *getDoctorDoctor) GetPassword() string { return v.Password }
 
 // GetPosition returns getDoctorDoctor.Position, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetPosition() string { return v.Position }
@@ -1763,7 +1759,6 @@ query getDoctor ($where: DoctorWhereInput!) {
 		initial_th
 		lastname_en
 		lastname_th
-		password
 		position
 		updatedAt
 		username

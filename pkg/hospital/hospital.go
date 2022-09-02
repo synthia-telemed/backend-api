@@ -68,7 +68,6 @@ type Doctor struct {
 	Id            string
 	NameEN        *Name
 	NameTH        *Name
-	Password      string
 	Position      string
 	ProfilePicURL string
 	CreatedAt     time.Time
@@ -175,7 +174,6 @@ func (c GraphQLClient) FindDoctorByUsername(ctx context.Context, username string
 		NameEN:        NewName(d.Initial_en, d.Firstname_en, d.Lastname_en),
 		NameTH:        NewName(d.Initial_th, d.Firstname_th, d.Lastname_th),
 		Username:      d.Username,
-		Password:      d.Password,
 		Position:      d.Position,
 		ProfilePicURL: d.ProfilePicURL,
 		CreatedAt:     d.CreatedAt,
