@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
@@ -20,6 +21,15 @@ func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Con
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
 	return mockCtrl, rec, c
+}
+
+func generatePatient() *datastore.Patient {
+	return &datastore.Patient{
+		ID:        uint(rand.Uint32()),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		RefID:     uuid.New().String(),
+	}
 }
 
 func generateCreditCard() *datastore.CreditCard {
@@ -103,5 +113,47 @@ func generateDataStorePayment(method datastore.PaymentMethod, status datastore.P
 		Status:       status,
 		CreditCard:   c,
 		CreditCardID: &c.ID,
+	}
+}
+
+func generateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*hospital.AppointmentOverview {
+	apps := make([]*hospital.AppointmentOverview, n, n)
+	for i := 0; i < n; i++ {
+		apps[i] = generateAppointmentOverview(status)
+	}
+	return apps
+}
+
+func generateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
+	return &hospital.AppointmentOverview{
+		Id:        uuid.New().String(),
+		DateTime:  time.Now(),
+		PatientId: uuid.New().String(),
+		Status:    status,
+		Doctor: hospital.DoctorOverview{
+			FullName:      uuid.New().String(),
+			Position:      uuid.New().String(),
+			ProfilePicURL: uuid.New().String(),
+		},
+	}
+}
+
+type Ordering string
+
+const (
+	DESC Ordering = "DESC"
+	ASC  Ordering = "ASC"
+)
+
+func assertListOfAppointments(apps []*hospital.AppointmentOverview, status hospital.AppointmentStatus, order Ordering) {
+	prevTime := apps[0].DateTime
+	for i := 1; i < len(apps); i++ {
+		a := apps[i]
+		Expect(a.Status).To(Equal(status))
+		if order == DESC {
+			Expect(a.DateTime.After(prevTime)).To(BeTrue())
+		} else {
+			Expect(a.DateTime.Before(prevTime)).To(BeTrue())
+		}
 	}
 }
