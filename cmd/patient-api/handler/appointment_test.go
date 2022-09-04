@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
@@ -181,6 +182,72 @@ var _ = Describe("Appointment Handler", func() {
 			})
 			It("should return 403", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
+			})
+		})
+
+		When("appointment is found and it's completed with find payment error", func() {
+			BeforeEach(func() {
+				appointment, id := generateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("appointment is found and it's completed", func() {
+			var (
+				payment     *datastore.Payment
+				appointment *hospital.Appointment
+			)
+			BeforeEach(func() {
+				var id int
+				appointment, id = generateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+				now := time.Now()
+				card := generateCreditCard()
+				payment = &datastore.Payment{
+					ID:           uint(rand.Uint32()),
+					CreatedAt:    now,
+					UpdatedAt:    now,
+					Method:       datastore.CreditCardPaymentMethod,
+					Amount:       rand.Float64() * 10000,
+					PaidAt:       &now,
+					ChargeID:     uuid.New().String(),
+					InvoiceID:    appointment.Invoice.Id,
+					Status:       datastore.SuccessPaymentStatus,
+					CreditCard:   card,
+					CreditCardID: &card.ID,
+				}
+				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(payment, nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res handler.GetAppointmentResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.Id).To(Equal(appointment.Id))
+				Expect(res.Payment).ToNot(BeNil())
+			})
+		})
+		When("appointment is found and it's not completed", func() {
+			var (
+				appointment *hospital.Appointment
+			)
+			BeforeEach(func() {
+				var id int
+				appointment, id = generateAppointment(patient.RefID, hospital.AppointmentStatusScheduled)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res handler.GetAppointmentResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.Id).To(Equal(appointment.Id))
+				Expect(res.Payment).To(BeNil())
 			})
 		})
 	})
