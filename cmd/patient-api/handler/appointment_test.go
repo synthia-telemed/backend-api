@@ -3,6 +3,7 @@ package handler_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
@@ -14,6 +15,7 @@ import (
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"go.uber.org/zap"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -31,6 +33,8 @@ var _ = Describe("Appointment Handler", func() {
 		mockPaymentDataStore  *mock_datastore.MockPaymentDataStore
 		mockHospitalSysClient *mock_hospital_client.MockSystemClient
 		mockClock             *mock_clock.MockClock
+
+		patient *datastore.Patient
 	)
 
 	BeforeEach(func() {
@@ -40,6 +44,8 @@ var _ = Describe("Appointment Handler", func() {
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
 		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockClock, zap.NewNop().Sugar())
+		patient = generatePatient()
+		c.Set("Patient", patient)
 	})
 
 	JustBeforeEach(func() {
@@ -51,13 +57,8 @@ var _ = Describe("Appointment Handler", func() {
 	})
 
 	Context("ListAppointments", func() {
-		var (
-			patient *datastore.Patient
-		)
 		BeforeEach(func() {
 			handlerFunc = h.ListAppointments
-			patient = generatePatient()
-			c.Set("Patient", patient)
 		})
 		When("Patient struct is not set", func() {
 			BeforeEach(func() {
@@ -114,6 +115,72 @@ var _ = Describe("Appointment Handler", func() {
 				assertListOfAppointments(res.Scheduled, hospital.AppointmentStatusScheduled, ASC)
 				assertListOfAppointments(res.Completed, hospital.AppointmentStatusCompleted, DESC)
 				assertListOfAppointments(res.Cancelled, hospital.AppointmentStatusCancelled, DESC)
+			})
+		})
+	})
+
+	Context("GetAppointment", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetAppointment
+		})
+
+		When("Patient struct is not set", func() {
+			BeforeEach(func() {
+				c.Set("Patient", nil)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("Patient struct parsing error", func() {
+			BeforeEach(func() {
+				c.Set("Patient", generateCreditCard())
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("AppointmentID is not provided", func() {
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		When("AppointmentID is not integer", func() {
+			BeforeEach(func() {
+				c.AddParam("appointmentID", "hi")
+			})
+			It("should return 400", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		When("hospital client FindAppointmentByID error", func() {
+			BeforeEach(func() {
+				id := int(rand.Int31())
+				c.AddParam("appointmentID", fmt.Sprintf("%d", id))
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(nil, errors.New("err")).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("appointment is not found", func() {
+			BeforeEach(func() {
+				id := int(rand.Int31())
+				c.AddParam("appointmentID", fmt.Sprintf("%d", id))
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(nil, nil).Times(1)
+			})
+			It("should return 404", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
+			})
+		})
+		When("appointment is not own by the patient", func() {
+			BeforeEach(func() {
+				appointment, id := generateAppointment("not-patient-id", hospital.AppointmentStatusScheduled)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+			})
+			It("should return 403", func() {
+				Expect(rec.Code).To(Equal(http.StatusForbidden))
 			})
 		})
 	})

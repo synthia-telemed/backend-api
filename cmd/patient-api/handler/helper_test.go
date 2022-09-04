@@ -138,6 +138,34 @@ func generateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 	}
 }
 
+func generateAppointment(patientID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
+	var invoice *hospital.Invoice
+	if status == hospital.AppointmentStatusCompleted {
+		invoice = &hospital.Invoice{
+			Id:           int(rand.Int31()),
+			Total:        rand.Float64() * 10000,
+			Paid:         false,
+			InvoiceItems: nil,
+		}
+	}
+	id := rand.Int31()
+	return &hospital.Appointment{
+		Id:              fmt.Sprintf("%d", id),
+		PatientID:       patientID,
+		DateTime:        time.Now(),
+		NextAppointment: nil,
+		Detail:          uuid.New().String(),
+		Status:          status,
+		Doctor: hospital.DoctorOverview{
+			FullName:      uuid.New().String(),
+			Position:      uuid.New().String(),
+			ProfilePicURL: uuid.New().String(),
+		},
+		Invoice:       invoice,
+		Prescriptions: nil,
+	}, int(id)
+}
+
 type Ordering string
 
 const (
