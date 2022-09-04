@@ -55,6 +55,16 @@ type ListAppointmentsResponse struct {
 	Cancelled []*hospital.AppointmentOverview `json:"cancelled"`
 }
 
+// ListAppointments godoc
+// @Summary      Get list of appointment of the patient
+// @Tags         Appointment
+// @Success      200  {object}	ListAppointmentsResponse "List of appointment group by status"
+// @Failure      400  {object}  server.ErrorResponse "Patient not found"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment [get]
 func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {
@@ -92,6 +102,21 @@ type GetAppointmentResponse struct {
 	Payment *datastore.Payment `json:"payment"`
 }
 
+// GetAppointment godoc
+// @Summary      Get an appointment detail by appointment ID
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer 	true "ID of the appointment"
+// @Success      200  {object}	GetAppointmentResponse "An appointment detail"
+// @Failure      400  {object}  server.ErrorResponse "Patient not found"
+// @Failure      400  {object}  server.ErrorResponse "appointmentID is not provided"
+// @Failure      400  {object}  server.ErrorResponse "appointmentID is invalid"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "The patient doesn't own the appointment"
+// @Failure      404  {object}  server.ErrorResponse "Appointment not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/{appointmentID} [get]
 func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {
