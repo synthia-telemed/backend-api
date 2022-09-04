@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
@@ -20,6 +21,15 @@ func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Con
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
 	return mockCtrl, rec, c
+}
+
+func generatePatient() *datastore.Patient {
+	return &datastore.Patient{
+		ID:        uint(rand.Uint32()),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		RefID:     uuid.New().String(),
+	}
 }
 
 func generateCreditCard() *datastore.CreditCard {
@@ -70,7 +80,6 @@ func generatePayment(isSuccess bool) *payment.Payment {
 		ID:             uuid.New().String(),
 		Amount:         rand.Int(),
 		Currency:       "THB",
-		CreatedAt:      time.Now(),
 		Paid:           isSuccess,
 		Success:        isSuccess,
 		FailureCode:    failure,
@@ -78,8 +87,8 @@ func generatePayment(isSuccess bool) *payment.Payment {
 	}
 }
 
-func generateHospitalInvoice(paid bool) *hospital.Invoice {
-	return &hospital.Invoice{
+func generateHospitalInvoice(paid bool) *hospital.InvoiceOverview {
+	return &hospital.InvoiceOverview{
 		Id:            rand.Int(),
 		CreatedAt:     time.Now(),
 		Paid:          paid,
@@ -89,10 +98,11 @@ func generateHospitalInvoice(paid bool) *hospital.Invoice {
 	}
 }
 
-func generateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.Invoice, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
+func generateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.InvoiceOverview, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
 	var paidAt *time.Time
 	if status != datastore.PendingPaymentStatus || method == datastore.CreditCardPaymentMethod {
-		paidAt = &p.CreatedAt
+		now := time.Now()
+		paidAt = &now
 	}
 	return &datastore.Payment{
 		Method:       method,
@@ -103,5 +113,75 @@ func generateDataStorePayment(method datastore.PaymentMethod, status datastore.P
 		Status:       status,
 		CreditCard:   c,
 		CreditCardID: &c.ID,
+	}
+}
+
+func generateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*hospital.AppointmentOverview {
+	apps := make([]*hospital.AppointmentOverview, n, n)
+	for i := 0; i < n; i++ {
+		apps[i] = generateAppointmentOverview(status)
+	}
+	return apps
+}
+
+func generateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
+	return &hospital.AppointmentOverview{
+		Id:        uuid.New().String(),
+		DateTime:  time.Now(),
+		PatientId: uuid.New().String(),
+		Status:    status,
+		Doctor: hospital.DoctorOverview{
+			FullName:      uuid.New().String(),
+			Position:      uuid.New().String(),
+			ProfilePicURL: uuid.New().String(),
+		},
+	}
+}
+
+func generateAppointment(patientID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
+	var invoice *hospital.Invoice
+	if status == hospital.AppointmentStatusCompleted {
+		invoice = &hospital.Invoice{
+			Id:           int(rand.Int31()),
+			Total:        rand.Float64() * 10000,
+			Paid:         false,
+			InvoiceItems: nil,
+		}
+	}
+	id := rand.Int31()
+	return &hospital.Appointment{
+		Id:              fmt.Sprintf("%d", id),
+		PatientID:       patientID,
+		DateTime:        time.Now(),
+		NextAppointment: nil,
+		Detail:          uuid.New().String(),
+		Status:          status,
+		Doctor: hospital.DoctorOverview{
+			FullName:      uuid.New().String(),
+			Position:      uuid.New().String(),
+			ProfilePicURL: uuid.New().String(),
+		},
+		Invoice:       invoice,
+		Prescriptions: nil,
+	}, int(id)
+}
+
+type Ordering string
+
+const (
+	DESC Ordering = "DESC"
+	ASC  Ordering = "ASC"
+)
+
+func assertListOfAppointments(apps []*hospital.AppointmentOverview, status hospital.AppointmentStatus, order Ordering) {
+	prevTime := apps[0].DateTime
+	for i := 1; i < len(apps); i++ {
+		a := apps[i]
+		Expect(a.Status).To(Equal(status))
+		if order == DESC {
+			Expect(a.DateTime.After(prevTime)).To(BeTrue())
+		} else {
+			Expect(a.DateTime.Before(prevTime)).To(BeTrue())
+		}
 	}
 }

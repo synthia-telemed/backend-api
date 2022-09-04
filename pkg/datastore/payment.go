@@ -28,12 +28,12 @@ type Payment struct {
 	InvoiceID    int            `json:"invoice_id" gorm:"not null,unique"`
 	Status       PaymentStatus  `json:"status" gorm:"not null"`
 	CreditCard   *CreditCard    `json:"credit_card"`
-	CreditCardID *uint
+	CreditCardID *uint          `json:"credit_card_id"`
 }
 
 type PaymentDataStore interface {
 	Create(payment *Payment) error
-	FindByInvoiceID(string int) (*Payment, error)
+	FindLatestByInvoiceIDAndStatus(invoiceID int, status PaymentStatus) (*Payment, error)
 }
 
 type GormPaymentDataStore struct {
@@ -48,9 +48,9 @@ func (g GormPaymentDataStore) Create(payment *Payment) error {
 	return g.db.Create(payment).Error
 }
 
-func (g GormPaymentDataStore) FindByInvoiceID(invoiceID int) (*Payment, error) {
+func (g GormPaymentDataStore) FindLatestByInvoiceIDAndStatus(invoiceID int, status PaymentStatus) (*Payment, error) {
 	var payment Payment
-	if err := g.db.Preload("CreditCard").Where(&Payment{InvoiceID: invoiceID}).First(&payment).Error; err != nil {
+	if err := g.db.Preload("CreditCard").Where(&Payment{InvoiceID: invoiceID, Status: status}).Order("created_at").First(&payment).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}

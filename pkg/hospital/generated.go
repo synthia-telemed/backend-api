@@ -24,6 +24,78 @@ func (v *AppointmentListRelationFilter) GetNone() *AppointmentWhereInput { retur
 // GetSome returns AppointmentListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *AppointmentListRelationFilter) GetSome() *AppointmentWhereInput { return v.Some }
 
+type AppointmentOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns AppointmentOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
+
+type AppointmentOrderByWithRelationInput struct {
+	CreatedAt       *SortOrder                                 `json:"createdAt"`
+	DateTime        *SortOrder                                 `json:"dateTime"`
+	Detail          *SortOrder                                 `json:"detail"`
+	Doctor          *DoctorOrderByWithRelationInput            `json:"doctor,omitempty"`
+	DoctorId        *SortOrder                                 `json:"doctorId"`
+	Id              *SortOrder                                 `json:"id"`
+	Invoice         *InvoiceOrderByWithRelationInput           `json:"invoice,omitempty"`
+	NextAppointment *SortOrder                                 `json:"nextAppointment"`
+	Patient         *PatientOrderByWithRelationInput           `json:"patient,omitempty"`
+	PatientId       *SortOrder                                 `json:"patientId"`
+	Prescriptions   *PrescriptionOrderByRelationAggregateInput `json:"prescriptions,omitempty"`
+	Status          *SortOrder                                 `json:"status"`
+	UpdatedAt       *SortOrder                                 `json:"updatedAt"`
+}
+
+// GetCreatedAt returns AppointmentOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetDateTime returns AppointmentOrderByWithRelationInput.DateTime, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDateTime() *SortOrder { return v.DateTime }
+
+// GetDetail returns AppointmentOrderByWithRelationInput.Detail, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDetail() *SortOrder { return v.Detail }
+
+// GetDoctor returns AppointmentOrderByWithRelationInput.Doctor, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDoctor() *DoctorOrderByWithRelationInput {
+	return v.Doctor
+}
+
+// GetDoctorId returns AppointmentOrderByWithRelationInput.DoctorId, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetDoctorId() *SortOrder { return v.DoctorId }
+
+// GetId returns AppointmentOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInvoice returns AppointmentOrderByWithRelationInput.Invoice, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetInvoice() *InvoiceOrderByWithRelationInput {
+	return v.Invoice
+}
+
+// GetNextAppointment returns AppointmentOrderByWithRelationInput.NextAppointment, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetNextAppointment() *SortOrder {
+	return v.NextAppointment
+}
+
+// GetPatient returns AppointmentOrderByWithRelationInput.Patient, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPatient() *PatientOrderByWithRelationInput {
+	return v.Patient
+}
+
+// GetPatientId returns AppointmentOrderByWithRelationInput.PatientId, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPatientId() *SortOrder { return v.PatientId }
+
+// GetPrescriptions returns AppointmentOrderByWithRelationInput.Prescriptions, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetPrescriptions() *PrescriptionOrderByRelationAggregateInput {
+	return v.Prescriptions
+}
+
+// GetStatus returns AppointmentOrderByWithRelationInput.Status, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetStatus() *SortOrder { return v.Status }
+
+// GetUpdatedAt returns AppointmentOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *AppointmentOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
 type AppointmentRelationFilter struct {
 	Is    *AppointmentWhereInput `json:"is,omitempty"`
 	IsNot *AppointmentWhereInput `json:"isNot,omitempty"`
@@ -124,44 +196,44 @@ const (
 )
 
 type BoolFilter struct {
-	Equals bool              `json:"equals"`
+	Equals *bool             `json:"equals"`
 	Not    *NestedBoolFilter `json:"not,omitempty"`
 }
 
 // GetEquals returns BoolFilter.Equals, and is useful for accessing the field via an interface.
-func (v *BoolFilter) GetEquals() bool { return v.Equals }
+func (v *BoolFilter) GetEquals() *bool { return v.Equals }
 
 // GetNot returns BoolFilter.Not, and is useful for accessing the field via an interface.
 func (v *BoolFilter) GetNot() *NestedBoolFilter { return v.Not }
 
 type DateTimeFilter struct {
-	Equals time.Time             `json:"equals"`
-	Gt     time.Time             `json:"gt"`
-	Gte    time.Time             `json:"gte"`
+	Equals *time.Time            `json:"equals"`
+	Gt     *time.Time            `json:"gt"`
+	Gte    *time.Time            `json:"gte"`
 	In     []time.Time           `json:"in"`
-	Lt     time.Time             `json:"lt"`
-	Lte    time.Time             `json:"lte"`
+	Lt     *time.Time            `json:"lt"`
+	Lte    *time.Time            `json:"lte"`
 	Not    *NestedDateTimeFilter `json:"not,omitempty"`
 	NotIn  []time.Time           `json:"notIn"`
 }
 
 // GetEquals returns DateTimeFilter.Equals, and is useful for accessing the field via an interface.
-func (v *DateTimeFilter) GetEquals() time.Time { return v.Equals }
+func (v *DateTimeFilter) GetEquals() *time.Time { return v.Equals }
 
 // GetGt returns DateTimeFilter.Gt, and is useful for accessing the field via an interface.
-func (v *DateTimeFilter) GetGt() time.Time { return v.Gt }
+func (v *DateTimeFilter) GetGt() *time.Time { return v.Gt }
 
 // GetGte returns DateTimeFilter.Gte, and is useful for accessing the field via an interface.
-func (v *DateTimeFilter) GetGte() time.Time { return v.Gte }
+func (v *DateTimeFilter) GetGte() *time.Time { return v.Gte }
 
 // GetIn returns DateTimeFilter.In, and is useful for accessing the field via an interface.
 func (v *DateTimeFilter) GetIn() []time.Time { return v.In }
 
 // GetLt returns DateTimeFilter.Lt, and is useful for accessing the field via an interface.
-func (v *DateTimeFilter) GetLt() time.Time { return v.Lt }
+func (v *DateTimeFilter) GetLt() *time.Time { return v.Lt }
 
 // GetLte returns DateTimeFilter.Lte, and is useful for accessing the field via an interface.
-func (v *DateTimeFilter) GetLte() time.Time { return v.Lte }
+func (v *DateTimeFilter) GetLte() *time.Time { return v.Lte }
 
 // GetNot returns DateTimeFilter.Not, and is useful for accessing the field via an interface.
 func (v *DateTimeFilter) GetNot() *NestedDateTimeFilter { return v.Not }
@@ -170,39 +242,100 @@ func (v *DateTimeFilter) GetNot() *NestedDateTimeFilter { return v.Not }
 func (v *DateTimeFilter) GetNotIn() []time.Time { return v.NotIn }
 
 type DateTimeNullableFilter struct {
-	Equals time.Time                     `json:"equals"`
-	Gt     time.Time                     `json:"gt"`
-	Gte    time.Time                     `json:"gte"`
+	Equals *time.Time                    `json:"equals"`
+	Gt     *time.Time                    `json:"gt"`
+	Gte    *time.Time                    `json:"gte"`
 	In     []time.Time                   `json:"in"`
-	Lt     time.Time                     `json:"lt"`
-	Lte    time.Time                     `json:"lte"`
+	Lt     *time.Time                    `json:"lt"`
+	Lte    *time.Time                    `json:"lte"`
 	Not    *NestedDateTimeNullableFilter `json:"not,omitempty"`
 	NotIn  []time.Time                   `json:"notIn"`
 }
 
 // GetEquals returns DateTimeNullableFilter.Equals, and is useful for accessing the field via an interface.
-func (v *DateTimeNullableFilter) GetEquals() time.Time { return v.Equals }
+func (v *DateTimeNullableFilter) GetEquals() *time.Time { return v.Equals }
 
 // GetGt returns DateTimeNullableFilter.Gt, and is useful for accessing the field via an interface.
-func (v *DateTimeNullableFilter) GetGt() time.Time { return v.Gt }
+func (v *DateTimeNullableFilter) GetGt() *time.Time { return v.Gt }
 
 // GetGte returns DateTimeNullableFilter.Gte, and is useful for accessing the field via an interface.
-func (v *DateTimeNullableFilter) GetGte() time.Time { return v.Gte }
+func (v *DateTimeNullableFilter) GetGte() *time.Time { return v.Gte }
 
 // GetIn returns DateTimeNullableFilter.In, and is useful for accessing the field via an interface.
 func (v *DateTimeNullableFilter) GetIn() []time.Time { return v.In }
 
 // GetLt returns DateTimeNullableFilter.Lt, and is useful for accessing the field via an interface.
-func (v *DateTimeNullableFilter) GetLt() time.Time { return v.Lt }
+func (v *DateTimeNullableFilter) GetLt() *time.Time { return v.Lt }
 
 // GetLte returns DateTimeNullableFilter.Lte, and is useful for accessing the field via an interface.
-func (v *DateTimeNullableFilter) GetLte() time.Time { return v.Lte }
+func (v *DateTimeNullableFilter) GetLte() *time.Time { return v.Lte }
 
 // GetNot returns DateTimeNullableFilter.Not, and is useful for accessing the field via an interface.
 func (v *DateTimeNullableFilter) GetNot() *NestedDateTimeNullableFilter { return v.Not }
 
 // GetNotIn returns DateTimeNullableFilter.NotIn, and is useful for accessing the field via an interface.
 func (v *DateTimeNullableFilter) GetNotIn() []time.Time { return v.NotIn }
+
+type DoctorOrderByWithRelationInput struct {
+	Appointments  *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
+	CreatedAt     *SortOrder                                `json:"createdAt"`
+	Firstname_en  *SortOrder                                `json:"firstname_en"`
+	Firstname_th  *SortOrder                                `json:"firstname_th"`
+	Id            *SortOrder                                `json:"id"`
+	Initial_en    *SortOrder                                `json:"initial_en"`
+	Initial_th    *SortOrder                                `json:"initial_th"`
+	Lastname_en   *SortOrder                                `json:"lastname_en"`
+	Lastname_th   *SortOrder                                `json:"lastname_th"`
+	Password      *SortOrder                                `json:"password"`
+	Position      *SortOrder                                `json:"position"`
+	ProfilePicURL *SortOrder                                `json:"profilePicURL"`
+	UpdatedAt     *SortOrder                                `json:"updatedAt"`
+	Username      *SortOrder                                `json:"username"`
+}
+
+// GetAppointments returns DoctorOrderByWithRelationInput.Appointments, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetAppointments() *AppointmentOrderByRelationAggregateInput {
+	return v.Appointments
+}
+
+// GetCreatedAt returns DoctorOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetFirstname_en returns DoctorOrderByWithRelationInput.Firstname_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetFirstname_en() *SortOrder { return v.Firstname_en }
+
+// GetFirstname_th returns DoctorOrderByWithRelationInput.Firstname_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetFirstname_th() *SortOrder { return v.Firstname_th }
+
+// GetId returns DoctorOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInitial_en returns DoctorOrderByWithRelationInput.Initial_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetInitial_en() *SortOrder { return v.Initial_en }
+
+// GetInitial_th returns DoctorOrderByWithRelationInput.Initial_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetInitial_th() *SortOrder { return v.Initial_th }
+
+// GetLastname_en returns DoctorOrderByWithRelationInput.Lastname_en, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetLastname_en() *SortOrder { return v.Lastname_en }
+
+// GetLastname_th returns DoctorOrderByWithRelationInput.Lastname_th, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetLastname_th() *SortOrder { return v.Lastname_th }
+
+// GetPassword returns DoctorOrderByWithRelationInput.Password, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetPassword() *SortOrder { return v.Password }
+
+// GetPosition returns DoctorOrderByWithRelationInput.Position, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetPosition() *SortOrder { return v.Position }
+
+// GetProfilePicURL returns DoctorOrderByWithRelationInput.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetProfilePicURL() *SortOrder { return v.ProfilePicURL }
+
+// GetUpdatedAt returns DoctorOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
+// GetUsername returns DoctorOrderByWithRelationInput.Username, and is useful for accessing the field via an interface.
+func (v *DoctorOrderByWithRelationInput) GetUsername() *SortOrder { return v.Username }
 
 type DoctorRelationFilter struct {
 	Is    *DoctorWhereInput `json:"is,omitempty"`
@@ -216,22 +349,23 @@ func (v *DoctorRelationFilter) GetIs() *DoctorWhereInput { return v.Is }
 func (v *DoctorRelationFilter) GetIsNot() *DoctorWhereInput { return v.IsNot }
 
 type DoctorWhereInput struct {
-	AND          []*DoctorWhereInput            `json:"AND,omitempty"`
-	NOT          []*DoctorWhereInput            `json:"NOT,omitempty"`
-	OR           []*DoctorWhereInput            `json:"OR,omitempty"`
-	Appointments *AppointmentListRelationFilter `json:"appointments,omitempty"`
-	CreatedAt    *DateTimeFilter                `json:"createdAt,omitempty"`
-	Firstname_en *StringFilter                  `json:"firstname_en,omitempty"`
-	Firstname_th *StringFilter                  `json:"firstname_th,omitempty"`
-	Id           *IntFilter                     `json:"id,omitempty"`
-	Initial_en   *StringFilter                  `json:"initial_en,omitempty"`
-	Initial_th   *StringFilter                  `json:"initial_th,omitempty"`
-	Lastname_en  *StringFilter                  `json:"lastname_en,omitempty"`
-	Lastname_th  *StringFilter                  `json:"lastname_th,omitempty"`
-	Password     *StringFilter                  `json:"password,omitempty"`
-	Position     *StringFilter                  `json:"position,omitempty"`
-	UpdatedAt    *DateTimeFilter                `json:"updatedAt,omitempty"`
-	Username     *StringFilter                  `json:"username,omitempty"`
+	AND           []*DoctorWhereInput            `json:"AND,omitempty"`
+	NOT           []*DoctorWhereInput            `json:"NOT,omitempty"`
+	OR            []*DoctorWhereInput            `json:"OR,omitempty"`
+	Appointments  *AppointmentListRelationFilter `json:"appointments,omitempty"`
+	CreatedAt     *DateTimeFilter                `json:"createdAt,omitempty"`
+	Firstname_en  *StringFilter                  `json:"firstname_en,omitempty"`
+	Firstname_th  *StringFilter                  `json:"firstname_th,omitempty"`
+	Id            *IntFilter                     `json:"id,omitempty"`
+	Initial_en    *StringFilter                  `json:"initial_en,omitempty"`
+	Initial_th    *StringFilter                  `json:"initial_th,omitempty"`
+	Lastname_en   *StringFilter                  `json:"lastname_en,omitempty"`
+	Lastname_th   *StringFilter                  `json:"lastname_th,omitempty"`
+	Password      *StringFilter                  `json:"password,omitempty"`
+	Position      *StringFilter                  `json:"position,omitempty"`
+	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
+	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
+	Username      *StringFilter                  `json:"username,omitempty"`
 }
 
 // GetAND returns DoctorWhereInput.AND, and is useful for accessing the field via an interface.
@@ -276,6 +410,9 @@ func (v *DoctorWhereInput) GetPassword() *StringFilter { return v.Password }
 // GetPosition returns DoctorWhereInput.Position, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetPosition() *StringFilter { return v.Position }
 
+// GetProfilePicURL returns DoctorWhereInput.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *DoctorWhereInput) GetProfilePicURL() *StringFilter { return v.ProfilePicURL }
+
 // GetUpdatedAt returns DoctorWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *DoctorWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
 
@@ -283,14 +420,14 @@ func (v *DoctorWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
 func (v *DoctorWhereInput) GetUsername() *StringFilter { return v.Username }
 
 type EnumAppointmentStatusFilter struct {
-	Equals AppointmentStatus                  `json:"equals"`
+	Equals *AppointmentStatus                 `json:"equals"`
 	In     []AppointmentStatus                `json:"in"`
 	Not    *NestedEnumAppointmentStatusFilter `json:"not,omitempty"`
 	NotIn  []AppointmentStatus                `json:"notIn"`
 }
 
 // GetEquals returns EnumAppointmentStatusFilter.Equals, and is useful for accessing the field via an interface.
-func (v *EnumAppointmentStatusFilter) GetEquals() AppointmentStatus { return v.Equals }
+func (v *EnumAppointmentStatusFilter) GetEquals() *AppointmentStatus { return v.Equals }
 
 // GetIn returns EnumAppointmentStatusFilter.In, and is useful for accessing the field via an interface.
 func (v *EnumAppointmentStatusFilter) GetIn() []AppointmentStatus { return v.In }
@@ -302,14 +439,14 @@ func (v *EnumAppointmentStatusFilter) GetNot() *NestedEnumAppointmentStatusFilte
 func (v *EnumAppointmentStatusFilter) GetNotIn() []AppointmentStatus { return v.NotIn }
 
 type EnumBloodTypeFilter struct {
-	Equals BloodType                  `json:"equals"`
+	Equals *BloodType                 `json:"equals"`
 	In     []BloodType                `json:"in"`
 	Not    *NestedEnumBloodTypeFilter `json:"not,omitempty"`
 	NotIn  []BloodType                `json:"notIn"`
 }
 
 // GetEquals returns EnumBloodTypeFilter.Equals, and is useful for accessing the field via an interface.
-func (v *EnumBloodTypeFilter) GetEquals() BloodType { return v.Equals }
+func (v *EnumBloodTypeFilter) GetEquals() *BloodType { return v.Equals }
 
 // GetIn returns EnumBloodTypeFilter.In, and is useful for accessing the field via an interface.
 func (v *EnumBloodTypeFilter) GetIn() []BloodType { return v.In }
@@ -321,33 +458,33 @@ func (v *EnumBloodTypeFilter) GetNot() *NestedEnumBloodTypeFilter { return v.Not
 func (v *EnumBloodTypeFilter) GetNotIn() []BloodType { return v.NotIn }
 
 type FloatFilter struct {
-	Equals float64            `json:"equals"`
-	Gt     float64            `json:"gt"`
-	Gte    float64            `json:"gte"`
+	Equals *float64           `json:"equals"`
+	Gt     *float64           `json:"gt"`
+	Gte    *float64           `json:"gte"`
 	In     []float64          `json:"in"`
-	Lt     float64            `json:"lt"`
-	Lte    float64            `json:"lte"`
+	Lt     *float64           `json:"lt"`
+	Lte    *float64           `json:"lte"`
 	Not    *NestedFloatFilter `json:"not,omitempty"`
 	NotIn  []float64          `json:"notIn"`
 }
 
 // GetEquals returns FloatFilter.Equals, and is useful for accessing the field via an interface.
-func (v *FloatFilter) GetEquals() float64 { return v.Equals }
+func (v *FloatFilter) GetEquals() *float64 { return v.Equals }
 
 // GetGt returns FloatFilter.Gt, and is useful for accessing the field via an interface.
-func (v *FloatFilter) GetGt() float64 { return v.Gt }
+func (v *FloatFilter) GetGt() *float64 { return v.Gt }
 
 // GetGte returns FloatFilter.Gte, and is useful for accessing the field via an interface.
-func (v *FloatFilter) GetGte() float64 { return v.Gte }
+func (v *FloatFilter) GetGte() *float64 { return v.Gte }
 
 // GetIn returns FloatFilter.In, and is useful for accessing the field via an interface.
 func (v *FloatFilter) GetIn() []float64 { return v.In }
 
 // GetLt returns FloatFilter.Lt, and is useful for accessing the field via an interface.
-func (v *FloatFilter) GetLt() float64 { return v.Lt }
+func (v *FloatFilter) GetLt() *float64 { return v.Lt }
 
 // GetLte returns FloatFilter.Lte, and is useful for accessing the field via an interface.
-func (v *FloatFilter) GetLte() float64 { return v.Lte }
+func (v *FloatFilter) GetLte() *float64 { return v.Lte }
 
 // GetNot returns FloatFilter.Not, and is useful for accessing the field via an interface.
 func (v *FloatFilter) GetNot() *NestedFloatFilter { return v.Not }
@@ -356,33 +493,33 @@ func (v *FloatFilter) GetNot() *NestedFloatFilter { return v.Not }
 func (v *FloatFilter) GetNotIn() []float64 { return v.NotIn }
 
 type IntFilter struct {
-	Equals int              `json:"equals"`
-	Gt     int              `json:"gt"`
-	Gte    int              `json:"gte"`
+	Equals *int             `json:"equals"`
+	Gt     *int             `json:"gt"`
+	Gte    *int             `json:"gte"`
 	In     []int            `json:"in"`
-	Lt     int              `json:"lt"`
-	Lte    int              `json:"lte"`
+	Lt     *int             `json:"lt"`
+	Lte    *int             `json:"lte"`
 	Not    *NestedIntFilter `json:"not,omitempty"`
 	NotIn  []int            `json:"notIn"`
 }
 
 // GetEquals returns IntFilter.Equals, and is useful for accessing the field via an interface.
-func (v *IntFilter) GetEquals() int { return v.Equals }
+func (v *IntFilter) GetEquals() *int { return v.Equals }
 
 // GetGt returns IntFilter.Gt, and is useful for accessing the field via an interface.
-func (v *IntFilter) GetGt() int { return v.Gt }
+func (v *IntFilter) GetGt() *int { return v.Gt }
 
 // GetGte returns IntFilter.Gte, and is useful for accessing the field via an interface.
-func (v *IntFilter) GetGte() int { return v.Gte }
+func (v *IntFilter) GetGte() *int { return v.Gte }
 
 // GetIn returns IntFilter.In, and is useful for accessing the field via an interface.
 func (v *IntFilter) GetIn() []int { return v.In }
 
 // GetLt returns IntFilter.Lt, and is useful for accessing the field via an interface.
-func (v *IntFilter) GetLt() int { return v.Lt }
+func (v *IntFilter) GetLt() *int { return v.Lt }
 
 // GetLte returns IntFilter.Lte, and is useful for accessing the field via an interface.
-func (v *IntFilter) GetLte() int { return v.Lte }
+func (v *IntFilter) GetLte() *int { return v.Lte }
 
 // GetNot returns IntFilter.Not, and is useful for accessing the field via an interface.
 func (v *IntFilter) GetNot() *NestedIntFilter { return v.Not }
@@ -404,6 +541,13 @@ func (v *InvoiceItemListRelationFilter) GetNone() *InvoiceItemWhereInput { retur
 
 // GetSome returns InvoiceItemListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *InvoiceItemListRelationFilter) GetSome() *InvoiceItemWhereInput { return v.Some }
+
+type InvoiceItemOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns InvoiceItemOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *InvoiceItemOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
 
 type InvoiceItemWhereInput struct {
 	AND       []*InvoiceItemWhereInput `json:"AND,omitempty"`
@@ -451,6 +595,45 @@ func (v *InvoiceItemWhereInput) GetQuantity() *IntFilter { return v.Quantity }
 
 // GetUpdatedAt returns InvoiceItemWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *InvoiceItemWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
+
+type InvoiceOrderByWithRelationInput struct {
+	Appointment   *AppointmentOrderByWithRelationInput      `json:"appointment,omitempty"`
+	AppointmentId *SortOrder                                `json:"appointmentId"`
+	CreatedAt     *SortOrder                                `json:"createdAt"`
+	Id            *SortOrder                                `json:"id"`
+	InvoiceItems  *InvoiceItemOrderByRelationAggregateInput `json:"invoiceItems,omitempty"`
+	Paid          *SortOrder                                `json:"paid"`
+	Total         *SortOrder                                `json:"total"`
+	UpdatedAt     *SortOrder                                `json:"updatedAt"`
+}
+
+// GetAppointment returns InvoiceOrderByWithRelationInput.Appointment, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetAppointment() *AppointmentOrderByWithRelationInput {
+	return v.Appointment
+}
+
+// GetAppointmentId returns InvoiceOrderByWithRelationInput.AppointmentId, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetAppointmentId() *SortOrder { return v.AppointmentId }
+
+// GetCreatedAt returns InvoiceOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetId returns InvoiceOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInvoiceItems returns InvoiceOrderByWithRelationInput.InvoiceItems, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetInvoiceItems() *InvoiceItemOrderByRelationAggregateInput {
+	return v.InvoiceItems
+}
+
+// GetPaid returns InvoiceOrderByWithRelationInput.Paid, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetPaid() *SortOrder { return v.Paid }
+
+// GetTotal returns InvoiceOrderByWithRelationInput.Total, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetTotal() *SortOrder { return v.Total }
+
+// GetUpdatedAt returns InvoiceOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *InvoiceOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
 
 type InvoiceRelationFilter struct {
 	Is    *InvoiceWhereInput `json:"is,omitempty"`
@@ -563,44 +746,44 @@ func (v *MedicineWhereInput) GetPrescriptions() *PrescriptionListRelationFilter 
 func (v *MedicineWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
 
 type NestedBoolFilter struct {
-	Equals bool              `json:"equals"`
+	Equals *bool             `json:"equals"`
 	Not    *NestedBoolFilter `json:"not,omitempty"`
 }
 
 // GetEquals returns NestedBoolFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedBoolFilter) GetEquals() bool { return v.Equals }
+func (v *NestedBoolFilter) GetEquals() *bool { return v.Equals }
 
 // GetNot returns NestedBoolFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedBoolFilter) GetNot() *NestedBoolFilter { return v.Not }
 
 type NestedDateTimeFilter struct {
-	Equals time.Time             `json:"equals"`
-	Gt     time.Time             `json:"gt"`
-	Gte    time.Time             `json:"gte"`
+	Equals *time.Time            `json:"equals"`
+	Gt     *time.Time            `json:"gt"`
+	Gte    *time.Time            `json:"gte"`
 	In     []time.Time           `json:"in"`
-	Lt     time.Time             `json:"lt"`
-	Lte    time.Time             `json:"lte"`
+	Lt     *time.Time            `json:"lt"`
+	Lte    *time.Time            `json:"lte"`
 	Not    *NestedDateTimeFilter `json:"not,omitempty"`
 	NotIn  []time.Time           `json:"notIn"`
 }
 
 // GetEquals returns NestedDateTimeFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeFilter) GetEquals() time.Time { return v.Equals }
+func (v *NestedDateTimeFilter) GetEquals() *time.Time { return v.Equals }
 
 // GetGt returns NestedDateTimeFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeFilter) GetGt() time.Time { return v.Gt }
+func (v *NestedDateTimeFilter) GetGt() *time.Time { return v.Gt }
 
 // GetGte returns NestedDateTimeFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeFilter) GetGte() time.Time { return v.Gte }
+func (v *NestedDateTimeFilter) GetGte() *time.Time { return v.Gte }
 
 // GetIn returns NestedDateTimeFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedDateTimeFilter) GetIn() []time.Time { return v.In }
 
 // GetLt returns NestedDateTimeFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeFilter) GetLt() time.Time { return v.Lt }
+func (v *NestedDateTimeFilter) GetLt() *time.Time { return v.Lt }
 
 // GetLte returns NestedDateTimeFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeFilter) GetLte() time.Time { return v.Lte }
+func (v *NestedDateTimeFilter) GetLte() *time.Time { return v.Lte }
 
 // GetNot returns NestedDateTimeFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedDateTimeFilter) GetNot() *NestedDateTimeFilter { return v.Not }
@@ -609,33 +792,33 @@ func (v *NestedDateTimeFilter) GetNot() *NestedDateTimeFilter { return v.Not }
 func (v *NestedDateTimeFilter) GetNotIn() []time.Time { return v.NotIn }
 
 type NestedDateTimeNullableFilter struct {
-	Equals time.Time                     `json:"equals"`
-	Gt     time.Time                     `json:"gt"`
-	Gte    time.Time                     `json:"gte"`
+	Equals *time.Time                    `json:"equals"`
+	Gt     *time.Time                    `json:"gt"`
+	Gte    *time.Time                    `json:"gte"`
 	In     []time.Time                   `json:"in"`
-	Lt     time.Time                     `json:"lt"`
-	Lte    time.Time                     `json:"lte"`
+	Lt     *time.Time                    `json:"lt"`
+	Lte    *time.Time                    `json:"lte"`
 	Not    *NestedDateTimeNullableFilter `json:"not,omitempty"`
 	NotIn  []time.Time                   `json:"notIn"`
 }
 
 // GetEquals returns NestedDateTimeNullableFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeNullableFilter) GetEquals() time.Time { return v.Equals }
+func (v *NestedDateTimeNullableFilter) GetEquals() *time.Time { return v.Equals }
 
 // GetGt returns NestedDateTimeNullableFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeNullableFilter) GetGt() time.Time { return v.Gt }
+func (v *NestedDateTimeNullableFilter) GetGt() *time.Time { return v.Gt }
 
 // GetGte returns NestedDateTimeNullableFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeNullableFilter) GetGte() time.Time { return v.Gte }
+func (v *NestedDateTimeNullableFilter) GetGte() *time.Time { return v.Gte }
 
 // GetIn returns NestedDateTimeNullableFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedDateTimeNullableFilter) GetIn() []time.Time { return v.In }
 
 // GetLt returns NestedDateTimeNullableFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeNullableFilter) GetLt() time.Time { return v.Lt }
+func (v *NestedDateTimeNullableFilter) GetLt() *time.Time { return v.Lt }
 
 // GetLte returns NestedDateTimeNullableFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedDateTimeNullableFilter) GetLte() time.Time { return v.Lte }
+func (v *NestedDateTimeNullableFilter) GetLte() *time.Time { return v.Lte }
 
 // GetNot returns NestedDateTimeNullableFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedDateTimeNullableFilter) GetNot() *NestedDateTimeNullableFilter { return v.Not }
@@ -644,14 +827,14 @@ func (v *NestedDateTimeNullableFilter) GetNot() *NestedDateTimeNullableFilter { 
 func (v *NestedDateTimeNullableFilter) GetNotIn() []time.Time { return v.NotIn }
 
 type NestedEnumAppointmentStatusFilter struct {
-	Equals AppointmentStatus                  `json:"equals"`
+	Equals *AppointmentStatus                 `json:"equals"`
 	In     []AppointmentStatus                `json:"in"`
 	Not    *NestedEnumAppointmentStatusFilter `json:"not,omitempty"`
 	NotIn  []AppointmentStatus                `json:"notIn"`
 }
 
 // GetEquals returns NestedEnumAppointmentStatusFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedEnumAppointmentStatusFilter) GetEquals() AppointmentStatus { return v.Equals }
+func (v *NestedEnumAppointmentStatusFilter) GetEquals() *AppointmentStatus { return v.Equals }
 
 // GetIn returns NestedEnumAppointmentStatusFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedEnumAppointmentStatusFilter) GetIn() []AppointmentStatus { return v.In }
@@ -663,14 +846,14 @@ func (v *NestedEnumAppointmentStatusFilter) GetNot() *NestedEnumAppointmentStatu
 func (v *NestedEnumAppointmentStatusFilter) GetNotIn() []AppointmentStatus { return v.NotIn }
 
 type NestedEnumBloodTypeFilter struct {
-	Equals BloodType                  `json:"equals"`
+	Equals *BloodType                 `json:"equals"`
 	In     []BloodType                `json:"in"`
 	Not    *NestedEnumBloodTypeFilter `json:"not,omitempty"`
 	NotIn  []BloodType                `json:"notIn"`
 }
 
 // GetEquals returns NestedEnumBloodTypeFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedEnumBloodTypeFilter) GetEquals() BloodType { return v.Equals }
+func (v *NestedEnumBloodTypeFilter) GetEquals() *BloodType { return v.Equals }
 
 // GetIn returns NestedEnumBloodTypeFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedEnumBloodTypeFilter) GetIn() []BloodType { return v.In }
@@ -682,33 +865,33 @@ func (v *NestedEnumBloodTypeFilter) GetNot() *NestedEnumBloodTypeFilter { return
 func (v *NestedEnumBloodTypeFilter) GetNotIn() []BloodType { return v.NotIn }
 
 type NestedFloatFilter struct {
-	Equals float64            `json:"equals"`
-	Gt     float64            `json:"gt"`
-	Gte    float64            `json:"gte"`
+	Equals *float64           `json:"equals"`
+	Gt     *float64           `json:"gt"`
+	Gte    *float64           `json:"gte"`
 	In     []float64          `json:"in"`
-	Lt     float64            `json:"lt"`
-	Lte    float64            `json:"lte"`
+	Lt     *float64           `json:"lt"`
+	Lte    *float64           `json:"lte"`
 	Not    *NestedFloatFilter `json:"not,omitempty"`
 	NotIn  []float64          `json:"notIn"`
 }
 
 // GetEquals returns NestedFloatFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedFloatFilter) GetEquals() float64 { return v.Equals }
+func (v *NestedFloatFilter) GetEquals() *float64 { return v.Equals }
 
 // GetGt returns NestedFloatFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedFloatFilter) GetGt() float64 { return v.Gt }
+func (v *NestedFloatFilter) GetGt() *float64 { return v.Gt }
 
 // GetGte returns NestedFloatFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedFloatFilter) GetGte() float64 { return v.Gte }
+func (v *NestedFloatFilter) GetGte() *float64 { return v.Gte }
 
 // GetIn returns NestedFloatFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedFloatFilter) GetIn() []float64 { return v.In }
 
 // GetLt returns NestedFloatFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedFloatFilter) GetLt() float64 { return v.Lt }
+func (v *NestedFloatFilter) GetLt() *float64 { return v.Lt }
 
 // GetLte returns NestedFloatFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedFloatFilter) GetLte() float64 { return v.Lte }
+func (v *NestedFloatFilter) GetLte() *float64 { return v.Lte }
 
 // GetNot returns NestedFloatFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedFloatFilter) GetNot() *NestedFloatFilter { return v.Not }
@@ -717,33 +900,33 @@ func (v *NestedFloatFilter) GetNot() *NestedFloatFilter { return v.Not }
 func (v *NestedFloatFilter) GetNotIn() []float64 { return v.NotIn }
 
 type NestedIntFilter struct {
-	Equals int              `json:"equals"`
-	Gt     int              `json:"gt"`
-	Gte    int              `json:"gte"`
+	Equals *int             `json:"equals"`
+	Gt     *int             `json:"gt"`
+	Gte    *int             `json:"gte"`
 	In     []int            `json:"in"`
-	Lt     int              `json:"lt"`
-	Lte    int              `json:"lte"`
+	Lt     *int             `json:"lt"`
+	Lte    *int             `json:"lte"`
 	Not    *NestedIntFilter `json:"not,omitempty"`
 	NotIn  []int            `json:"notIn"`
 }
 
 // GetEquals returns NestedIntFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedIntFilter) GetEquals() int { return v.Equals }
+func (v *NestedIntFilter) GetEquals() *int { return v.Equals }
 
 // GetGt returns NestedIntFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedIntFilter) GetGt() int { return v.Gt }
+func (v *NestedIntFilter) GetGt() *int { return v.Gt }
 
 // GetGte returns NestedIntFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedIntFilter) GetGte() int { return v.Gte }
+func (v *NestedIntFilter) GetGte() *int { return v.Gte }
 
 // GetIn returns NestedIntFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedIntFilter) GetIn() []int { return v.In }
 
 // GetLt returns NestedIntFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedIntFilter) GetLt() int { return v.Lt }
+func (v *NestedIntFilter) GetLt() *int { return v.Lt }
 
 // GetLte returns NestedIntFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedIntFilter) GetLte() int { return v.Lte }
+func (v *NestedIntFilter) GetLte() *int { return v.Lte }
 
 // GetNot returns NestedIntFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedIntFilter) GetNot() *NestedIntFilter { return v.Not }
@@ -752,42 +935,42 @@ func (v *NestedIntFilter) GetNot() *NestedIntFilter { return v.Not }
 func (v *NestedIntFilter) GetNotIn() []int { return v.NotIn }
 
 type NestedStringFilter struct {
-	Contains   string              `json:"contains"`
-	EndsWith   string              `json:"endsWith"`
-	Equals     string              `json:"equals"`
-	Gt         string              `json:"gt"`
-	Gte        string              `json:"gte"`
+	Contains   *string             `json:"contains"`
+	EndsWith   *string             `json:"endsWith"`
+	Equals     *string             `json:"equals"`
+	Gt         *string             `json:"gt"`
+	Gte        *string             `json:"gte"`
 	In         []string            `json:"in"`
-	Lt         string              `json:"lt"`
-	Lte        string              `json:"lte"`
+	Lt         *string             `json:"lt"`
+	Lte        *string             `json:"lte"`
 	Not        *NestedStringFilter `json:"not,omitempty"`
 	NotIn      []string            `json:"notIn"`
-	StartsWith string              `json:"startsWith"`
+	StartsWith *string             `json:"startsWith"`
 }
 
 // GetContains returns NestedStringFilter.Contains, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetContains() string { return v.Contains }
+func (v *NestedStringFilter) GetContains() *string { return v.Contains }
 
 // GetEndsWith returns NestedStringFilter.EndsWith, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetEndsWith() string { return v.EndsWith }
+func (v *NestedStringFilter) GetEndsWith() *string { return v.EndsWith }
 
 // GetEquals returns NestedStringFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetEquals() string { return v.Equals }
+func (v *NestedStringFilter) GetEquals() *string { return v.Equals }
 
 // GetGt returns NestedStringFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetGt() string { return v.Gt }
+func (v *NestedStringFilter) GetGt() *string { return v.Gt }
 
 // GetGte returns NestedStringFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetGte() string { return v.Gte }
+func (v *NestedStringFilter) GetGte() *string { return v.Gte }
 
 // GetIn returns NestedStringFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedStringFilter) GetIn() []string { return v.In }
 
 // GetLt returns NestedStringFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetLt() string { return v.Lt }
+func (v *NestedStringFilter) GetLt() *string { return v.Lt }
 
 // GetLte returns NestedStringFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetLte() string { return v.Lte }
+func (v *NestedStringFilter) GetLte() *string { return v.Lte }
 
 // GetNot returns NestedStringFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedStringFilter) GetNot() *NestedStringFilter { return v.Not }
@@ -796,45 +979,45 @@ func (v *NestedStringFilter) GetNot() *NestedStringFilter { return v.Not }
 func (v *NestedStringFilter) GetNotIn() []string { return v.NotIn }
 
 // GetStartsWith returns NestedStringFilter.StartsWith, and is useful for accessing the field via an interface.
-func (v *NestedStringFilter) GetStartsWith() string { return v.StartsWith }
+func (v *NestedStringFilter) GetStartsWith() *string { return v.StartsWith }
 
 type NestedStringNullableFilter struct {
-	Contains   string                      `json:"contains"`
-	EndsWith   string                      `json:"endsWith"`
-	Equals     string                      `json:"equals"`
-	Gt         string                      `json:"gt"`
-	Gte        string                      `json:"gte"`
+	Contains   *string                     `json:"contains"`
+	EndsWith   *string                     `json:"endsWith"`
+	Equals     *string                     `json:"equals"`
+	Gt         *string                     `json:"gt"`
+	Gte        *string                     `json:"gte"`
 	In         []string                    `json:"in"`
-	Lt         string                      `json:"lt"`
-	Lte        string                      `json:"lte"`
+	Lt         *string                     `json:"lt"`
+	Lte        *string                     `json:"lte"`
 	Not        *NestedStringNullableFilter `json:"not,omitempty"`
 	NotIn      []string                    `json:"notIn"`
-	StartsWith string                      `json:"startsWith"`
+	StartsWith *string                     `json:"startsWith"`
 }
 
 // GetContains returns NestedStringNullableFilter.Contains, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetContains() string { return v.Contains }
+func (v *NestedStringNullableFilter) GetContains() *string { return v.Contains }
 
 // GetEndsWith returns NestedStringNullableFilter.EndsWith, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetEndsWith() string { return v.EndsWith }
+func (v *NestedStringNullableFilter) GetEndsWith() *string { return v.EndsWith }
 
 // GetEquals returns NestedStringNullableFilter.Equals, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetEquals() string { return v.Equals }
+func (v *NestedStringNullableFilter) GetEquals() *string { return v.Equals }
 
 // GetGt returns NestedStringNullableFilter.Gt, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetGt() string { return v.Gt }
+func (v *NestedStringNullableFilter) GetGt() *string { return v.Gt }
 
 // GetGte returns NestedStringNullableFilter.Gte, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetGte() string { return v.Gte }
+func (v *NestedStringNullableFilter) GetGte() *string { return v.Gte }
 
 // GetIn returns NestedStringNullableFilter.In, and is useful for accessing the field via an interface.
 func (v *NestedStringNullableFilter) GetIn() []string { return v.In }
 
 // GetLt returns NestedStringNullableFilter.Lt, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetLt() string { return v.Lt }
+func (v *NestedStringNullableFilter) GetLt() *string { return v.Lt }
 
 // GetLte returns NestedStringNullableFilter.Lte, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetLte() string { return v.Lte }
+func (v *NestedStringNullableFilter) GetLte() *string { return v.Lte }
 
 // GetNot returns NestedStringNullableFilter.Not, and is useful for accessing the field via an interface.
 func (v *NestedStringNullableFilter) GetNot() *NestedStringNullableFilter { return v.Not }
@@ -843,7 +1026,84 @@ func (v *NestedStringNullableFilter) GetNot() *NestedStringNullableFilter { retu
 func (v *NestedStringNullableFilter) GetNotIn() []string { return v.NotIn }
 
 // GetStartsWith returns NestedStringNullableFilter.StartsWith, and is useful for accessing the field via an interface.
-func (v *NestedStringNullableFilter) GetStartsWith() string { return v.StartsWith }
+func (v *NestedStringNullableFilter) GetStartsWith() *string { return v.StartsWith }
+
+type PatientOrderByWithRelationInput struct {
+	Appointments *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
+	BirthDate    *SortOrder                                `json:"birthDate"`
+	BloodType    *SortOrder                                `json:"bloodType"`
+	CreatedAt    *SortOrder                                `json:"createdAt"`
+	Firstname_en *SortOrder                                `json:"firstname_en"`
+	Firstname_th *SortOrder                                `json:"firstname_th"`
+	Height       *SortOrder                                `json:"height"`
+	Id           *SortOrder                                `json:"id"`
+	Initial_en   *SortOrder                                `json:"initial_en"`
+	Initial_th   *SortOrder                                `json:"initial_th"`
+	Lastname_en  *SortOrder                                `json:"lastname_en"`
+	Lastname_th  *SortOrder                                `json:"lastname_th"`
+	NationalId   *SortOrder                                `json:"nationalId"`
+	Nationality  *SortOrder                                `json:"nationality"`
+	PassportId   *SortOrder                                `json:"passportId"`
+	PhoneNumber  *SortOrder                                `json:"phoneNumber"`
+	UpdatedAt    *SortOrder                                `json:"updatedAt"`
+	Weight       *SortOrder                                `json:"weight"`
+}
+
+// GetAppointments returns PatientOrderByWithRelationInput.Appointments, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetAppointments() *AppointmentOrderByRelationAggregateInput {
+	return v.Appointments
+}
+
+// GetBirthDate returns PatientOrderByWithRelationInput.BirthDate, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetBirthDate() *SortOrder { return v.BirthDate }
+
+// GetBloodType returns PatientOrderByWithRelationInput.BloodType, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetBloodType() *SortOrder { return v.BloodType }
+
+// GetCreatedAt returns PatientOrderByWithRelationInput.CreatedAt, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetCreatedAt() *SortOrder { return v.CreatedAt }
+
+// GetFirstname_en returns PatientOrderByWithRelationInput.Firstname_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetFirstname_en() *SortOrder { return v.Firstname_en }
+
+// GetFirstname_th returns PatientOrderByWithRelationInput.Firstname_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetFirstname_th() *SortOrder { return v.Firstname_th }
+
+// GetHeight returns PatientOrderByWithRelationInput.Height, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetHeight() *SortOrder { return v.Height }
+
+// GetId returns PatientOrderByWithRelationInput.Id, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetId() *SortOrder { return v.Id }
+
+// GetInitial_en returns PatientOrderByWithRelationInput.Initial_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetInitial_en() *SortOrder { return v.Initial_en }
+
+// GetInitial_th returns PatientOrderByWithRelationInput.Initial_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetInitial_th() *SortOrder { return v.Initial_th }
+
+// GetLastname_en returns PatientOrderByWithRelationInput.Lastname_en, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetLastname_en() *SortOrder { return v.Lastname_en }
+
+// GetLastname_th returns PatientOrderByWithRelationInput.Lastname_th, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetLastname_th() *SortOrder { return v.Lastname_th }
+
+// GetNationalId returns PatientOrderByWithRelationInput.NationalId, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetNationalId() *SortOrder { return v.NationalId }
+
+// GetNationality returns PatientOrderByWithRelationInput.Nationality, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetNationality() *SortOrder { return v.Nationality }
+
+// GetPassportId returns PatientOrderByWithRelationInput.PassportId, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetPassportId() *SortOrder { return v.PassportId }
+
+// GetPhoneNumber returns PatientOrderByWithRelationInput.PhoneNumber, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetPhoneNumber() *SortOrder { return v.PhoneNumber }
+
+// GetUpdatedAt returns PatientOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
+
+// GetWeight returns PatientOrderByWithRelationInput.Weight, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetWeight() *SortOrder { return v.Weight }
 
 type PatientRelationFilter struct {
 	Is    *PatientWhereInput `json:"is,omitempty"`
@@ -958,6 +1218,13 @@ func (v *PrescriptionListRelationFilter) GetNone() *PrescriptionWhereInput { ret
 // GetSome returns PrescriptionListRelationFilter.Some, and is useful for accessing the field via an interface.
 func (v *PrescriptionListRelationFilter) GetSome() *PrescriptionWhereInput { return v.Some }
 
+type PrescriptionOrderByRelationAggregateInput struct {
+	Count *SortOrder `json:"_count"`
+}
+
+// GetCount returns PrescriptionOrderByRelationAggregateInput.Count, and is useful for accessing the field via an interface.
+func (v *PrescriptionOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
+
 type PrescriptionWhereInput struct {
 	AND           []*PrescriptionWhereInput  `json:"AND,omitempty"`
 	NOT           []*PrescriptionWhereInput  `json:"NOT,omitempty"`
@@ -1012,47 +1279,54 @@ const (
 	QueryModeInsensitive QueryMode = "insensitive"
 )
 
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "asc"
+	SortOrderDesc SortOrder = "desc"
+)
+
 type StringFilter struct {
-	Contains   string              `json:"contains"`
-	EndsWith   string              `json:"endsWith"`
-	Equals     string              `json:"equals"`
-	Gt         string              `json:"gt"`
-	Gte        string              `json:"gte"`
+	Contains   *string             `json:"contains"`
+	EndsWith   *string             `json:"endsWith"`
+	Equals     *string             `json:"equals"`
+	Gt         *string             `json:"gt"`
+	Gte        *string             `json:"gte"`
 	In         []string            `json:"in"`
-	Lt         string              `json:"lt"`
-	Lte        string              `json:"lte"`
-	Mode       QueryMode           `json:"mode"`
+	Lt         *string             `json:"lt"`
+	Lte        *string             `json:"lte"`
+	Mode       *QueryMode          `json:"mode"`
 	Not        *NestedStringFilter `json:"not,omitempty"`
 	NotIn      []string            `json:"notIn"`
-	StartsWith string              `json:"startsWith"`
+	StartsWith *string             `json:"startsWith"`
 }
 
 // GetContains returns StringFilter.Contains, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetContains() string { return v.Contains }
+func (v *StringFilter) GetContains() *string { return v.Contains }
 
 // GetEndsWith returns StringFilter.EndsWith, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetEndsWith() string { return v.EndsWith }
+func (v *StringFilter) GetEndsWith() *string { return v.EndsWith }
 
 // GetEquals returns StringFilter.Equals, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetEquals() string { return v.Equals }
+func (v *StringFilter) GetEquals() *string { return v.Equals }
 
 // GetGt returns StringFilter.Gt, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetGt() string { return v.Gt }
+func (v *StringFilter) GetGt() *string { return v.Gt }
 
 // GetGte returns StringFilter.Gte, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetGte() string { return v.Gte }
+func (v *StringFilter) GetGte() *string { return v.Gte }
 
 // GetIn returns StringFilter.In, and is useful for accessing the field via an interface.
 func (v *StringFilter) GetIn() []string { return v.In }
 
 // GetLt returns StringFilter.Lt, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetLt() string { return v.Lt }
+func (v *StringFilter) GetLt() *string { return v.Lt }
 
 // GetLte returns StringFilter.Lte, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetLte() string { return v.Lte }
+func (v *StringFilter) GetLte() *string { return v.Lte }
 
 // GetMode returns StringFilter.Mode, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetMode() QueryMode { return v.Mode }
+func (v *StringFilter) GetMode() *QueryMode { return v.Mode }
 
 // GetNot returns StringFilter.Not, and is useful for accessing the field via an interface.
 func (v *StringFilter) GetNot() *NestedStringFilter { return v.Not }
@@ -1061,49 +1335,49 @@ func (v *StringFilter) GetNot() *NestedStringFilter { return v.Not }
 func (v *StringFilter) GetNotIn() []string { return v.NotIn }
 
 // GetStartsWith returns StringFilter.StartsWith, and is useful for accessing the field via an interface.
-func (v *StringFilter) GetStartsWith() string { return v.StartsWith }
+func (v *StringFilter) GetStartsWith() *string { return v.StartsWith }
 
 type StringNullableFilter struct {
-	Contains   string                      `json:"contains"`
-	EndsWith   string                      `json:"endsWith"`
-	Equals     string                      `json:"equals"`
-	Gt         string                      `json:"gt"`
-	Gte        string                      `json:"gte"`
+	Contains   *string                     `json:"contains"`
+	EndsWith   *string                     `json:"endsWith"`
+	Equals     *string                     `json:"equals"`
+	Gt         *string                     `json:"gt"`
+	Gte        *string                     `json:"gte"`
 	In         []string                    `json:"in"`
-	Lt         string                      `json:"lt"`
-	Lte        string                      `json:"lte"`
-	Mode       QueryMode                   `json:"mode"`
+	Lt         *string                     `json:"lt"`
+	Lte        *string                     `json:"lte"`
+	Mode       *QueryMode                  `json:"mode"`
 	Not        *NestedStringNullableFilter `json:"not,omitempty"`
 	NotIn      []string                    `json:"notIn"`
-	StartsWith string                      `json:"startsWith"`
+	StartsWith *string                     `json:"startsWith"`
 }
 
 // GetContains returns StringNullableFilter.Contains, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetContains() string { return v.Contains }
+func (v *StringNullableFilter) GetContains() *string { return v.Contains }
 
 // GetEndsWith returns StringNullableFilter.EndsWith, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetEndsWith() string { return v.EndsWith }
+func (v *StringNullableFilter) GetEndsWith() *string { return v.EndsWith }
 
 // GetEquals returns StringNullableFilter.Equals, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetEquals() string { return v.Equals }
+func (v *StringNullableFilter) GetEquals() *string { return v.Equals }
 
 // GetGt returns StringNullableFilter.Gt, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetGt() string { return v.Gt }
+func (v *StringNullableFilter) GetGt() *string { return v.Gt }
 
 // GetGte returns StringNullableFilter.Gte, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetGte() string { return v.Gte }
+func (v *StringNullableFilter) GetGte() *string { return v.Gte }
 
 // GetIn returns StringNullableFilter.In, and is useful for accessing the field via an interface.
 func (v *StringNullableFilter) GetIn() []string { return v.In }
 
 // GetLt returns StringNullableFilter.Lt, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetLt() string { return v.Lt }
+func (v *StringNullableFilter) GetLt() *string { return v.Lt }
 
 // GetLte returns StringNullableFilter.Lte, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetLte() string { return v.Lte }
+func (v *StringNullableFilter) GetLte() *string { return v.Lte }
 
 // GetMode returns StringNullableFilter.Mode, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetMode() QueryMode { return v.Mode }
+func (v *StringNullableFilter) GetMode() *QueryMode { return v.Mode }
 
 // GetNot returns StringNullableFilter.Not, and is useful for accessing the field via an interface.
 func (v *StringNullableFilter) GetNot() *NestedStringNullableFilter { return v.Not }
@@ -1112,7 +1386,7 @@ func (v *StringNullableFilter) GetNot() *NestedStringNullableFilter { return v.N
 func (v *StringNullableFilter) GetNotIn() []string { return v.NotIn }
 
 // GetStartsWith returns StringNullableFilter.StartsWith, and is useful for accessing the field via an interface.
-func (v *StringNullableFilter) GetStartsWith() string { return v.StartsWith }
+func (v *StringNullableFilter) GetStartsWith() *string { return v.StartsWith }
 
 // __assertDoctorCredentialInput is used internally by genqlient
 type __assertDoctorCredentialInput struct {
@@ -1125,6 +1399,28 @@ func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password
 
 // GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
 func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
+
+// __getAppointmentInput is used internally by genqlient
+type __getAppointmentInput struct {
+	Where *AppointmentWhereInput `json:"where,omitempty"`
+}
+
+// GetWhere returns __getAppointmentInput.Where, and is useful for accessing the field via an interface.
+func (v *__getAppointmentInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
+// __getAppointmentsInput is used internally by genqlient
+type __getAppointmentsInput struct {
+	Where   *AppointmentWhereInput                 `json:"where,omitempty"`
+	OrderBy []*AppointmentOrderByWithRelationInput `json:"orderBy,omitempty"`
+}
+
+// GetWhere returns __getAppointmentsInput.Where, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
+// GetOrderBy returns __getAppointmentsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsInput) GetOrderBy() []*AppointmentOrderByWithRelationInput {
+	return v.OrderBy
+}
 
 // __getDoctorInput is used internally by genqlient
 type __getDoctorInput struct {
@@ -1168,20 +1464,226 @@ func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
 	return v.AssertDoctorPassword
 }
 
+// getAppointmentAppointment includes the requested fields of the GraphQL type Appointment.
+type getAppointmentAppointment struct {
+	Id              string                                                `json:"id"`
+	PatientId       string                                                `json:"patientId"`
+	DateTime        time.Time                                             `json:"dateTime"`
+	Detail          string                                                `json:"detail"`
+	Status          AppointmentStatus                                     `json:"status"`
+	NextAppointment *time.Time                                            `json:"nextAppointment"`
+	Doctor          *getAppointmentAppointmentDoctor                      `json:"doctor"`
+	Invoice         *getAppointmentAppointmentInvoice                     `json:"invoice"`
+	Prescriptions   []*getAppointmentAppointmentPrescriptionsPrescription `json:"prescriptions"`
+}
+
+// GetId returns getAppointmentAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetId() string { return v.Id }
+
+// GetPatientId returns getAppointmentAppointment.PatientId, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetPatientId() string { return v.PatientId }
+
+// GetDateTime returns getAppointmentAppointment.DateTime, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDateTime() time.Time { return v.DateTime }
+
+// GetDetail returns getAppointmentAppointment.Detail, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDetail() string { return v.Detail }
+
+// GetStatus returns getAppointmentAppointment.Status, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetStatus() AppointmentStatus { return v.Status }
+
+// GetNextAppointment returns getAppointmentAppointment.NextAppointment, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetNextAppointment() *time.Time { return v.NextAppointment }
+
+// GetDoctor returns getAppointmentAppointment.Doctor, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetDoctor() *getAppointmentAppointmentDoctor { return v.Doctor }
+
+// GetInvoice returns getAppointmentAppointment.Invoice, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetInvoice() *getAppointmentAppointmentInvoice { return v.Invoice }
+
+// GetPrescriptions returns getAppointmentAppointment.Prescriptions, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointment) GetPrescriptions() []*getAppointmentAppointmentPrescriptionsPrescription {
+	return v.Prescriptions
+}
+
+// getAppointmentAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
+type getAppointmentAppointmentDoctor struct {
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
+}
+
+// GetInitial_en returns getAppointmentAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetInitial_en() string { return v.Initial_en }
+
+// GetFirstname_en returns getAppointmentAppointmentDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetFirstname_en() string { return v.Firstname_en }
+
+// GetLastname_en returns getAppointmentAppointmentDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetLastname_en() string { return v.Lastname_en }
+
+// GetPosition returns getAppointmentAppointmentDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetPosition() string { return v.Position }
+
+// GetProfilePicURL returns getAppointmentAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetProfilePicURL() string { return v.ProfilePicURL }
+
+// getAppointmentAppointmentInvoice includes the requested fields of the GraphQL type Invoice.
+type getAppointmentAppointmentInvoice struct {
+	Id           string                                                     `json:"id"`
+	Total        float64                                                    `json:"total"`
+	Paid         bool                                                       `json:"paid"`
+	InvoiceItems []*getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem `json:"invoiceItems"`
+}
+
+// GetId returns getAppointmentAppointmentInvoice.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetId() string { return v.Id }
+
+// GetTotal returns getAppointmentAppointmentInvoice.Total, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetTotal() float64 { return v.Total }
+
+// GetPaid returns getAppointmentAppointmentInvoice.Paid, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetPaid() bool { return v.Paid }
+
+// GetInvoiceItems returns getAppointmentAppointmentInvoice.InvoiceItems, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoice) GetInvoiceItems() []*getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem {
+	return v.InvoiceItems
+}
+
+// getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem includes the requested fields of the GraphQL type InvoiceItem.
+type getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem struct {
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
+}
+
+// GetName returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Name, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetName() string { return v.Name }
+
+// GetPrice returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Price, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetPrice() float64 { return v.Price }
+
+// GetQuantity returns getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem.Quantity, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetQuantity() int {
+	return v.Quantity
+}
+
+// getAppointmentAppointmentPrescriptionsPrescription includes the requested fields of the GraphQL type Prescription.
+type getAppointmentAppointmentPrescriptionsPrescription struct {
+	Amount   int                                                         `json:"amount"`
+	Medicine *getAppointmentAppointmentPrescriptionsPrescriptionMedicine `json:"medicine"`
+}
+
+// GetAmount returns getAppointmentAppointmentPrescriptionsPrescription.Amount, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescription) GetAmount() int { return v.Amount }
+
+// GetMedicine returns getAppointmentAppointmentPrescriptionsPrescription.Medicine, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescription) GetMedicine() *getAppointmentAppointmentPrescriptionsPrescriptionMedicine {
+	return v.Medicine
+}
+
+// getAppointmentAppointmentPrescriptionsPrescriptionMedicine includes the requested fields of the GraphQL type Medicine.
+type getAppointmentAppointmentPrescriptionsPrescriptionMedicine struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+// GetName returns getAppointmentAppointmentPrescriptionsPrescriptionMedicine.Name, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetName() string { return v.Name }
+
+// GetDescription returns getAppointmentAppointmentPrescriptionsPrescriptionMedicine.Description, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetDescription() string {
+	return v.Description
+}
+
+// getAppointmentResponse is returned by getAppointment on success.
+type getAppointmentResponse struct {
+	Appointment *getAppointmentAppointment `json:"appointment"`
+}
+
+// GetAppointment returns getAppointmentResponse.Appointment, and is useful for accessing the field via an interface.
+func (v *getAppointmentResponse) GetAppointment() *getAppointmentAppointment { return v.Appointment }
+
+// getAppointmentsAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
+type getAppointmentsAppointmentsAppointment struct {
+	Id        string                                        `json:"id"`
+	DateTime  time.Time                                     `json:"dateTime"`
+	PatientId string                                        `json:"patientId"`
+	Status    AppointmentStatus                             `json:"status"`
+	Doctor    *getAppointmentsAppointmentsAppointmentDoctor `json:"doctor"`
+}
+
+// GetId returns getAppointmentsAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetId() string { return v.Id }
+
+// GetDateTime returns getAppointmentsAppointmentsAppointment.DateTime, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetDateTime() time.Time { return v.DateTime }
+
+// GetPatientId returns getAppointmentsAppointmentsAppointment.PatientId, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetPatientId() string { return v.PatientId }
+
+// GetStatus returns getAppointmentsAppointmentsAppointment.Status, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetStatus() AppointmentStatus { return v.Status }
+
+// GetDoctor returns getAppointmentsAppointmentsAppointment.Doctor, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetDoctor() *getAppointmentsAppointmentsAppointmentDoctor {
+	return v.Doctor
+}
+
+// getAppointmentsAppointmentsAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
+type getAppointmentsAppointmentsAppointmentDoctor struct {
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
+}
+
+// GetInitial_en returns getAppointmentsAppointmentsAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetInitial_en() string { return v.Initial_en }
+
+// GetFirstname_en returns getAppointmentsAppointmentsAppointmentDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetFirstname_en() string {
+	return v.Firstname_en
+}
+
+// GetLastname_en returns getAppointmentsAppointmentsAppointmentDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetLastname_en() string { return v.Lastname_en }
+
+// GetPosition returns getAppointmentsAppointmentsAppointmentDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetPosition() string { return v.Position }
+
+// GetProfilePicURL returns getAppointmentsAppointmentsAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentDoctor) GetProfilePicURL() string {
+	return v.ProfilePicURL
+}
+
+// getAppointmentsResponse is returned by getAppointments on success.
+type getAppointmentsResponse struct {
+	Appointments []*getAppointmentsAppointmentsAppointment `json:"appointments"`
+}
+
+// GetAppointments returns getAppointmentsResponse.Appointments, and is useful for accessing the field via an interface.
+func (v *getAppointmentsResponse) GetAppointments() []*getAppointmentsAppointmentsAppointment {
+	return v.Appointments
+}
+
 // getDoctorDoctor includes the requested fields of the GraphQL type Doctor.
 type getDoctorDoctor struct {
-	CreatedAt    time.Time `json:"createdAt"`
-	Firstname_en string    `json:"firstname_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Initial_th   string    `json:"initial_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	Password     string    `json:"password"`
-	Position     string    `json:"position"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Username     string    `json:"username"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Firstname_en  string    `json:"firstname_en"`
+	Firstname_th  string    `json:"firstname_th"`
+	Id            string    `json:"id"`
+	Initial_en    string    `json:"initial_en"`
+	Initial_th    string    `json:"initial_th"`
+	Lastname_en   string    `json:"lastname_en"`
+	Lastname_th   string    `json:"lastname_th"`
+	Position      string    `json:"position"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	Username      string    `json:"username"`
+	ProfilePicURL string    `json:"profilePicURL"`
 }
 
 // GetCreatedAt returns getDoctorDoctor.CreatedAt, and is useful for accessing the field via an interface.
@@ -1208,9 +1710,6 @@ func (v *getDoctorDoctor) GetLastname_en() string { return v.Lastname_en }
 // GetLastname_th returns getDoctorDoctor.Lastname_th, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetLastname_th() string { return v.Lastname_th }
 
-// GetPassword returns getDoctorDoctor.Password, and is useful for accessing the field via an interface.
-func (v *getDoctorDoctor) GetPassword() string { return v.Password }
-
 // GetPosition returns getDoctorDoctor.Position, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetPosition() string { return v.Position }
 
@@ -1219,6 +1718,9 @@ func (v *getDoctorDoctor) GetUpdatedAt() time.Time { return v.UpdatedAt }
 
 // GetUsername returns getDoctorDoctor.Username, and is useful for accessing the field via an interface.
 func (v *getDoctorDoctor) GetUsername() string { return v.Username }
+
+// GetProfilePicURL returns getDoctorDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getDoctorDoctor) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getDoctorResponse is returned by getDoctor on success.
 type getDoctorResponse struct {
@@ -1285,9 +1787,9 @@ type getPatientPatient struct {
 	Initial_th   string    `json:"initial_th"`
 	Lastname_en  string    `json:"lastname_en"`
 	Lastname_th  string    `json:"lastname_th"`
-	NationalId   string    `json:"nationalId"`
+	NationalId   *string   `json:"nationalId"`
 	Nationality  string    `json:"nationality"`
-	PassportId   string    `json:"passportId"`
+	PassportId   *string   `json:"passportId"`
 	PhoneNumber  string    `json:"phoneNumber"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 	Weight       float64   `json:"weight"`
@@ -1327,13 +1829,13 @@ func (v *getPatientPatient) GetLastname_en() string { return v.Lastname_en }
 func (v *getPatientPatient) GetLastname_th() string { return v.Lastname_th }
 
 // GetNationalId returns getPatientPatient.NationalId, and is useful for accessing the field via an interface.
-func (v *getPatientPatient) GetNationalId() string { return v.NationalId }
+func (v *getPatientPatient) GetNationalId() *string { return v.NationalId }
 
 // GetNationality returns getPatientPatient.Nationality, and is useful for accessing the field via an interface.
 func (v *getPatientPatient) GetNationality() string { return v.Nationality }
 
 // GetPassportId returns getPatientPatient.PassportId, and is useful for accessing the field via an interface.
-func (v *getPatientPatient) GetPassportId() string { return v.PassportId }
+func (v *getPatientPatient) GetPassportId() *string { return v.PassportId }
 
 // GetPhoneNumber returns getPatientPatient.PhoneNumber, and is useful for accessing the field via an interface.
 func (v *getPatientPatient) GetPhoneNumber() string { return v.PhoneNumber }
@@ -1412,6 +1914,111 @@ query assertDoctorCredential ($password: String!, $username: String!) {
 	return &data, err
 }
 
+func getAppointment(
+	ctx context.Context,
+	client graphql.Client,
+	where *AppointmentWhereInput,
+) (*getAppointmentResponse, error) {
+	req := &graphql.Request{
+		OpName: "getAppointment",
+		Query: `
+query getAppointment ($where: AppointmentWhereInput!) {
+	appointment(where: $where) {
+		id
+		patientId
+		dateTime
+		detail
+		status
+		nextAppointment
+		doctor {
+			initial_en
+			firstname_en
+			lastname_en
+			position
+			profilePicURL
+		}
+		invoice {
+			id
+			total
+			paid
+			invoiceItems {
+				name
+				price
+				quantity
+			}
+		}
+		prescriptions {
+			amount
+			medicine {
+				name
+				description
+			}
+		}
+	}
+}
+`,
+		Variables: &__getAppointmentInput{
+			Where: where,
+		},
+	}
+	var err error
+
+	var data getAppointmentResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getAppointments(
+	ctx context.Context,
+	client graphql.Client,
+	where *AppointmentWhereInput,
+	orderBy []*AppointmentOrderByWithRelationInput,
+) (*getAppointmentsResponse, error) {
+	req := &graphql.Request{
+		OpName: "getAppointments",
+		Query: `
+query getAppointments ($where: AppointmentWhereInput, $orderBy: [AppointmentOrderByWithRelationInput!]) {
+	appointments(where: $where, orderBy: $orderBy) {
+		id
+		dateTime
+		patientId
+		status
+		doctor {
+			initial_en
+			firstname_en
+			lastname_en
+			position
+			profilePicURL
+		}
+	}
+}
+`,
+		Variables: &__getAppointmentsInput{
+			Where:   where,
+			OrderBy: orderBy,
+		},
+	}
+	var err error
+
+	var data getAppointmentsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func getDoctor(
 	ctx context.Context,
 	client graphql.Client,
@@ -1430,10 +2037,10 @@ query getDoctor ($where: DoctorWhereInput!) {
 		initial_th
 		lastname_en
 		lastname_th
-		password
 		position
 		updatedAt
 		username
+		profilePicURL
 	}
 }
 `,

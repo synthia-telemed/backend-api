@@ -48,17 +48,17 @@ func (mr *MockPaymentDataStoreMockRecorder) Create(payment interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPaymentDataStore)(nil).Create), payment)
 }
 
-// FindByInvoiceID mocks base method.
-func (m *MockPaymentDataStore) FindByInvoiceID(string int) (*datastore.Payment, error) {
+// FindLatestByInvoiceIDAndStatus mocks base method.
+func (m *MockPaymentDataStore) FindLatestByInvoiceIDAndStatus(invoiceID int, status datastore.PaymentStatus) (*datastore.Payment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByInvoiceID", string)
+	ret := m.ctrl.Call(m, "FindLatestByInvoiceIDAndStatus", invoiceID, status)
 	ret0, _ := ret[0].(*datastore.Payment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByInvoiceID indicates an expected call of FindByInvoiceID.
-func (mr *MockPaymentDataStoreMockRecorder) FindByInvoiceID(string interface{}) *gomock.Call {
+// FindLatestByInvoiceIDAndStatus indicates an expected call of FindLatestByInvoiceIDAndStatus.
+func (mr *MockPaymentDataStoreMockRecorder) FindLatestByInvoiceIDAndStatus(invoiceID, status interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByInvoiceID", reflect.TypeOf((*MockPaymentDataStore)(nil).FindByInvoiceID), string)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindLatestByInvoiceIDAndStatus", reflect.TypeOf((*MockPaymentDataStore)(nil).FindLatestByInvoiceIDAndStatus), invoiceID, status)
 }

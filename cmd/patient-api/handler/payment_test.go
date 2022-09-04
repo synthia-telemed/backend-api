@@ -22,6 +22,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"time"
 )
 
 var _ = Describe("Payment Handler", func() {
@@ -389,7 +390,7 @@ var _ = Describe("Payment Handler", func() {
 		When("invoice is paid", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
-				i := &hospital.Invoice{PatientID: uuid.New().String(), Paid: true}
+				i := &hospital.InvoiceOverview{PatientID: uuid.New().String(), Paid: true}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 			})
 			It("should return 400", func() {
@@ -400,7 +401,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{PatientID: p.RefID}
+				i := &hospital.InvoiceOverview{PatientID: p.RefID}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
 			})
@@ -412,7 +413,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{PatientID: uuid.New().String()}
+				i := &hospital.InvoiceOverview{PatientID: uuid.New().String()}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
 			})
@@ -424,7 +425,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
-				i := &hospital.Invoice{Id: invoiceID, PatientID: p.RefID}
+				i := &hospital.InvoiceOverview{Id: invoiceID, PatientID: p.RefID}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
 				mockPatientDataStore.EXPECT().FindByID(patientID).Return(p, nil).Times(1)
 			})
@@ -432,7 +433,7 @@ var _ = Describe("Payment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				i, ok := c.Get("Invoice")
 				Expect(ok).To(BeTrue())
-				invoice, ok := i.(*hospital.Invoice)
+				invoice, ok := i.(*hospital.InvoiceOverview)
 				Expect(ok).To(BeTrue())
 				Expect(invoice.Id).To(Equal(invoiceID))
 			})
@@ -442,7 +443,7 @@ var _ = Describe("Payment Handler", func() {
 	Context("PayInvoiceWithCreditCard", func() {
 		var (
 			creditCard   *datastore.CreditCard
-			invoice      *hospital.Invoice
+			invoice      *hospital.InvoiceOverview
 			invoiceIDStr string
 		)
 		BeforeEach(func() {
@@ -465,7 +466,8 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				p := generatePayment(true)
 				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
-				mockClock.EXPECT().NowPointer().Return(&p.CreatedAt).Times(1)
+				now := time.Now()
+				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
 				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {
@@ -476,7 +478,8 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				p := generatePayment(true)
 				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
-				mockClock.EXPECT().NowPointer().Return(&p.CreatedAt).Times(1)
+				now := time.Now()
+				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
 				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
 				mockPaymentDataStore.EXPECT().Create(gomock.Any()).Return(errors.New("err")).Times(1)
 			})
@@ -493,8 +496,8 @@ var _ = Describe("Payment Handler", func() {
 				BeforeEach(func() {
 					paymentCharge = generatePayment(false)
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
-					mockClock.EXPECT().NowPointer().Return(&paymentCharge.CreatedAt).Times(1)
 					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.FailedPaymentStatus, invoice, paymentCharge, creditCard)
+					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})
 				It("should return 201 with failure message", func() {
@@ -509,12 +512,12 @@ var _ = Describe("Payment Handler", func() {
 				BeforeEach(func() {
 					paymentCharge = generatePayment(true)
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
-					mockClock.EXPECT().NowPointer().Return(&paymentCharge.CreatedAt).Times(1)
 					mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
 					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.SuccessPaymentStatus, invoice, paymentCharge, creditCard)
+					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})
-				It("should return 201 with no failure message", func() {
+				It("should return 201 with success message", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
 					var res handler.PayInvoiceWithCreditCardResponse
 					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
