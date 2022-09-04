@@ -59,6 +59,29 @@ definitions:
       value:
         type: integer
     type: object
+  datastore.Payment:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      credit_card:
+        $ref: '#/definitions/datastore.CreditCard'
+      credit_card_id:
+        type: integer
+      id:
+        type: integer
+      invoice_id:
+        type: integer
+      method:
+        type: string
+      paid_at:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -93,6 +116,31 @@ definitions:
     - pulse
     - systolic
     type: object
+  handler.GetAppointmentResponse:
+    properties:
+      date_time:
+        type: string
+      detail:
+        type: string
+      doctor:
+        $ref: '#/definitions/hospital.DoctorOverview'
+      id:
+        type: string
+      invoice:
+        $ref: '#/definitions/hospital.Invoice'
+      next_appointment:
+        type: string
+      patient_id:
+        type: string
+      payment:
+        $ref: '#/definitions/datastore.Payment'
+      prescriptions:
+        items:
+          $ref: '#/definitions/hospital.Prescription'
+        type: array
+      status:
+        type: string
+    type: object
   handler.GlucoseRequest:
     properties:
       date_time:
@@ -106,6 +154,21 @@ definitions:
     - is_before_meal
     - value
     type: object
+  handler.ListAppointmentsResponse:
+    properties:
+      cancelled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      completed:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      scheduled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+    type: object
   handler.PayInvoiceWithCreditCardResponse:
     properties:
       amount:
@@ -114,7 +177,7 @@ definitions:
         type: string
       credit_card:
         $ref: '#/definitions/datastore.CreditCard'
-      creditCardID:
+      credit_card_id:
         type: integer
       failure_message:
         type: string
@@ -140,6 +203,8 @@ definitions:
     type: object
   handler.SigninResponse:
     properties:
+      expired_at:
+        type: string
       phone_number:
         type: string
     type: object
@@ -155,6 +220,59 @@ definitions:
       token:
         type: string
     type: object
+  hospital.AppointmentOverview:
+    properties:
+      date_time:
+        type: string
+      doctor:
+        $ref: '#/definitions/hospital.DoctorOverview'
+      id:
+        type: string
+      patient_id:
+        type: string
+      status:
+        type: string
+    type: object
+  hospital.DoctorOverview:
+    properties:
+      full_name:
+        type: string
+      position:
+        type: string
+      profile_pic_url:
+        type: string
+    type: object
+  hospital.Invoice:
+    properties:
+      id:
+        type: integer
+      invoice_items:
+        items:
+          $ref: '#/definitions/hospital.InvoiceItem'
+        type: array
+      paid:
+        type: boolean
+      total:
+        type: number
+    type: object
+  hospital.InvoiceItem:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+    type: object
+  hospital.Prescription:
+    properties:
+      amount:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   server.ErrorResponse:
     properties:
       message:
@@ -166,6 +284,70 @@ info:
   title: Synthia Patient Backend API
   version: 1.0.0
 paths:
+  /appointment:
+    get:
+      responses:
+        "200":
+          description: List of appointment group by status
+          schema:
+            $ref: '#/definitions/handler.ListAppointmentsResponse'
+        "400":
+          description: Patient not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get list of appointment of the patient
+      tags:
+      - Appointment
+  /appointment/{appointmentID}:
+    get:
+      parameters:
+      - description: ID of the appointment
+        in: path
+        name: appointmentID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: An appointment detail
+          schema:
+            $ref: '#/definitions/handler.GetAppointmentResponse'
+        "400":
+          description: appointmentID is invalid
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: The patient doesn't own the appointment
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Appointment not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get an appointment detail by appointment ID
+      tags:
+      - Appointment
   /auth/signin:
     post:
       description: Initiate auth process with government credential which will sent

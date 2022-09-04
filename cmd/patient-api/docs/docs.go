@@ -22,6 +22,111 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/appointment": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get list of appointment of the patient",
+                "responses": {
+                    "200": {
+                        "description": "List of appointment group by status",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ListAppointmentsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Patient not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/{appointmentID}": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get an appointment detail by appointment ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the appointment",
+                        "name": "appointmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An appointment detail",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetAppointmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "appointmentID is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "The patient doesn't own the appointment",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/signin": {
             "post": {
                 "description": "Initiate auth process with government credential which will sent OTP to patient's phone number",
@@ -520,6 +625,41 @@ const docTemplate = `{
                 }
             }
         },
+        "datastore.Payment": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "credit_card": {
+                    "$ref": "#/definitions/datastore.CreditCard"
+                },
+                "credit_card_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "gorm.DeletedAt": {
             "type": "object",
             "properties": {
@@ -570,6 +710,44 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.GetAppointmentResponse": {
+            "type": "object",
+            "properties": {
+                "date_time": {
+                    "type": "string"
+                },
+                "detail": {
+                    "type": "string"
+                },
+                "doctor": {
+                    "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoice": {
+                    "$ref": "#/definitions/hospital.Invoice"
+                },
+                "next_appointment": {
+                    "type": "string"
+                },
+                "patient_id": {
+                    "type": "string"
+                },
+                "payment": {
+                    "$ref": "#/definitions/datastore.Payment"
+                },
+                "prescriptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.Prescription"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.GlucoseRequest": {
             "type": "object",
             "required": [
@@ -589,6 +767,29 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ListAppointmentsResponse": {
+            "type": "object",
+            "properties": {
+                "cancelled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "completed": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "scheduled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                }
+            }
+        },
         "handler.PayInvoiceWithCreditCardResponse": {
             "type": "object",
             "properties": {
@@ -598,11 +799,11 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "creditCardID": {
-                    "type": "integer"
-                },
                 "credit_card": {
                     "$ref": "#/definitions/datastore.CreditCard"
+                },
+                "credit_card_id": {
+                    "type": "integer"
                 },
                 "failure_message": {
                     "type": "string"
@@ -641,6 +842,9 @@ const docTemplate = `{
         "handler.SigninResponse": {
             "type": "object",
             "properties": {
+                "expired_at": {
+                    "type": "string"
+                },
                 "phone_number": {
                     "type": "string"
                 }
@@ -661,6 +865,88 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.AppointmentOverview": {
+            "type": "object",
+            "properties": {
+                "date_time": {
+                    "type": "string"
+                },
+                "doctor": {
+                    "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "patient_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.DoctorOverview": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.Invoice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "invoice_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.InvoiceItem"
+                    }
+                },
+                "paid": {
+                    "type": "boolean"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "hospital.InvoiceItem": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "hospital.Prescription": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
