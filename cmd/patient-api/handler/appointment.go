@@ -149,6 +149,7 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 	}
 	if apps.PatientID != patient.RefID {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
+		return
 	}
 	res := &GetAppointmentResponse{
 		Appointment: apps,
