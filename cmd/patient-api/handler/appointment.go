@@ -83,7 +83,6 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 			res.Scheduled = append(res.Scheduled, a)
 		}
 	}
-	// TODO: Sort the scheduled appointments ASC
 	ReverseSlice(res.Scheduled)
 	c.JSON(http.StatusOK, res)
 }
