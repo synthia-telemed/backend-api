@@ -1,11 +1,10 @@
 package datastore_test
 
 import (
-	"github.com/caarlos0/env/v6"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
-	"gorm.io/driver/postgres"
+	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"math/rand"
@@ -20,10 +19,8 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		var config datastore.Config
-		Expect(env.Parse(&config)).To(Succeed())
 		var err error
-		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{
+		db, err = gorm.Open(pg.Open(postgres.Config.DSN()), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
 		})
 		Expect(err).To(BeNil())
