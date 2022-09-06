@@ -8,18 +8,22 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"math/rand"
+	"time"
 )
 
 var _ = Describe("Cache Suite", func() {
 	var (
 		redisClient *redis.Client
 		client      cache.Client
+		ctx         context.Context
 	)
 
 	BeforeEach(func() {
+		ctx = context.Background()
 		redisClient = redis.NewClient(&redis.Options{Addr: redisContainer.Endpoint})
-		Expect(redisClient.Ping(context.Background()).Err()).To(Succeed())
+		Expect(redisClient.Ping(ctx).Err()).To(Succeed())
 		client = cache.NewRedisClient(&redisContainer.Config)
+
 	})
 
 	Context("Basic Get and Set", func() {
@@ -35,37 +39,44 @@ var _ = Describe("Cache Suite", func() {
 		})
 
 		It("set the value", func() {
-			Expect(client.Set(context.Background(), key, value, 0)).To(Succeed())
+			Expect(client.Set(ctx, key, value, 0)).To(Succeed())
 
-			retrievedValue, err := redisClient.Get(context.Background(), key).Result()
+			retrievedValue, err := redisClient.Get(ctx, key).Result()
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 		})
 
-		It("get the value and not delete", func() {
-			Expect(redisClient.Set(context.Background(), key, value, 0).Err()).To(Succeed())
+		It("set value with expiration time", func() {
+			du := time.Millisecond
+			Expect(client.Set(ctx, key, value, du)).To(Succeed())
+			time.Sleep(du)
+			Expect(redisClient.Get(ctx, key).Err()).To(Equal(redis.Nil))
+		})
 
-			retrievedValue, err := client.Get(context.Background(), key, false)
+		It("get the value and not delete", func() {
+			Expect(redisClient.Set(ctx, key, value, 0).Err()).To(Succeed())
+
+			retrievedValue, err := client.Get(ctx, key, false)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 
-			val, err := redisClient.Get(context.Background(), key).Result()
+			val, err := redisClient.Get(ctx, key).Result()
 			Expect(err).To(BeNil())
 			Expect(val).To(Equal(value))
 		})
 
 		It("get the value and delete", func() {
-			Expect(redisClient.Set(context.Background(), key, value, 0).Err()).To(Succeed())
+			Expect(redisClient.Set(ctx, key, value, 0).Err()).To(Succeed())
 
-			retrievedValue, err := client.Get(context.Background(), key, true)
+			retrievedValue, err := client.Get(ctx, key, true)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 
-			Expect(redisClient.Get(context.Background(), key).Err()).To(Equal(redis.Nil))
+			Expect(redisClient.Get(ctx, key).Err()).To(Equal(redis.Nil))
 		})
 
 		It("return empty string if key does not exist", func() {
-			retrievedValue, err := client.Get(context.Background(), key, false)
+			retrievedValue, err := client.Get(ctx, key, false)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(BeEmpty())
 		})
