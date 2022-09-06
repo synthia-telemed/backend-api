@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/Khan/genqlient v0.5.0
-	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/caarlos0/env/v6 v6.9.3
 	github.com/envoyproxy/protoc-gen-validate v0.6.7
 	github.com/getsentry/sentry-go v0.13.0
@@ -15,11 +14,12 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/matoous/go-nanoid v1.5.0
 	github.com/omise/omise-go v1.0.8
-	github.com/onsi/ginkgo/v2 v2.1.4
-	github.com/onsi/gomega v1.20.0
+	github.com/onsi/ginkgo/v2 v2.1.6
+	github.com/onsi/gomega v1.20.2
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.2
 	github.com/swaggo/swag v1.8.4
+	github.com/testcontainers/testcontainers-go v0.13.0
 	github.com/twilio/twilio-go v0.26.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.48.0
@@ -33,7 +33,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/Microsoft/hcsshim v0.8.23 // indirect
-	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/cgroups v1.0.1 // indirect
@@ -84,15 +83,13 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/testcontainers/testcontainers-go v0.13.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.5 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
+	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.12 // indirect
