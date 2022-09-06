@@ -2,14 +2,12 @@ package datastore_test
 
 import (
 	"context"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"testing"
-	"time"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 func TestDatastore(t *testing.T) {
@@ -41,6 +39,7 @@ func setupPostgresDBContainer() PostgresDB {
 		Password: "postgres",
 		Name:     "synthia",
 		SSLMode:  "disable",
+		TimeZone: "Asia/Bangkok",
 	}
 	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
@@ -51,7 +50,7 @@ func setupPostgresDBContainer() PostgresDB {
 			"POSTGRES_PASSWORD": config.Password,
 			"POSTGRES_DB":       config.Name,
 		},
-		WaitingFor: wait.ForExec([]string{"CMD-SHELL", "pg_isready"}).WithPollInterval(time.Second).WithStartupTimeout(time.Second * 3),
+		WaitingFor: wait.ForLog("database system is ready to accept connections").WithOccurrence(2),
 	}
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
