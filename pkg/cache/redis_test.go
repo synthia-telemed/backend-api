@@ -2,8 +2,8 @@ package cache_test
 
 import (
 	"context"
-	"fmt"
-	"github.com/alicebob/miniredis/v2"
+	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
@@ -12,15 +12,14 @@ import (
 
 var _ = Describe("Cache Suite", func() {
 	var (
-		redis  *miniredis.Miniredis
-		client cache.Client
+		redisClient *redis.Client
+		client      cache.Client
 	)
 
 	BeforeEach(func() {
-		redis = miniredis.RunT(GinkgoT())
-		client = cache.NewRedisClient(&cache.Config{
-			Endpoint: redis.Addr(),
-		})
+		redisClient = redis.NewClient(&redis.Options{Addr: redisContainer.Endpoint})
+		Expect(redisClient.Ping(context.Background()).Err()).To(Succeed())
+		client = cache.NewRedisClient(&redisContainer.Config)
 	})
 
 	Context("Basic Get and Set", func() {
@@ -31,39 +30,38 @@ var _ = Describe("Cache Suite", func() {
 
 		BeforeEach(func() {
 			rand.Seed(GinkgoRandomSeed())
-			key = fmt.Sprintf("key-%d", rand.Int())
-			value = fmt.Sprintf("value-%d", rand.Int())
+			key = uuid.New().String()
+			value = uuid.New().String()
 		})
 
 		It("set the value", func() {
 			Expect(client.Set(context.Background(), key, value, 0)).To(Succeed())
 
-			retrievedValue, err := redis.Get(key)
+			retrievedValue, err := redisClient.Get(context.Background(), key).Result()
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 		})
 
 		It("get the value and not delete", func() {
-			Expect(redis.Set(key, value)).To(Succeed())
+			Expect(redisClient.Set(context.Background(), key, value, 0).Err()).To(Succeed())
 
 			retrievedValue, err := client.Get(context.Background(), key, false)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 
-			val, err := redis.Get(key)
+			val, err := redisClient.Get(context.Background(), key).Result()
 			Expect(err).To(BeNil())
 			Expect(val).To(Equal(value))
 		})
 
 		It("get the value and delete", func() {
-			Expect(redis.Set(key, value)).To(Succeed())
+			Expect(redisClient.Set(context.Background(), key, value, 0).Err()).To(Succeed())
 
 			retrievedValue, err := client.Get(context.Background(), key, true)
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(Equal(value))
 
-			_, err = redis.Get(key)
-			Expect(err).To(Equal(miniredis.ErrKeyNotFound))
+			Expect(redisClient.Get(context.Background(), key).Err()).To(Equal(redis.Nil))
 		})
 
 		It("return empty string if key does not exist", func() {
