@@ -1,11 +1,11 @@
 package cache_test
 
 import (
-	"context"
 	"fmt"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/cache"
+	"github.com/synthia-telemed/backend-api/test/container"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"testing"
@@ -22,7 +22,7 @@ func TestCache(t *testing.T) {
 
 type Redis struct {
 	cache.Config
-	terminate func(ctx context.Context) error
+	container.Terminate
 }
 
 var _ = BeforeSuite(func() {
@@ -30,28 +30,22 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	Expect(redisContainer.terminate(context.Background())).To(Succeed())
+	Expect(redisContainer.Terminate()).To(Succeed())
 })
 
 func setupRedisContainer() Redis {
-	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
 		Image:        "redis:6-alpine",
 		ExposedPorts: []string{"6379/tcp"},
 		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}
 
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
+	testCon, err := container.NewTestContainer(req, "6379")
 	Expect(err).To(BeNil())
-	host, _ := container.Host(ctx)
-	port, _ := container.MappedPort(ctx, "6379")
 	return Redis{
 		Config: cache.Config{
-			Endpoint: fmt.Sprintf("%s:%s", host, port.Port()),
+			Endpoint: fmt.Sprintf("%s:%s", testCon.Host, testCon.Port.Port()),
 		},
-		terminate: container.Terminate,
+		Terminate: testCon.Terminate,
 	}
 }
