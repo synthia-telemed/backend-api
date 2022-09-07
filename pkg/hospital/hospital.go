@@ -49,18 +49,18 @@ func NewName(init, first, last string) *Name {
 }
 
 type Patient struct {
-	Id          string
-	NameEN      *Name
-	NameTH      *Name
 	BirthDate   time.Time
-	BloodType   BloodType
-	Height      float64
-	NationalId  *string
-	Nationality string
-	PassportId  *string
-	PhoneNumber string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	PassportId  *string
+	NameEN      *Name
+	NameTH      *Name
+	NationalId  *string
+	Id          string
+	Nationality string
+	PhoneNumber string
+	BloodType   BloodType
+	Height      float64
 	Weight      float64
 }
 
@@ -77,11 +77,11 @@ type Doctor struct {
 
 type InvoiceOverview struct {
 	CreatedAt     time.Time
-	Id            int
-	Paid          bool
-	Total         float64
 	AppointmentID string
 	PatientID     string
+	Id            int
+	Total         float64
+	Paid          bool
 }
 
 type AppointmentOverview struct {
@@ -109,10 +109,10 @@ type Appointment struct {
 	Prescriptions   []*Prescription   `json:"prescriptions"`
 }
 type Invoice struct {
+	InvoiceItems []*InvoiceItem `json:"invoice_items"`
 	Id           int            `json:"id"`
 	Total        float64        `json:"total"`
 	Paid         bool           `json:"paid"`
-	InvoiceItems []*InvoiceItem `json:"invoice_items"`
 }
 type InvoiceItem struct {
 	Name     string  `json:"name"`
@@ -121,8 +121,8 @@ type InvoiceItem struct {
 }
 type Prescription struct {
 	Name        string `json:"name"`
-	Amount      int    `json:"amount"`
 	Description string `json:"description"`
+	Amount      int    `json:"amount"`
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
@@ -211,7 +211,7 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 		PatientId: &StringFilter{Equals: &patientID},
 		DateTime:  &DateTimeFilter{Gte: &since},
 	}, []*AppointmentOrderByWithRelationInput{
-		&AppointmentOrderByWithRelationInput{DateTime: &desc},
+		{DateTime: &desc},
 	})
 	if err != nil {
 		return nil, err

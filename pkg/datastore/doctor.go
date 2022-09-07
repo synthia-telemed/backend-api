@@ -6,11 +6,11 @@ import (
 )
 
 type Doctor struct {
-	ID        uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	RefID     string         `json:"refID" gorm:"unique"`
+	ID        uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 }
 
 type DoctorDataStore interface {

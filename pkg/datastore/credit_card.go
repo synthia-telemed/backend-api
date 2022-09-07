@@ -7,16 +7,16 @@ import (
 )
 
 type CreditCard struct {
-	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 	Last4Digits string         `json:"last_4_digits"`
 	Brand       string         `json:"brand"`
-	PatientID   uint           `json:"patient_id" gorm:"not null"`
 	Name        string         `json:"name"`
 	CardID      string         `json:"-"`
 	Payments    []Payment      `json:"-" gorm:"foreignKey:CreditCardID"`
+	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
+	PatientID   uint           `json:"patient_id" gorm:"not null"`
 }
 
 type CreditCardDataStore interface {

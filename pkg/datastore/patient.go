@@ -6,39 +6,18 @@ import (
 	"time"
 )
 
-const (
-	AB BloodType = "AB"
-	A  BloodType = "A"
-	B  BloodType = "B"
-	O  BloodType = "O"
-)
-
 type BloodType string
 
 type Patient struct {
-	ID                uint            `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt         time.Time       `json:"created_at"`
 	UpdatedAt         time.Time       `json:"updated_at"`
+	PaymentCustomerID *string         `gorm:"unique"`
 	DeletedAt         gorm.DeletedAt  `gorm:"index"`
 	RefID             string          `json:"refID" gorm:"unique"`
-	PaymentCustomerID *string         `gorm:"unique"`
 	BloodPressure     []BloodPressure `gorm:"foreignKey:PatientID"`
 	Glucose           []Glucose       `gorm:"foreignKey:PatientID"`
 	CreditCards       []CreditCard    `gorm:"foreignKey:PatientID"`
-	//BirthDate   time.Time      `json:"birthDate"`
-	//BloodType   BloodType      `json:"bloodType"`
-	//FirstnameEn string         `json:"firstname_en"`
-	//FirstnameTh string         `json:"firstname_th"`
-	//InitialEn   string         `json:"initial_en"`
-	//InitialTh   string         `json:"initial_th"`
-	//LastnameEn  string         `json:"lastname_en"`
-	//LastnameTh  string         `json:"lastname_th"`
-	//NationalID  *string        `json:"nationalId" gorm:"unique"`
-	//PassportID  *string        `json:"passportId" gorm:"unique"`
-	//Nationality string         `json:"nationality"`
-	//PhoneNumber string         `json:"phoneNumber"`
-	//Weight      float32        `json:"weight"`
-	//Height      float32        `json:"height"`
+	ID                uint            `json:"id" gorm:"autoIncrement,primaryKey"`
 }
 
 type PatientDataStore interface {
