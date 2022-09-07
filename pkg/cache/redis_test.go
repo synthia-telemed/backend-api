@@ -47,9 +47,9 @@ var _ = Describe("Cache Suite", func() {
 		})
 
 		It("set value with expiration time", func() {
-			du := time.Millisecond
+			du := time.Millisecond * 10
 			Expect(client.Set(ctx, key, value, du)).To(Succeed())
-			time.Sleep(du)
+			time.Sleep(du * 10)
 			Expect(redisClient.Get(ctx, key).Err()).To(Equal(redis.Nil))
 		})
 
