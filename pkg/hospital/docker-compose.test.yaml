@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: "postgres:13-alpine"
+    volumes:
+      - "./hospital-mock-test.sql:/docker-entrypoint-initdb.d/hospital-mock-test.sql"
+    environment:
+      POSTGRES_PASSWORD: "unsecurepassword"
+    expose:
+      - "5432"
+  hospital-sys:
+      image: "synthiatelemed.azurecr.io/hospital-it-system-mock:latest"
+      environment:
+        DATABASE_URL: "postgres://postgres:unsecurepassword@postgres:5432/hospital-mock"
+      ports:
+        - "30821:3000"
