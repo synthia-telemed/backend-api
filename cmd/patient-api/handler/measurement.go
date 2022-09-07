@@ -71,8 +71,8 @@ func (h MeasurementHandler) CreateBloodPressure(c *gin.Context) {
 
 type GlucoseRequest struct {
 	DateTime     time.Time `json:"date_time" binding:"required"`
-	Value        uint      `json:"value" binding:"required"`
 	IsBeforeMeal *bool     `json:"is_before_meal" binding:"required"`
+	Value        uint      `json:"value" binding:"required"`
 }
 
 // CreateGlucose godoc

@@ -16,8 +16,8 @@ func TestDatastore(t *testing.T) {
 }
 
 type PostgresDB struct {
-	datastore.Config
 	container.Terminate
+	datastore.Config
 }
 
 var (

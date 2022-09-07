@@ -12,17 +12,17 @@ import (
 )
 
 type Config struct {
-	Mode           string `env:"MODE" envDefault:"development"`
-	Port           int    `env:"PORT" envDefault:"8080"`
-	GinMode        string `env:"GIN_MODE" envDefault:"debug"`
-	SentryDSN      string `env:"SENTRY_DSN" envDefault:""`
-	DatabaseDSN    string
 	DB             datastore.Config
 	SMS            sms.Config
-	HospitalClient hospital.Config
-	Cache          cache.Config
-	Token          token.Config
 	Payment        payment.Config
+	HospitalClient hospital.Config
+	GinMode        string `env:"GIN_MODE" envDefault:"debug"`
+	SentryDSN      string `env:"SENTRY_DSN" envDefault:""`
+	Mode           string `env:"MODE" envDefault:"development"`
+	Token          token.Config
+	DatabaseDSN    string
+	Cache          cache.Config
+	Port           int `env:"PORT" envDefault:"8080"`
 }
 
 func Load() (*Config, error) {

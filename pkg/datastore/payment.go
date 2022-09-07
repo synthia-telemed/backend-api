@@ -17,18 +17,18 @@ const (
 )
 
 type Payment struct {
-	ID           uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
-	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
-	Method       PaymentMethod  `json:"method" gorm:"not null"`
-	Amount       float64        `json:"amount" gorm:"not null"`
 	PaidAt       *time.Time     `json:"paid_at"`
-	ChargeID     string         `json:"-" gorm:"not null"`
-	InvoiceID    int            `json:"invoice_id" gorm:"not null,unique"`
-	Status       PaymentStatus  `json:"status" gorm:"not null"`
 	CreditCard   *CreditCard    `json:"credit_card"`
 	CreditCardID *uint          `json:"credit_card_id"`
+	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
+	ChargeID     string         `json:"-" gorm:"not null"`
+	Status       PaymentStatus  `json:"status" gorm:"not null"`
+	Method       PaymentMethod  `json:"method" gorm:"not null"`
+	ID           uint           `json:"id" gorm:"autoIncrement,primaryKey"`
+	InvoiceID    int            `json:"invoice_id" gorm:"not null,unique"`
+	Amount       float64        `json:"amount" gorm:"not null"`
 }
 
 type PaymentDataStore interface {

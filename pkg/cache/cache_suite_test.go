@@ -21,8 +21,8 @@ func TestCache(t *testing.T) {
 }
 
 type Redis struct {
-	cache.Config
 	container.Terminate
+	cache.Config
 }
 
 var _ = BeforeSuite(func() {

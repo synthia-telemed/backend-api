@@ -14,11 +14,11 @@ type Card struct {
 }
 
 type Payment struct {
+	FailureMessage *string `json:"failure_message"`
+	FailureCode    *string `json:"failure_code"`
+	Currency       string  `json:"currency"`
 	ID             string  `json:"id"`
 	Amount         int     `json:"amount"`
-	Currency       string  `json:"currency"`
 	Paid           bool    `json:"paid"`
 	Success        bool    `json:"success"`
-	FailureCode    *string `json:"failure_code"`
-	FailureMessage *string `json:"failure_message"`
 }

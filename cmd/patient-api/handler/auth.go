@@ -58,8 +58,8 @@ type SigninRequest struct {
 }
 
 type SigninResponse struct {
-	PhoneNumber string    `json:"phone_number"`
 	ExpiredAt   time.Time `json:"expired_at"`
+	PhoneNumber string    `json:"phone_number"`
 }
 
 // Signin godoc
