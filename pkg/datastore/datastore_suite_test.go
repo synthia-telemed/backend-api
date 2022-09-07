@@ -1,10 +1,10 @@
 package datastore_test
 
 import (
-	"context"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	"github.com/synthia-telemed/backend-api/test/container"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"testing"
@@ -15,10 +15,9 @@ func TestDatastore(t *testing.T) {
 	RunSpecs(t, "Datastore Suite")
 }
 
-type terminateFunc func()
 type PostgresDB struct {
 	datastore.Config
-	terminate terminateFunc
+	container.Terminate
 }
 
 var (
@@ -30,7 +29,7 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	postgres.terminate()
+	Expect(postgres.Terminate()).To(Succeed())
 })
 
 func setupPostgresDBContainer() PostgresDB {
@@ -41,7 +40,6 @@ func setupPostgresDBContainer() PostgresDB {
 		SSLMode:  "disable",
 		TimeZone: "Asia/Bangkok",
 	}
-	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
 		Image:        "postgres:13-alpine",
 		ExposedPorts: []string{"5432/tcp"},
@@ -52,21 +50,14 @@ func setupPostgresDBContainer() PostgresDB {
 		},
 		WaitingFor: wait.ForLog("database system is ready to accept connections").WithOccurrence(2),
 	}
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
+	con, err := container.NewTestContainer(req, "5432")
 	Expect(err).To(BeNil())
-	config.Host, _ = container.Host(ctx)
-	port, _ := container.MappedPort(ctx, "5432")
-	config.Port = port.Int()
 
-	terminateFunc := func() {
-		Expect(container.Terminate(ctx)).To(Succeed())
-	}
+	config.Host = con.Host
+	config.Port = con.Port.Int()
 
 	return PostgresDB{
 		Config:    config,
-		terminate: terminateFunc,
+		Terminate: con.Terminate,
 	}
 }
