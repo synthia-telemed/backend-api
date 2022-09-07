@@ -162,4 +162,13 @@ var _ = Describe("Hospital Client", func() {
 			})
 		})
 	})
+
+	Context("PaidInvoice", func() {
+		It("should set the paid status to true", func() {
+			Expect(graphQLClient.PaidInvoice(context.Background(), 18)).To(Succeed())
+			invoice, err := graphQLClient.FindInvoiceByID(context.Background(), 18)
+			Expect(err).To(BeNil())
+			Expect(invoice.Paid).To(BeTrue())
+		})
+	})
 })
