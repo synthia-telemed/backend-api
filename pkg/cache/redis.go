@@ -52,3 +52,18 @@ func (c RedisClient) Get(ctx context.Context, key string, getAndDelete bool) (st
 func (c RedisClient) Set(ctx context.Context, key string, value string, expiredIn time.Duration) error {
 	return c.client.Set(ctx, key, value, expiredIn).Err()
 }
+
+func (c RedisClient) HashSet(ctx context.Context, key string, kv map[string]string) error {
+	return c.client.HSet(ctx, key, kv).Err()
+}
+
+func (c RedisClient) HashGet(ctx context.Context, key, field string) (string, error) {
+	val, err := c.client.HGet(ctx, key, field).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", nil
+		}
+		return "", err
+	}
+	return val, nil
+}

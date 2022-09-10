@@ -80,7 +80,46 @@ var _ = Describe("Cache Suite", func() {
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(BeEmpty())
 		})
+	})
 
+	Context("Hash Data", func() {
+		It("set the key with given fields and values", func() {
+			key := uuid.New().String()
+			kv := map[string]string{
+				"val1": uuid.New().String(),
+				"val2": uuid.New().String(),
+			}
+			Expect(client.HashSet(ctx, key, kv)).To(Succeed())
+			for field, val := range kv {
+				v, err := redisClient.HGet(ctx, key, field).Result()
+				Expect(err).To(BeNil())
+				Expect(v).To(Equal(val))
+			}
+		})
+
+		It("get the field", func() {
+			key := uuid.New().String()
+			field := uuid.New().String()
+			val := uuid.New().String()
+			Expect(redisClient.HSet(ctx, key, field, val).Err()).To(Succeed())
+			v, err := client.HashGet(ctx, key, field)
+			Expect(err).To(BeNil())
+			Expect(v).To(Equal(val))
+		})
+
+		It("get empty string when get non-existed field", func() {
+			key := uuid.New().String()
+			Expect(redisClient.HSet(ctx, key, uuid.New().String(), uuid.New().String()).Err()).To(Succeed())
+			v, err := client.HashGet(ctx, key, uuid.New().String())
+			Expect(err).To(BeNil())
+			Expect(v).To(BeEmpty())
+		})
+
+		It("get empty string when get non-existed key", func() {
+			v, err := client.HashGet(ctx, uuid.New().String(), uuid.New().String())
+			Expect(err).To(BeNil())
+			Expect(v).To(BeEmpty())
+		})
 	})
 
 })

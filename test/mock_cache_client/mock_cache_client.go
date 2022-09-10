@@ -50,6 +50,35 @@ func (mr *MockClientMockRecorder) Get(ctx, key, getAndDelete interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockClient)(nil).Get), ctx, key, getAndDelete)
 }
 
+// HashGet mocks base method.
+func (m *MockClient) HashGet(ctx context.Context, key, field string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HashGet", ctx, key, field)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HashGet indicates an expected call of HashGet.
+func (mr *MockClientMockRecorder) HashGet(ctx, key, field interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HashGet", reflect.TypeOf((*MockClient)(nil).HashGet), ctx, key, field)
+}
+
+// HashSet mocks base method.
+func (m *MockClient) HashSet(ctx context.Context, key string, kv map[string]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HashSet", ctx, key, kv)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HashSet indicates an expected call of HashSet.
+func (mr *MockClientMockRecorder) HashSet(ctx, key, kv interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HashSet", reflect.TypeOf((*MockClient)(nil).HashSet), ctx, key, kv)
+}
+
 // Set mocks base method.
 func (m *MockClient) Set(ctx context.Context, key, value string, expiredIn time.Duration) error {
 	m.ctrl.T.Helper()
