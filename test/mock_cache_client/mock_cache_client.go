@@ -79,6 +79,26 @@ func (mr *MockClientMockRecorder) HashSet(ctx, key, kv interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HashSet", reflect.TypeOf((*MockClient)(nil).HashSet), ctx, key, kv)
 }
 
+// MultipleGet mocks base method.
+func (m *MockClient) MultipleGet(ctx context.Context, keys ...string) ([]string, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range keys {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "MultipleGet", varargs...)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MultipleGet indicates an expected call of MultipleGet.
+func (mr *MockClientMockRecorder) MultipleGet(ctx interface{}, keys ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, keys...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultipleGet", reflect.TypeOf((*MockClient)(nil).MultipleGet), varargs...)
+}
+
 // Set mocks base method.
 func (m *MockClient) Set(ctx context.Context, key, value string, expiredIn time.Duration) error {
 	m.ctrl.T.Helper()

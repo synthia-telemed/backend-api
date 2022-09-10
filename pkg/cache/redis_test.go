@@ -82,6 +82,17 @@ var _ = Describe("Cache Suite", func() {
 		})
 	})
 
+	Context("MultipleGet", func() {
+		It("get list of string values", func() {
+			kv := []string{"k1", uuid.NewString(), "k2", uuid.NewString()}
+			Expect(redisClient.MSet(ctx, kv).Err()).To(Succeed())
+			values, err := client.MultipleGet(ctx, "k1", "k2", "non-exist")
+			Expect(err).To(BeNil())
+			Expect(values).To(HaveLen(3))
+			Expect(values).To(Equal([]string{kv[1], kv[3], ""}))
+		})
+	})
+
 	Context("Hash Data", func() {
 		It("set the key with given fields and values", func() {
 			key := uuid.New().String()
