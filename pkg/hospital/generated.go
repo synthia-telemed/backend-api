@@ -1508,12 +1508,16 @@ func (v *getAppointmentAppointment) GetPrescriptions() []*getAppointmentAppointm
 
 // getAppointmentAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
 type getAppointmentAppointmentDoctor struct {
+	Id            string `json:"id"`
 	Initial_en    string `json:"initial_en"`
 	Firstname_en  string `json:"firstname_en"`
 	Lastname_en   string `json:"lastname_en"`
 	Position      string `json:"position"`
 	ProfilePicURL string `json:"profilePicURL"`
 }
+
+// GetId returns getAppointmentAppointmentDoctor.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentAppointmentDoctor) GetId() string { return v.Id }
 
 // GetInitial_en returns getAppointmentAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
 func (v *getAppointmentAppointmentDoctor) GetInitial_en() string { return v.Initial_en }
@@ -1931,6 +1935,7 @@ query getAppointment ($where: AppointmentWhereInput!) {
 		status
 		nextAppointment
 		doctor {
+			id
 			initial_en
 			firstname_en
 			lastname_en

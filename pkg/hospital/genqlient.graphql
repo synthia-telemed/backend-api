@@ -88,6 +88,7 @@ query getAppointment($where: AppointmentWhereInput!) {
         status
         nextAppointment
         doctor {
+            id
             initial_en
             firstname_en
             lastname_en
