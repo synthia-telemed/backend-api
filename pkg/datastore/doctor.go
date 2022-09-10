@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -15,6 +16,7 @@ type Doctor struct {
 
 type DoctorDataStore interface {
 	FindOrCreate(doctor *Doctor) error
+	FindByID(id uint) (*Doctor, error)
 }
 
 type GormDoctorDataStore struct {
@@ -27,4 +29,15 @@ func NewGormDoctorDataStore(db *gorm.DB) (DoctorDataStore, error) {
 
 func (g GormDoctorDataStore) FindOrCreate(doctor *Doctor) error {
 	return g.db.FirstOrCreate(doctor, doctor).Error
+}
+
+func (g GormDoctorDataStore) FindByID(id uint) (*Doctor, error) {
+	var doc Doctor
+	if err := g.db.First(&doc, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &doc, nil
 }

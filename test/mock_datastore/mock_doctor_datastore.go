@@ -34,6 +34,21 @@ func (m *MockDoctorDataStore) EXPECT() *MockDoctorDataStoreMockRecorder {
 	return m.recorder
 }
 
+// FindByID mocks base method.
+func (m *MockDoctorDataStore) FindByID(id uint) (*datastore.Doctor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(*datastore.Doctor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockDoctorDataStoreMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockDoctorDataStore)(nil).FindByID), id)
+}
+
 // FindOrCreate mocks base method.
 func (m *MockDoctorDataStore) FindOrCreate(doctor *datastore.Doctor) error {
 	m.ctrl.T.Helper()
