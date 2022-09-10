@@ -99,6 +99,20 @@ func (mr *MockClientMockRecorder) MultipleGet(ctx interface{}, keys ...interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultipleGet", reflect.TypeOf((*MockClient)(nil).MultipleGet), varargs...)
 }
 
+// MultipleSet mocks base method.
+func (m *MockClient) MultipleSet(ctx context.Context, kv map[string]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MultipleSet", ctx, kv)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MultipleSet indicates an expected call of MultipleSet.
+func (mr *MockClientMockRecorder) MultipleSet(ctx, kv interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultipleSet", reflect.TypeOf((*MockClient)(nil).MultipleSet), ctx, kv)
+}
+
 // Set mocks base method.
 func (m *MockClient) Set(ctx context.Context, key, value string, expiredIn time.Duration) error {
 	m.ctrl.T.Helper()

@@ -53,6 +53,10 @@ func (c RedisClient) Set(ctx context.Context, key string, value string, expiredI
 	return c.client.Set(ctx, key, value, expiredIn).Err()
 }
 
+func (c RedisClient) MultipleSet(ctx context.Context, kv map[string]string) error {
+	return c.client.MSet(ctx, kv).Err()
+}
+
 func (c RedisClient) MultipleGet(ctx context.Context, keys ...string) ([]string, error) {
 	values, err := c.client.MGet(ctx, keys...).Result()
 	if err != nil {

@@ -82,6 +82,21 @@ var _ = Describe("Cache Suite", func() {
 		})
 	})
 
+	Context("MultipleSet", func() {
+		It("set multiple key-value", func() {
+			kv := map[string]string{
+				"k1": uuid.NewString(),
+				"k2": uuid.NewString(),
+			}
+			Expect(client.MultipleSet(ctx, kv)).To(Succeed())
+			values, err := redisClient.MGet(ctx, "k1", "k2").Result()
+			Expect(err).To(BeNil())
+			for _, v := range values {
+				Expect(v).ToNot(BeNil())
+			}
+		})
+	})
+
 	Context("MultipleGet", func() {
 		It("get list of string values", func() {
 			kv := []string{"k1", uuid.NewString(), "k2", uuid.NewString()}
