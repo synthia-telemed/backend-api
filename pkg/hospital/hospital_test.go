@@ -15,12 +15,14 @@ var _ = Describe("Hospital Client", func() {
 	var (
 		mockCtrl      *gomock.Controller
 		graphQLClient *hospital.GraphQLClient
+		ctx           context.Context
 	)
 
 	BeforeEach(func() {
 		c := hospital.Config{HospitalSysEndpoint: "http://localhost:30821/graphql"}
 		mockCtrl = gomock.NewController(GinkgoT())
 		graphQLClient = hospital.NewGraphQLClient(&c)
+		ctx = context.Background()
 	})
 
 	AfterEach(func() {
@@ -29,21 +31,21 @@ var _ = Describe("Hospital Client", func() {
 
 	Context("FindPatientByGovCredential", func() {
 		It("should find patient by passport ID", func() {
-			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "JN848321")
+			patient, err := graphQLClient.FindPatientByGovCredential(ctx, "JN848321")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
 			Expect(patient.Id).To(Equal("HN-162462"))
 		})
 
 		It("should find patient by national ID", func() {
-			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "4671253551800")
+			patient, err := graphQLClient.FindPatientByGovCredential(ctx, "4671253551800")
 			Expect(err).To(BeNil())
 			Expect(patient).ToNot(BeNil())
 			Expect(patient.Id).To(Equal("HN-427845"))
 		})
 
 		It("should return nil when patient not found", func() {
-			patient, err := graphQLClient.FindPatientByGovCredential(context.Background(), "not-exist-national-id")
+			patient, err := graphQLClient.FindPatientByGovCredential(ctx, "not-exist-national-id")
 			Expect(err).To(BeNil())
 			Expect(patient).To(BeNil())
 		})
@@ -52,7 +54,7 @@ var _ = Describe("Hospital Client", func() {
 	Context("AssertDoctorCredential", func() {
 		When("doctor's username is not found", func() {
 			It("should return false", func() {
-				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "not-exist-doctor", "password")
+				assertion, err := graphQLClient.AssertDoctorCredential(ctx, "not-exist-doctor", "password")
 				Expect(err).To(BeNil())
 				Expect(assertion).To(BeFalse())
 			})
@@ -60,7 +62,7 @@ var _ = Describe("Hospital Client", func() {
 
 		When("doctor credential is invalid", func() {
 			It("should return false", func() {
-				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Anthony23", "not-password")
+				assertion, err := graphQLClient.AssertDoctorCredential(ctx, "Anthony23", "not-password")
 				Expect(err).To(BeNil())
 				Expect(assertion).To(BeFalse())
 			})
@@ -68,7 +70,7 @@ var _ = Describe("Hospital Client", func() {
 
 		When("doctor credential is valid", func() {
 			It("should return true", func() {
-				assertion, err := graphQLClient.AssertDoctorCredential(context.Background(), "Anthony23", "password")
+				assertion, err := graphQLClient.AssertDoctorCredential(ctx, "Anthony23", "password")
 				Expect(err).To(BeNil())
 				Expect(assertion).To(BeTrue())
 			})
@@ -78,7 +80,7 @@ var _ = Describe("Hospital Client", func() {
 	Context("FindDoctorByUsername", func() {
 		When("doctor is not found", func() {
 			It("should return nil with no error", func() {
-				doctor, err := graphQLClient.FindDoctorByUsername(context.Background(), "awdasdwasdwad")
+				doctor, err := graphQLClient.FindDoctorByUsername(ctx, "awdasdwasdwad")
 				Expect(err).To(BeNil())
 				Expect(doctor).To(BeNil())
 			})
@@ -86,7 +88,7 @@ var _ = Describe("Hospital Client", func() {
 
 		When("doctor is found", func() {
 			It("should return doctor", func() {
-				doctor, err := graphQLClient.FindDoctorByUsername(context.Background(), "Elias_Wolf")
+				doctor, err := graphQLClient.FindDoctorByUsername(ctx, "Elias_Wolf")
 				Expect(err).To(BeNil())
 				Expect(doctor.Id).To(Equal("5"))
 			})
@@ -96,14 +98,14 @@ var _ = Describe("Hospital Client", func() {
 	Context("FindInvoiceByID", func() {
 		When("invoice not found", func() {
 			It("should return nil with no error", func() {
-				invoice, err := graphQLClient.FindInvoiceByID(context.Background(), int(rand.Int31()))
+				invoice, err := graphQLClient.FindInvoiceByID(ctx, int(rand.Int31()))
 				Expect(err).To(BeNil())
 				Expect(invoice).To(BeNil())
 			})
 		})
 		When("invoice is found", func() {
 			It("should invoice with no error", func() {
-				invoice, err := graphQLClient.FindInvoiceByID(context.Background(), 1)
+				invoice, err := graphQLClient.FindInvoiceByID(ctx, 1)
 				Expect(err).To(BeNil())
 				Expect(invoice.Id).To(Equal(1))
 				Expect(invoice.AppointmentID).To(Equal("2"))
@@ -115,19 +117,19 @@ var _ = Describe("Hospital Client", func() {
 	Context("ListAppointmentsByPatientID", func() {
 		When("no appointment is found", func() {
 			It("should return empty slice with no error", func() {
-				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-something", time.Now())
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(ctx, "HN-something", time.Now())
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(0))
 			})
 		})
 		When("appointment(s) is/are found", func() {
 			It("should return scheduled appointments", func() {
-				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-129512", time.Unix(1659211832, 0))
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(ctx, "HN-129512", time.Unix(1659211832, 0))
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(1))
 			})
 			It("should return appointments from started of 2023", func() {
-				appointments, err := graphQLClient.ListAppointmentsByPatientID(context.Background(), "HN-853857", time.Unix(1672506001, 0))
+				appointments, err := graphQLClient.ListAppointmentsByPatientID(ctx, "HN-853857", time.Unix(1672506001, 0))
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(3))
 			})
@@ -137,14 +139,14 @@ var _ = Describe("Hospital Client", func() {
 	Context("FindAppointmentByID", func() {
 		When("appointment is not found", func() {
 			It("should return nil with no error", func() {
-				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), int(rand.Int31()))
+				appointment, err := graphQLClient.FindAppointmentByID(ctx, int(rand.Int31()))
 				Expect(err).To(BeNil())
 				Expect(appointment).To(BeNil())
 			})
 		})
 		When("appointment has no invoice and prescriptions", func() {
 			It("should return appointment with nil on invoice and zero length prescriptions", func() {
-				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), 1)
+				appointment, err := graphQLClient.FindAppointmentByID(ctx, 1)
 				Expect(err).To(BeNil())
 				Expect(appointment).ToNot(BeNil())
 				Expect(appointment.Prescriptions).To(HaveLen(0))
@@ -153,7 +155,7 @@ var _ = Describe("Hospital Client", func() {
 		})
 		When("appointment has invoice and prescriptions", func() {
 			It("should return appointment with invoice and non zero length prescriptions", func() {
-				appointment, err := graphQLClient.FindAppointmentByID(context.Background(), 2)
+				appointment, err := graphQLClient.FindAppointmentByID(ctx, 2)
 				Expect(err).To(BeNil())
 				Expect(appointment).ToNot(BeNil())
 				Expect(appointment.Prescriptions).To(HaveLen(4))
@@ -165,10 +167,20 @@ var _ = Describe("Hospital Client", func() {
 
 	Context("PaidInvoice", func() {
 		It("should set the paid status to true", func() {
-			Expect(graphQLClient.PaidInvoice(context.Background(), 18)).To(Succeed())
-			invoice, err := graphQLClient.FindInvoiceByID(context.Background(), 18)
+			Expect(graphQLClient.PaidInvoice(ctx, 18)).To(Succeed())
+			invoice, err := graphQLClient.FindInvoiceByID(ctx, 18)
 			Expect(err).To(BeNil())
 			Expect(invoice.Paid).To(BeTrue())
+		})
+	})
+
+	Context("CompleteAppointment", func() {
+		It("should set the status of appointment to complete", func() {
+			appID := 34
+			Expect(graphQLClient.CompleteAppointment(ctx, appID)).To(Succeed())
+			appointment, err := graphQLClient.FindAppointmentByID(ctx, appID)
+			Expect(err).To(BeNil())
+			Expect(appointment.Status).To(Equal(hospital.AppointmentStatusCompleted))
 		})
 	})
 })

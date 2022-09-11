@@ -9,6 +9,7 @@ services:
       - "5432"
   hospital-sys:
       image: "synthiatelemed.azurecr.io/hospital-it-system-mock:latest"
+      pull_policy: always
       environment:
         DATABASE_URL: "postgres://postgres:unsecurepassword@postgres:5432/hospital-mock"
       ports:

@@ -1400,6 +1400,16 @@ func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password
 // GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
 func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
 
+// __completeAppointmentInput is used internally by genqlient
+type __completeAppointmentInput struct {
+	CompleteAppointmentId float64 `json:"completeAppointmentId"`
+}
+
+// GetCompleteAppointmentId returns __completeAppointmentInput.CompleteAppointmentId, and is useful for accessing the field via an interface.
+func (v *__completeAppointmentInput) GetCompleteAppointmentId() float64 {
+	return v.CompleteAppointmentId
+}
+
 // __getAppointmentInput is used internally by genqlient
 type __getAppointmentInput struct {
 	Where *AppointmentWhereInput `json:"where,omitempty"`
@@ -1462,6 +1472,32 @@ type assertDoctorCredentialResponse struct {
 // GetAssertDoctorPassword returns assertDoctorCredentialResponse.AssertDoctorPassword, and is useful for accessing the field via an interface.
 func (v *assertDoctorCredentialResponse) GetAssertDoctorPassword() bool {
 	return v.AssertDoctorPassword
+}
+
+// completeAppointmentCompleteAppointment includes the requested fields of the GraphQL type Appointment.
+type completeAppointmentCompleteAppointment struct {
+	Id       string            `json:"id"`
+	DateTime time.Time         `json:"dateTime"`
+	Status   AppointmentStatus `json:"status"`
+}
+
+// GetId returns completeAppointmentCompleteAppointment.Id, and is useful for accessing the field via an interface.
+func (v *completeAppointmentCompleteAppointment) GetId() string { return v.Id }
+
+// GetDateTime returns completeAppointmentCompleteAppointment.DateTime, and is useful for accessing the field via an interface.
+func (v *completeAppointmentCompleteAppointment) GetDateTime() time.Time { return v.DateTime }
+
+// GetStatus returns completeAppointmentCompleteAppointment.Status, and is useful for accessing the field via an interface.
+func (v *completeAppointmentCompleteAppointment) GetStatus() AppointmentStatus { return v.Status }
+
+// completeAppointmentResponse is returned by completeAppointment on success.
+type completeAppointmentResponse struct {
+	CompleteAppointment *completeAppointmentCompleteAppointment `json:"completeAppointment"`
+}
+
+// GetCompleteAppointment returns completeAppointmentResponse.CompleteAppointment, and is useful for accessing the field via an interface.
+func (v *completeAppointmentResponse) GetCompleteAppointment() *completeAppointmentCompleteAppointment {
+	return v.CompleteAppointment
 }
 
 // getAppointmentAppointment includes the requested fields of the GraphQL type Appointment.
@@ -1907,6 +1943,40 @@ query assertDoctorCredential ($password: String!, $username: String!) {
 	var err error
 
 	var data assertDoctorCredentialResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func completeAppointment(
+	ctx context.Context,
+	client graphql.Client,
+	completeAppointmentId float64,
+) (*completeAppointmentResponse, error) {
+	req := &graphql.Request{
+		OpName: "completeAppointment",
+		Query: `
+mutation completeAppointment ($completeAppointmentId: Float!) {
+	completeAppointment(id: $completeAppointmentId) {
+		id
+		dateTime
+		status
+	}
+}
+`,
+		Variables: &__completeAppointmentInput{
+			CompleteAppointmentId: completeAppointmentId,
+		},
+	}
+	var err error
+
+	var data completeAppointmentResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

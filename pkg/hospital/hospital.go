@@ -16,6 +16,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
+	CompleteAppointment(ctx context.Context, appointmentID int) error
 }
 
 type Config struct {
@@ -289,4 +290,9 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 
 func parseFullName(init, first, last string) string {
 	return fmt.Sprintf("%s %s %s", init, first, last)
+}
+
+func (c GraphQLClient) CompleteAppointment(ctx context.Context, appointmentID int) error {
+	_, err := completeAppointment(ctx, c.client, float64(appointmentID))
+	return err
 }

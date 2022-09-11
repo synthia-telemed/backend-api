@@ -28,6 +28,7 @@ mockgen:
 
 gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml
+	fieldalignment -fix ./pkg/hospital/
 
 swagger:
 	swag init --parseDependency --parseInternal --dir cmd/patient-api --output cmd/patient-api/docs

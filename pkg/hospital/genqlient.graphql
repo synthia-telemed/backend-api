@@ -114,3 +114,11 @@ query getAppointment($where: AppointmentWhereInput!) {
         }
     }
 }
+
+mutation completeAppointment($completeAppointmentId: Float!) {
+    completeAppointment(id: $completeAppointmentId) {
+        id
+        dateTime
+        status
+    }
+}
