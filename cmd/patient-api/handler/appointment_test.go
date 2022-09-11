@@ -218,7 +218,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("appointment is not own by the patient", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment("not-patient-id", hospital.AppointmentStatusScheduled)
+				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})
@@ -229,7 +229,7 @@ var _ = Describe("Appointment Handler", func() {
 
 		When("appointment is found and it's completed with find payment error", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				appointment, id := testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
@@ -246,7 +246,7 @@ var _ = Describe("Appointment Handler", func() {
 			)
 			BeforeEach(func() {
 				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				now := time.Now()
@@ -280,7 +280,7 @@ var _ = Describe("Appointment Handler", func() {
 			)
 			BeforeEach(func() {
 				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, hospital.AppointmentStatusScheduled)
+				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})

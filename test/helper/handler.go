@@ -145,7 +145,7 @@ func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 	}
 }
 
-func GenerateAppointment(patientID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
+func GenerateAppointment(patientID string, doctorID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
 	var invoice *hospital.Invoice
 	if status == hospital.AppointmentStatusCompleted {
 		invoice = &hospital.Invoice{
@@ -164,6 +164,7 @@ func GenerateAppointment(patientID string, status hospital.AppointmentStatus) (*
 		Detail:          uuid.New().String(),
 		Status:          status,
 		Doctor: hospital.DoctorOverview{
+			ID:            doctorID,
 			FullName:      uuid.New().String(),
 			Position:      uuid.New().String(),
 			ProfilePicURL: uuid.New().String(),
