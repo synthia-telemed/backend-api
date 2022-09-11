@@ -172,5 +172,9 @@ var _ = Describe("Cache Suite", func() {
 			Expect(client.Delete(ctx, key)).To(Succeed())
 			Expect(redisClient.HGet(ctx, key, field).Err()).To(Equal(redis.Nil))
 		})
+
+		It("return no error when delete non-existed key", func() {
+			Expect(client.Delete(ctx, uuid.NewString())).To(Succeed())
+		})
 	})
 })
