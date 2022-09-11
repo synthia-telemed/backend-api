@@ -21,7 +21,7 @@ import (
 var (
 	ErrDoctorNotFound       = server.NewErrorResponse("Doctor not found")
 	ErrDoctorInAnotherRoom  = server.NewErrorResponse("Doctor is in another room. Please close the room before starting a new one")
-	ErrNotTimeYet           = server.NewErrorResponse("The appointment can start 5 minutes early and not later than 3 hours")
+	ErrNotTimeYet           = server.NewErrorResponse("The appointment can start 10 minutes early and not later than 3 hours")
 	ErrAppointmentIDMissing = server.NewErrorResponse("Appointment ID is missing")
 	ErrAppointmentIDInvalid = server.NewErrorResponse("Invalid appointment ID")
 	ErrAppointmentNotFound  = server.NewErrorResponse("Appointment not found")
