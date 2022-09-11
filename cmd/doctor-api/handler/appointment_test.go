@@ -202,6 +202,16 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			c.Set("Doctor", doctor)
 			c.Set("Appointment", appointment)
 		})
+
+		When("appointment doesn't have schedule status", func() {
+			BeforeEach(func() {
+				appointment.Status = hospital.AppointmentStatusCompleted
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInitNonScheduledAppointment)
+			})
+		})
 		When("init room earlier than 10 minutes of the appointment time", func() {
 			BeforeEach(func() {
 				mockClock.EXPECT().Now().Return(appointment.DateTime.Add(-time.Minute * 10).Add(-time.Second))

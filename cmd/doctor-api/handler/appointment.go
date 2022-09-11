@@ -19,13 +19,14 @@ import (
 )
 
 var (
-	ErrDoctorNotFound       = server.NewErrorResponse("Doctor not found")
-	ErrDoctorInAnotherRoom  = server.NewErrorResponse("Doctor is in another room. Please close the room before starting a new one")
-	ErrNotTimeYet           = server.NewErrorResponse("The appointment can start 10 minutes early and not later than 3 hours")
-	ErrAppointmentIDMissing = server.NewErrorResponse("Appointment ID is missing")
-	ErrAppointmentIDInvalid = server.NewErrorResponse("Invalid appointment ID")
-	ErrAppointmentNotFound  = server.NewErrorResponse("Appointment not found")
-	ErrForbidden            = server.NewErrorResponse("Forbidden")
+	ErrDoctorNotFound              = server.NewErrorResponse("Doctor not found")
+	ErrInitNonScheduledAppointment = server.NewErrorResponse("Cannot initiate room for completed or cancelled appointment")
+	ErrDoctorInAnotherRoom         = server.NewErrorResponse("Doctor is in another room. Please close the room before starting a new one")
+	ErrNotTimeYet                  = server.NewErrorResponse("The appointment can start 10 minutes early and not later than 3 hours")
+	ErrAppointmentIDMissing        = server.NewErrorResponse("Appointment ID is missing")
+	ErrAppointmentIDInvalid        = server.NewErrorResponse("Invalid appointment ID")
+	ErrAppointmentNotFound         = server.NewErrorResponse("Appointment not found")
+	ErrForbidden                   = server.NewErrorResponse("Forbidden")
 )
 
 type AppointmentHandler struct {
@@ -69,6 +70,10 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 
 	rawApp, _ := c.Get("Appointment")
 	appointment := rawApp.(*hospital.Appointment)
+	if appointment.Status != hospital.AppointmentStatusScheduled {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
+		return
+	}
 	now := h.clock.Now()
 	diff := appointment.DateTime.Sub(now)
 	if diff < -time.Hour*3 || diff > time.Minute*10 {
