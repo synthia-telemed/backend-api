@@ -87,3 +87,7 @@ func (c RedisClient) HashGet(ctx context.Context, key, field string) (string, er
 	}
 	return val, nil
 }
+
+func (c RedisClient) Delete(ctx context.Context, keys ...string) error {
+	return c.client.Del(ctx, keys...).Err()
+}

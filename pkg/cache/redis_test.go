@@ -148,4 +148,29 @@ var _ = Describe("Cache Suite", func() {
 		})
 	})
 
+	Context("Delete key(s)", func() {
+		It("delete a key", func() {
+			key := uuid.NewString()
+			Expect(redisClient.Set(ctx, key, uuid.NewString(), 0).Err()).To(Succeed())
+			Expect(client.Delete(ctx, key)).To(Succeed())
+			Expect(redisClient.Get(ctx, key).Err()).To(Equal(redis.Nil))
+		})
+
+		It("delete multiple keys", func() {
+			keys := []string{"k1", "k2"}
+			Expect(redisClient.MSet(ctx, keys[0], uuid.NewString(), keys[1], uuid.NewString()).Err()).To(Succeed())
+			Expect(client.Delete(ctx, keys...)).To(Succeed())
+			count, err := redisClient.Exists(ctx, keys...).Result()
+			Expect(err).To(BeNil())
+			Expect(count).To(Equal(int64(0)))
+		})
+
+		It("delete a key of hash data", func() {
+			key := uuid.NewString()
+			field := uuid.NewString()
+			Expect(redisClient.HSet(ctx, key, field, uuid.NewString()).Err()).To(Succeed())
+			Expect(client.Delete(ctx, key)).To(Succeed())
+			Expect(redisClient.HGet(ctx, key, field).Err()).To(Equal(redis.Nil))
+		})
+	})
 })
