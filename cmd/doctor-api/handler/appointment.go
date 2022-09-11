@@ -11,6 +11,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/id"
 	"github.com/synthia-telemed/backend-api/pkg/server"
+	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -54,8 +55,8 @@ func NewAppointmentHandler(pds datastore.PatientDataStore, dds datastore.DoctorD
 }
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
-	//TODO implement me
-	panic("implement me")
+	g := r.Group("/appointment")
+	g.POST("/:appointmentID/init", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 }
 
 type InitAppointmentRoomResponse struct {
