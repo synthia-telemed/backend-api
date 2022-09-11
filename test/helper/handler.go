@@ -1,6 +1,9 @@
 package helper
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -10,16 +13,20 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
+	"github.com/synthia-telemed/backend-api/pkg/server"
 	"math/rand"
 	"net/http/httptest"
 	"time"
 )
+
+var MockError = errors.New("error")
 
 func InitHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Context) {
 	rand.Seed(GinkgoRandomSeed())
 	mockCtrl := gomock.NewController(GinkgoT())
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
+	gin.SetMode(gin.TestMode)
 	return mockCtrl, rec, c
 }
 
@@ -184,4 +191,19 @@ func AssertListOfAppointments(apps []*hospital.AppointmentOverview, status hospi
 			Expect(a.DateTime.Before(prevTime)).To(BeTrue())
 		}
 	}
+}
+
+func GenerateDoctor() *datastore.Doctor {
+	return &datastore.Doctor{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		RefID:     uuid.NewString(),
+		ID:        uint(rand.Uint32()),
+	}
+}
+
+func AssertErrorResponseBody(body *bytes.Buffer, expectedError *server.ErrorResponse) {
+	var res server.ErrorResponse
+	Expect(json.Unmarshal(body.Bytes(), &res)).To(Succeed())
+	Expect(&res).To(Equal(expectedError))
 }

@@ -38,6 +38,21 @@ type AppointmentHandler struct {
 	server.GinHandler
 }
 
+func NewAppointmentHandler(pds datastore.PatientDataStore, dds datastore.DoctorDataStore, hos hospital.SystemClient, cache cache.Client, clock clock.Clock, id id.Generator, logger *zap.SugaredLogger) *AppointmentHandler {
+	return &AppointmentHandler{
+		patientDataStore: pds,
+		doctorDataStore:  dds,
+		hospitalClient:   hos,
+		cacheClient:      cache,
+		clock:            clock,
+		idGenerator:      id,
+		logger:           logger,
+		GinHandler: server.GinHandler{
+			Logger: logger,
+		},
+	}
+}
+
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	//TODO implement me
 	panic("implement me")
