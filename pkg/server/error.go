@@ -1,10 +1,9 @@
 package server
 
 import (
-	sentrygin "github.com/getsentry/sentry-go/gin"
-	"github.com/gin-gonic/gin"
+	"github.com/getsentry/sentry-go"
 	"go.uber.org/zap"
-	"net/http"
+	"time"
 )
 
 type ErrorResponse struct {
@@ -15,10 +14,11 @@ func NewErrorResponse(msg string) *ErrorResponse {
 	return &ErrorResponse{Message: msg}
 }
 
-func InternalServerError(c *gin.Context, logger *zap.SugaredLogger, err error, message string) {
-	if hub := sentrygin.GetHubFromContext(c); hub != nil {
-		hub.CaptureException(err)
+func AssertFatalError(logger *zap.SugaredLogger, err error, msg string) {
+	if err == nil {
+		return
 	}
-	logger.Errorw(message, "error", err)
-	c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
+	sentry.CaptureException(err)
+	sentry.Flush(time.Second * 2)
+	logger.Fatalw(msg, "error", err)
 }

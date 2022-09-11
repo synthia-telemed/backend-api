@@ -12,6 +12,7 @@ import (
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
@@ -39,13 +40,13 @@ var _ = Describe("Appointment Handler", func() {
 	)
 
 	BeforeEach(func() {
-		mockCtrl, rec, c = initHandlerTest()
+		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockPaymentDataStore = mock_datastore.NewMockPaymentDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
 		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockClock, zap.NewNop().Sugar())
-		patient = generatePatient()
+		patient = testhelper.GeneratePatient()
 		c.Set("Patient", patient)
 	})
 
@@ -112,7 +113,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("Patient struct parsing error", func() {
 			BeforeEach(func() {
-				c.Set("Patient", generateCreditCard())
+				c.Set("Patient", testhelper.GenerateCreditCard())
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -138,9 +139,9 @@ var _ = Describe("Appointment Handler", func() {
 			BeforeEach(func() {
 				mockClock.EXPECT().Now().Return(time.Now()).Times(1)
 				n = 3
-				scheduled = generateAppointmentOverviews(hospital.AppointmentStatusScheduled, n)
-				cancelled = generateAppointmentOverviews(hospital.AppointmentStatusCancelled, n)
-				completed = generateAppointmentOverviews(hospital.AppointmentStatusCompleted, n)
+				scheduled = testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusScheduled, n)
+				cancelled = testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCancelled, n)
+				completed = testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCompleted, n)
 				appointments = make([]*hospital.AppointmentOverview, n*3)
 				for i := 0; i < n; i++ {
 					appointments[i*3+0] = scheduled[i]
@@ -154,9 +155,9 @@ var _ = Describe("Appointment Handler", func() {
 				var res handler.ListAppointmentsResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Completed).To(HaveLen(n))
-				assertListOfAppointments(res.Scheduled, hospital.AppointmentStatusScheduled, ASC)
-				assertListOfAppointments(res.Completed, hospital.AppointmentStatusCompleted, DESC)
-				assertListOfAppointments(res.Cancelled, hospital.AppointmentStatusCancelled, DESC)
+				testhelper.AssertListOfAppointments(res.Scheduled, hospital.AppointmentStatusScheduled, testhelper.ASC)
+				testhelper.AssertListOfAppointments(res.Completed, hospital.AppointmentStatusCompleted, testhelper.DESC)
+				testhelper.AssertListOfAppointments(res.Cancelled, hospital.AppointmentStatusCancelled, testhelper.DESC)
 			})
 		})
 	})
@@ -176,7 +177,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("Patient struct parsing error", func() {
 			BeforeEach(func() {
-				c.Set("Patient", generateCreditCard())
+				c.Set("Patient", testhelper.GenerateCreditCard())
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -217,7 +218,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("appointment is not own by the patient", func() {
 			BeforeEach(func() {
-				appointment, id := generateAppointment("not-patient-id", hospital.AppointmentStatusScheduled)
+				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})
@@ -228,7 +229,7 @@ var _ = Describe("Appointment Handler", func() {
 
 		When("appointment is found and it's completed with find payment error", func() {
 			BeforeEach(func() {
-				appointment, id := generateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				appointment, id := testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
@@ -245,11 +246,11 @@ var _ = Describe("Appointment Handler", func() {
 			)
 			BeforeEach(func() {
 				var id int
-				appointment, id = generateAppointment(patient.RefID, hospital.AppointmentStatusCompleted)
+				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				now := time.Now()
-				card := generateCreditCard()
+				card := testhelper.GenerateCreditCard()
 				payment = &datastore.Payment{
 					ID:           uint(rand.Uint32()),
 					CreatedAt:    now,
@@ -279,7 +280,7 @@ var _ = Describe("Appointment Handler", func() {
 			)
 			BeforeEach(func() {
 				var id int
-				appointment, id = generateAppointment(patient.RefID, hospital.AppointmentStatusScheduled)
+				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})

@@ -14,6 +14,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
@@ -44,7 +45,7 @@ var _ = Describe("Payment Handler", func() {
 	)
 
 	BeforeEach(func() {
-		mockCtrl, rec, c = initHandlerTest()
+		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		patientID = uint(rand.Uint32())
 		customerID = uuid.New().String()
 		c.Set("UserID", patientID)
@@ -101,7 +102,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("Patient has maximum number of card", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generateCreditCards(5), nil).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(testhelper.GenerateCreditCards(5), nil).Times(1)
 			})
 			It("should return 400", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -125,7 +126,7 @@ var _ = Describe("Payment Handler", func() {
 			)
 
 			BeforeEach(func() {
-				pCard, dCard = generatePaymentAndDataStoreCard(patientID, req.Name)
+				pCard, dCard = testhelper.GeneratePaymentAndDataStoreCard(patientID, req.Name)
 				mockPaymentClient.EXPECT().AddCreditCard(customerID, req.CardToken).Return(pCard, nil).Times(1)
 				mockCreditCardDataStore.EXPECT().Create(dCard).Return(nil).Times(1)
 			})
@@ -140,7 +141,7 @@ var _ = Describe("Payment Handler", func() {
 			})
 			When("patient already has some cards", func() {
 				BeforeEach(func() {
-					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(generateCreditCards(3), nil).Times(1)
+					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(testhelper.GenerateCreditCards(3), nil).Times(1)
 				})
 				It("should return 201", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
@@ -177,7 +178,7 @@ var _ = Describe("Payment Handler", func() {
 		When("patient has at least one credit card", func() {
 			var cards []datastore.CreditCard
 			BeforeEach(func() {
-				cards = generateCreditCards(3)
+				cards = testhelper.GenerateCreditCards(3)
 				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(cards, nil).Times(1)
 			})
 			It("should return 200 with list of cards", func() {
@@ -308,7 +309,7 @@ var _ = Describe("Payment Handler", func() {
 
 		BeforeEach(func() {
 			handlerFunc = h.DeleteCreditCard
-			card = generateCreditCard()
+			card = testhelper.GenerateCreditCard()
 		})
 
 		When("credit card is not set", func() {
@@ -448,8 +449,8 @@ var _ = Describe("Payment Handler", func() {
 		)
 		BeforeEach(func() {
 			handlerFunc = h.PayInvoiceWithCreditCard
-			creditCard = generateCreditCard()
-			invoice = generateHospitalInvoice(false)
+			creditCard = testhelper.GenerateCreditCard()
+			invoice = testhelper.GenerateHospitalInvoice(false)
 			invoiceIDStr = fmt.Sprintf("%d", invoice.Id)
 			c.Set("CreditCard", creditCard)
 			c.Set("Invoice", invoice)
@@ -464,7 +465,7 @@ var _ = Describe("Payment Handler", func() {
 		})
 		When("hospital sys client PaidInvoice error", func() {
 			BeforeEach(func() {
-				p := generatePayment(true)
+				p := testhelper.GeneratePayment(true)
 				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
 				now := time.Now()
 				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
@@ -476,7 +477,7 @@ var _ = Describe("Payment Handler", func() {
 		})
 		When("create payment in datastore error", func() {
 			BeforeEach(func() {
-				p := generatePayment(true)
+				p := testhelper.GeneratePayment(true)
 				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
 				now := time.Now()
 				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
@@ -494,9 +495,9 @@ var _ = Describe("Payment Handler", func() {
 			)
 			When("payment failed", func() {
 				BeforeEach(func() {
-					paymentCharge = generatePayment(false)
+					paymentCharge = testhelper.GeneratePayment(false)
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
-					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.FailedPaymentStatus, invoice, paymentCharge, creditCard)
+					paymentData = testhelper.GenerateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.FailedPaymentStatus, invoice, paymentCharge, creditCard)
 					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})
@@ -510,10 +511,10 @@ var _ = Describe("Payment Handler", func() {
 			})
 			When("payment success", func() {
 				BeforeEach(func() {
-					paymentCharge = generatePayment(true)
+					paymentCharge = testhelper.GeneratePayment(true)
 					mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(paymentCharge, nil).Times(1)
 					mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
-					paymentData = generateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.SuccessPaymentStatus, invoice, paymentCharge, creditCard)
+					paymentData = testhelper.GenerateDataStorePayment(datastore.CreditCardPaymentMethod, datastore.SuccessPaymentStatus, invoice, paymentCharge, creditCard)
 					mockClock.EXPECT().NowPointer().Return(paymentData.PaidAt).Times(1)
 					mockPaymentDataStore.EXPECT().Create(paymentData).Return(nil).Times(1)
 				})

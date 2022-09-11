@@ -92,6 +92,7 @@ type AppointmentOverview struct {
 	Doctor    DoctorOverview    `json:"doctor"`
 }
 type DoctorOverview struct {
+	ID            string `json:"id"`
 	FullName      string `json:"full_name"`
 	Position      string `json:"position"`
 	ProfilePicURL string `json:"profile_pic_url"`
@@ -248,6 +249,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 		Detail:          resp.Appointment.GetDetail(),
 		Status:          resp.Appointment.GetStatus(),
 		Doctor: DoctorOverview{
+			ID:            resp.Appointment.Doctor.GetId(),
 			FullName:      parseFullName(resp.Appointment.Doctor.GetInitial_en(), resp.Appointment.Doctor.GetFirstname_en(), resp.Appointment.Doctor.GetLastname_en()),
 			Position:      resp.Appointment.Doctor.GetPosition(),
 			ProfilePicURL: resp.Appointment.Doctor.GetProfilePicURL(),

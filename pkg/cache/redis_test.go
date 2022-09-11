@@ -80,7 +80,72 @@ var _ = Describe("Cache Suite", func() {
 			Expect(err).To(BeNil())
 			Expect(retrievedValue).To(BeEmpty())
 		})
+	})
 
+	Context("MultipleSet", func() {
+		It("set multiple key-value", func() {
+			kv := map[string]string{
+				"k1": uuid.NewString(),
+				"k2": uuid.NewString(),
+			}
+			Expect(client.MultipleSet(ctx, kv)).To(Succeed())
+			values, err := redisClient.MGet(ctx, "k1", "k2").Result()
+			Expect(err).To(BeNil())
+			for _, v := range values {
+				Expect(v).ToNot(BeNil())
+			}
+		})
+	})
+
+	Context("MultipleGet", func() {
+		It("get list of string values", func() {
+			kv := []string{"k1", uuid.NewString(), "k2", uuid.NewString()}
+			Expect(redisClient.MSet(ctx, kv).Err()).To(Succeed())
+			values, err := client.MultipleGet(ctx, "k1", "k2", "non-exist")
+			Expect(err).To(BeNil())
+			Expect(values).To(HaveLen(3))
+			Expect(values).To(Equal([]string{kv[1], kv[3], ""}))
+		})
+	})
+
+	Context("Hash Data", func() {
+		It("set the key with given fields and values", func() {
+			key := uuid.New().String()
+			kv := map[string]string{
+				"val1": uuid.New().String(),
+				"val2": uuid.New().String(),
+			}
+			Expect(client.HashSet(ctx, key, kv)).To(Succeed())
+			for field, val := range kv {
+				v, err := redisClient.HGet(ctx, key, field).Result()
+				Expect(err).To(BeNil())
+				Expect(v).To(Equal(val))
+			}
+		})
+
+		It("get the field", func() {
+			key := uuid.New().String()
+			field := uuid.New().String()
+			val := uuid.New().String()
+			Expect(redisClient.HSet(ctx, key, field, val).Err()).To(Succeed())
+			v, err := client.HashGet(ctx, key, field)
+			Expect(err).To(BeNil())
+			Expect(v).To(Equal(val))
+		})
+
+		It("get empty string when get non-existed field", func() {
+			key := uuid.New().String()
+			Expect(redisClient.HSet(ctx, key, uuid.New().String(), uuid.New().String()).Err()).To(Succeed())
+			v, err := client.HashGet(ctx, key, uuid.New().String())
+			Expect(err).To(BeNil())
+			Expect(v).To(BeEmpty())
+		})
+
+		It("get empty string when get non-existed key", func() {
+			v, err := client.HashGet(ctx, uuid.New().String(), uuid.New().String())
+			Expect(err).To(BeNil())
+			Expect(v).To(BeEmpty())
+		})
 	})
 
 })
