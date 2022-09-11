@@ -77,7 +77,8 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 				d := doctors[3]
 				foundDoc, err := doctorDataStore.FindByID(d.ID)
 				Expect(err).To(BeNil())
-				Expect(foundDoc).To(Equal(d))
+				Expect(foundDoc.ID).To(Equal(d.ID))
+				Expect(foundDoc.RefID).To(Equal(d.RefID))
 			})
 		})
 		When("doctor is not found", func() {
