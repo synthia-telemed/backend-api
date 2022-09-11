@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"go.uber.org/zap"
 	"math/rand"
@@ -32,7 +33,7 @@ var _ = Describe("Measurement Handler", func() {
 	)
 
 	BeforeEach(func() {
-		mockCtrl, rec, c = initHandlerTest()
+		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		patientID = uint(rand.Uint32())
 		c.Set("UserID", patientID)
 

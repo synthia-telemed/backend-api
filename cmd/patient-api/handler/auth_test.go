@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
@@ -39,7 +40,7 @@ var _ = Describe("Auth Handler", func() {
 	)
 
 	BeforeEach(func() {
-		mockCtrl, rec, c = initHandlerTest()
+		mockCtrl, rec, c = testhelper.InitHandlerTest()
 
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)

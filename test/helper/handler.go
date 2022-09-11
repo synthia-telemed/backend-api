@@ -1,4 +1,4 @@
-package handler_test
+package helper
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Context) {
+func InitHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Context) {
 	rand.Seed(GinkgoRandomSeed())
 	mockCtrl := gomock.NewController(GinkgoT())
 	rec := httptest.NewRecorder()
@@ -23,7 +23,7 @@ func initHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Con
 	return mockCtrl, rec, c
 }
 
-func generatePatient() *datastore.Patient {
+func GeneratePatient() *datastore.Patient {
 	return &datastore.Patient{
 		ID:        uint(rand.Uint32()),
 		CreatedAt: time.Now(),
@@ -32,7 +32,7 @@ func generatePatient() *datastore.Patient {
 	}
 }
 
-func generateCreditCard() *datastore.CreditCard {
+func GenerateCreditCard() *datastore.CreditCard {
 	return &datastore.CreditCard{
 		ID:          uint(rand.Uint32()),
 		CreatedAt:   time.Now(),
@@ -44,15 +44,15 @@ func generateCreditCard() *datastore.CreditCard {
 	}
 }
 
-func generateCreditCards(n int) []datastore.CreditCard {
+func GenerateCreditCards(n int) []datastore.CreditCard {
 	cards := make([]datastore.CreditCard, n)
 	for i := 0; i < n; i++ {
-		cards[i] = *generateCreditCard()
+		cards[i] = *GenerateCreditCard()
 	}
 	return cards
 }
 
-func generatePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card, *datastore.CreditCard) {
+func GeneratePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card, *datastore.CreditCard) {
 	pCard := &payment.Card{
 		ID:          uuid.New().String(),
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
@@ -68,7 +68,7 @@ func generatePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card
 	return pCard, dCard
 }
 
-func generatePayment(isSuccess bool) *payment.Payment {
+func GeneratePayment(isSuccess bool) *payment.Payment {
 	var (
 		failure *string
 	)
@@ -87,7 +87,7 @@ func generatePayment(isSuccess bool) *payment.Payment {
 	}
 }
 
-func generateHospitalInvoice(paid bool) *hospital.InvoiceOverview {
+func GenerateHospitalInvoice(paid bool) *hospital.InvoiceOverview {
 	return &hospital.InvoiceOverview{
 		Id:            rand.Int(),
 		CreatedAt:     time.Now(),
@@ -98,7 +98,7 @@ func generateHospitalInvoice(paid bool) *hospital.InvoiceOverview {
 	}
 }
 
-func generateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.InvoiceOverview, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
+func GenerateDataStorePayment(method datastore.PaymentMethod, status datastore.PaymentStatus, i *hospital.InvoiceOverview, p *payment.Payment, c *datastore.CreditCard) *datastore.Payment {
 	var paidAt *time.Time
 	if status != datastore.PendingPaymentStatus || method == datastore.CreditCardPaymentMethod {
 		now := time.Now()
@@ -116,15 +116,15 @@ func generateDataStorePayment(method datastore.PaymentMethod, status datastore.P
 	}
 }
 
-func generateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*hospital.AppointmentOverview {
+func GenerateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*hospital.AppointmentOverview {
 	apps := make([]*hospital.AppointmentOverview, n, n)
 	for i := 0; i < n; i++ {
-		apps[i] = generateAppointmentOverview(status)
+		apps[i] = GenerateAppointmentOverview(status)
 	}
 	return apps
 }
 
-func generateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
+func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
 	return &hospital.AppointmentOverview{
 		Id:        uuid.New().String(),
 		DateTime:  time.Now(),
@@ -138,7 +138,7 @@ func generateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 	}
 }
 
-func generateAppointment(patientID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
+func GenerateAppointment(patientID string, status hospital.AppointmentStatus) (*hospital.Appointment, int) {
 	var invoice *hospital.Invoice
 	if status == hospital.AppointmentStatusCompleted {
 		invoice = &hospital.Invoice{
@@ -173,7 +173,7 @@ const (
 	ASC  Ordering = "ASC"
 )
 
-func assertListOfAppointments(apps []*hospital.AppointmentOverview, status hospital.AppointmentStatus, order Ordering) {
+func AssertListOfAppointments(apps []*hospital.AppointmentOverview, status hospital.AppointmentStatus, order Ordering) {
 	prevTime := apps[0].DateTime
 	for i := 1; i < len(apps); i++ {
 		a := apps[i]
