@@ -77,7 +77,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 
 	ctx := context.Background()
 	// Check the current room that doctor is in
-	currentAppID, err := h.cacheClient.Get(ctx, currentDoctorAppointmentKey(doctor.ID), false)
+	currentAppID, err := h.cacheClient.Get(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), false)
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
@@ -87,7 +87,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorInAnotherRoom)
 			return
 		}
-		roomID, err := h.cacheClient.Get(ctx, appointmentRoomIDKey(appointment.Id), false)
+		roomID, err := h.cacheClient.Get(ctx, AppointmentRoomIDKey(appointment.Id), false)
 		if err != nil {
 			h.InternalServerError(c, err, "h.cacheClient.Get error")
 			return
@@ -103,8 +103,8 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	}
 	// Set appointment ID that doctor is currently in and room ID of the appointment
 	kv := map[string]string{
-		currentDoctorAppointmentKey(doctor.ID): appointment.Id,
-		appointmentRoomIDKey(appointment.Id):   roomID,
+		CurrentDoctorAppointmentIDKey(doctor.ID): appointment.Id,
+		AppointmentRoomIDKey(appointment.Id):     roomID,
 	}
 	if err := h.cacheClient.MultipleSet(ctx, kv); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.MultipleSet error")
@@ -121,7 +121,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 		"AppointmentID": appointment.Id,
 	}
-	if err := h.cacheClient.HashSet(ctx, roomInfoKey(roomID), info); err != nil {
+	if err := h.cacheClient.HashSet(ctx, RoomInfoKey(roomID), info); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.HashSet error")
 		return
 	}
@@ -182,14 +182,14 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 	c.Set("Appointment", apps)
 }
 
-func currentDoctorAppointmentKey(doctorID uint) string {
+func CurrentDoctorAppointmentIDKey(doctorID uint) string {
 	return fmt.Sprintf("doctor:%d:appointment_id", doctorID)
 }
 
-func appointmentRoomIDKey(appointmentID string) string {
+func AppointmentRoomIDKey(appointmentID string) string {
 	return fmt.Sprintf("appointment:%s:room_id", appointmentID)
 }
 
-func roomInfoKey(roomID string) string {
+func RoomInfoKey(roomID string) string {
 	return fmt.Sprintf("room:%s", roomID)
 }
