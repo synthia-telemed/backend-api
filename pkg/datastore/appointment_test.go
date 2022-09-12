@@ -39,8 +39,9 @@ var _ = Describe("Appointment Datastore", Ordered, func() {
 	Context("Create", func() {
 		It("should save new appointment to db", func() {
 			appointment := datastore.Appointment{
-				RefID:    int(rand.Int31()),
-				Duration: (time.Minute * 10).Seconds(),
+				RefID:       int(rand.Int31()),
+				Duration:    (time.Minute * 10).Seconds(),
+				StartedTime: time.Now(),
 			}
 			Expect(appointmentDataStore.Create(&appointment)).To(Succeed())
 			var retriedAppointment datastore.Appointment
@@ -62,8 +63,9 @@ var _ = Describe("Appointment Datastore", Ordered, func() {
 			var appointment datastore.Appointment
 			BeforeEach(func() {
 				appointment = datastore.Appointment{
-					RefID:    int(rand.Int31()),
-					Duration: (time.Minute * 10).Seconds(),
+					RefID:       int(rand.Int31()),
+					Duration:    (time.Minute * 10).Seconds(),
+					StartedTime: time.Now(),
 				}
 				Expect(db.Create(&appointment).Error).To(Succeed())
 			})
