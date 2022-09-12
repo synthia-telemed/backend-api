@@ -115,10 +115,10 @@ query getAppointment($where: AppointmentWhereInput!) {
     }
 }
 
-mutation completeAppointment($completeAppointmentId: Float!) {
-    completeAppointment(id: $completeAppointmentId) {
+mutation setAppointmentStatus($setAppointmentStatusId: Float!, $status: AppointmentStatus!) {
+    setAppointmentStatus(id: $setAppointmentStatusId, status: $status) {
         id
-        dateTime
         status
+        dateTime
     }
 }
