@@ -178,8 +178,9 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	// Save duration to DB
 	appIDInt, _ := strconv.ParseInt(appointmentID, 10, 32)
 	appointment := datastore.Appointment{
-		RefID:    int(appIDInt),
-		Duration: duration.Seconds(),
+		RefID:       int(appIDInt),
+		Duration:    duration.Seconds(),
+		StartedTime: startedTime,
 	}
 	if err := h.appointmentDataStore.Create(&appointment); err != nil {
 		h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
@@ -193,7 +194,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "h.hospitalClient.CompleteAppointment error")
 		return
 	}
-	c.JSON(http.StatusOK, &CompleteAppointmentResponse{Duration: duration.Seconds()})
+	c.JSON(http.StatusOK, &CompleteAppointmentResponse{Duration: appointment.Duration})
 }
 
 func (h AppointmentHandler) ParseDoctor(c *gin.Context) {

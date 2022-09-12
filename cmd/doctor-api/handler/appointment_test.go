@@ -443,8 +443,9 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return(startedTime.Format(time.RFC3339), nil).Times(1)
 				mockClock.EXPECT().Now().Return(now).Times(1)
 				dbAppointment = &datastore.Appointment{
-					RefID:    appointmentID,
-					Duration: duration.Seconds(),
+					RefID:       appointmentID,
+					Duration:    duration.Seconds(),
+					StartedTime: startedTime,
 				}
 			})
 			When("save appointment to db error", func() {
