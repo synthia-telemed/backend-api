@@ -141,7 +141,7 @@ func (mr *MockSystemClientMockRecorder) PaidInvoice(ctx, id interface{}) *gomock
 }
 
 // SetAppointmentStatus mocks base method.
-func (m *MockSystemClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status hospital.AppointmentStatus) error {
+func (m *MockSystemClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status hospital.SettableAppointmentStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetAppointmentStatus", ctx, appointmentID, status)
 	ret0, _ := ret[0].(error)

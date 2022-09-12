@@ -16,7 +16,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
-	SetAppointmentStatus(ctx context.Context, appointmentID int, status AppointmentStatus) error
+	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 }
 
 type Config struct {
@@ -298,6 +298,15 @@ const (
 	SettableAppointmentStatusCancelled SettableAppointmentStatus = "CANCELLED"
 	SettableAppointmentStatusCompleted SettableAppointmentStatus = "COMPLETED"
 )
+
+func (s SettableAppointmentStatus) IsValid() bool {
+	switch s {
+	case SettableAppointmentStatusCompleted, SettableAppointmentStatusCancelled:
+		return true
+	default:
+		return false
+	}
+}
 
 func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error {
 	var s AppointmentStatus
