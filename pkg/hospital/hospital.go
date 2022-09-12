@@ -16,7 +16,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
-	CompleteAppointment(ctx context.Context, appointmentID int) error
+	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 }
 
 type Config struct {
@@ -292,7 +292,30 @@ func parseFullName(init, first, last string) string {
 	return fmt.Sprintf("%s %s %s", init, first, last)
 }
 
-func (c GraphQLClient) CompleteAppointment(ctx context.Context, appointmentID int) error {
-	_, err := completeAppointment(ctx, c.client, float64(appointmentID))
+type SettableAppointmentStatus string
+
+const (
+	SettableAppointmentStatusCancelled SettableAppointmentStatus = "CANCELLED"
+	SettableAppointmentStatusCompleted SettableAppointmentStatus = "COMPLETED"
+)
+
+func (s SettableAppointmentStatus) IsValid() bool {
+	switch s {
+	case SettableAppointmentStatusCompleted, SettableAppointmentStatusCancelled:
+		return true
+	default:
+		return false
+	}
+}
+
+func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error {
+	var s AppointmentStatus
+	switch status {
+	case SettableAppointmentStatusCancelled:
+		s = AppointmentStatusCancelled
+	case SettableAppointmentStatusCompleted:
+		s = AppointmentStatusCompleted
+	}
+	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), s)
 	return err
 }

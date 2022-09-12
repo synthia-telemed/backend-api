@@ -51,20 +51,6 @@ func (mr *MockSystemClientMockRecorder) AssertDoctorCredential(ctx, username, pa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssertDoctorCredential", reflect.TypeOf((*MockSystemClient)(nil).AssertDoctorCredential), ctx, username, password)
 }
 
-// CompleteAppointment mocks base method.
-func (m *MockSystemClient) CompleteAppointment(ctx context.Context, appointmentID int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CompleteAppointment", ctx, appointmentID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CompleteAppointment indicates an expected call of CompleteAppointment.
-func (mr *MockSystemClientMockRecorder) CompleteAppointment(ctx, appointmentID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteAppointment", reflect.TypeOf((*MockSystemClient)(nil).CompleteAppointment), ctx, appointmentID)
-}
-
 // FindAppointmentByID mocks base method.
 func (m *MockSystemClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*hospital.Appointment, error) {
 	m.ctrl.T.Helper()
@@ -152,4 +138,18 @@ func (m *MockSystemClient) PaidInvoice(ctx context.Context, id int) error {
 func (mr *MockSystemClientMockRecorder) PaidInvoice(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaidInvoice", reflect.TypeOf((*MockSystemClient)(nil).PaidInvoice), ctx, id)
+}
+
+// SetAppointmentStatus mocks base method.
+func (m *MockSystemClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status hospital.SettableAppointmentStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAppointmentStatus", ctx, appointmentID, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAppointmentStatus indicates an expected call of SetAppointmentStatus.
+func (mr *MockSystemClientMockRecorder) SetAppointmentStatus(ctx, appointmentID, status interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAppointmentStatus", reflect.TypeOf((*MockSystemClient)(nil).SetAppointmentStatus), ctx, appointmentID, status)
 }

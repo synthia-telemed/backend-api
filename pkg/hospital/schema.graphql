@@ -943,7 +943,6 @@ input MedicineWhereUniqueInput {
 }
 
 type Mutation {
-    completeAppointment(id: Float!): Appointment!
     createAppointment(appointment: AppointmentCreateInput!): Appointment!
     createDoctor(doctor: DoctorCreateInput!): Doctor!
     createInvoice(invoice: InvoiceCreateInput!): Invoice!
@@ -952,6 +951,7 @@ type Mutation {
     createPatient(patient: PatientCreateInput!): Patient!
     createPrescription(prescription: PrescriptionCreateInput!): Prescription!
     paidInvoice(id: Float!): Invoice!
+    setAppointmentStatus(id: Float!, status: AppointmentStatus!): Appointment!
 }
 
 input NestedBoolFilter {

@@ -174,13 +174,13 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
-	Context("CompleteAppointment", func() {
-		It("should set the status of appointment to complete", func() {
-			appID := 34
-			Expect(graphQLClient.CompleteAppointment(ctx, appID)).To(Succeed())
-			appointment, err := graphQLClient.FindAppointmentByID(ctx, appID)
-			Expect(err).To(BeNil())
-			Expect(appointment.Status).To(Equal(hospital.AppointmentStatusCompleted))
-		})
-	})
+	DescribeTable("Set appointment status", func(appID int, status hospital.SettableAppointmentStatus, expectedStatus hospital.AppointmentStatus) {
+		Expect(graphQLClient.SetAppointmentStatus(ctx, appID, status)).To(Succeed())
+		appointment, err := graphQLClient.FindAppointmentByID(ctx, appID)
+		Expect(err).To(BeNil())
+		Expect(appointment.Status).To(Equal(expectedStatus))
+	},
+		Entry("set status of appointment to complete", 34, hospital.SettableAppointmentStatusCompleted, hospital.AppointmentStatusCompleted),
+		Entry("set status of appointment to cancelled", 86, hospital.SettableAppointmentStatusCancelled, hospital.AppointmentStatusCancelled),
+	)
 })

@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,7 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"time"
 )
 
@@ -375,6 +377,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			now                      time.Time
 			duration                 time.Duration
 			startedTime              time.Time
+			req                      *handler.CompleteAppointmentRequest
 		)
 
 		BeforeEach(func() {
@@ -387,8 +390,22 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			now = time.Now()
 			duration = (time.Minute * 30) + (time.Second * 10)
 			startedTime = now.Add(-duration).Round(time.Second)
+			req = &handler.CompleteAppointmentRequest{Status: hospital.SettableAppointmentStatusCompleted}
+			body, err := json.Marshal(req)
+			Expect(err).To(BeNil())
+			c.Request = httptest.NewRequest("post", "/", bytes.NewReader(body))
 		})
 
+		When("request body is invalid", func() {
+			BeforeEach(func() {
+				body := fmt.Sprintf(`{"status": "%s"}`, hospital.AppointmentStatusScheduled)
+				c.Request = httptest.NewRequest("post", "/", strings.NewReader(body))
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
+			})
+		})
 		When("get current appointment ID from cache error", func() {
 			BeforeEach(func() {
 				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return("", testhelper.MockError).Times(1)
@@ -469,7 +486,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				BeforeEach(func() {
 					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(nil).Times(1)
 					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
-					mockHospitalSysClient.EXPECT().CompleteAppointment(gomock.Any(), appointmentID).Return(testhelper.MockError).Times(1)
+					mockHospitalSysClient.EXPECT().SetAppointmentStatus(gomock.Any(), appointmentID, req.Status).Return(testhelper.MockError).Times(1)
 				})
 				It("should return 500", func() {
 					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -479,7 +496,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				BeforeEach(func() {
 					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(nil).Times(1)
 					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
-					mockHospitalSysClient.EXPECT().CompleteAppointment(gomock.Any(), appointmentID).Return(nil).Times(1)
+					mockHospitalSysClient.EXPECT().SetAppointmentStatus(gomock.Any(), appointmentID, req.Status).Return(nil).Times(1)
 				})
 				It("should return 200 with duration", func() {
 					Expect(rec.Code).To(Equal(http.StatusOK))
