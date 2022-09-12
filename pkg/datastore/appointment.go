@@ -7,13 +7,13 @@ import (
 )
 
 type Appointment struct {
-	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
+	StartedTime time.Time      `json:"started_time"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 	RefID       int            `json:"ref_id" gorm:"unique"`
 	Duration    float64        `json:"duration"`
-	StartedTime time.Time      `json:"started_time"`
+	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 }
 
 type AppointmentDataStore interface {
