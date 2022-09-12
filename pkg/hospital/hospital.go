@@ -292,7 +292,21 @@ func parseFullName(init, first, last string) string {
 	return fmt.Sprintf("%s %s %s", init, first, last)
 }
 
-func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status AppointmentStatus) error {
-	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), status)
+type SettableAppointmentStatus string
+
+const (
+	SettableAppointmentStatusCancelled SettableAppointmentStatus = "CANCELLED"
+	SettableAppointmentStatusCompleted SettableAppointmentStatus = "COMPLETED"
+)
+
+func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error {
+	var s AppointmentStatus
+	switch status {
+	case SettableAppointmentStatusCancelled:
+		s = AppointmentStatusCancelled
+	case SettableAppointmentStatusCompleted:
+		s = AppointmentStatusCompleted
+	}
+	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), s)
 	return err
 }
