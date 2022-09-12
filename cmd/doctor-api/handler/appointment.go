@@ -27,7 +27,7 @@ var (
 	ErrAppointmentIDInvalid        = server.NewErrorResponse("Invalid appointment ID")
 	ErrAppointmentNotFound         = server.NewErrorResponse("Appointment not found")
 	ErrForbidden                   = server.NewErrorResponse("Forbidden")
-	ErrDoctorNotInRoom             = server.NewErrorResponse("Doctor is currently in any room")
+	ErrDoctorNotInRoom             = server.NewErrorResponse("Doctor isn't currently in any room")
 )
 
 type AppointmentHandler struct {
