@@ -64,6 +64,8 @@ func main() {
 	server.AssertFatalError(sugaredLogger, err, "Failed to create doctor data store")
 	patientDataStore, err := datastore.NewGormPatientDataStore(db)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create patient data store")
+	appointmentDataStore, err := datastore.NewGormAppointmentDataStore(db)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create appointment data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	cacheClient := cache.NewRedisClient(&cfg.Cache)
@@ -74,7 +76,7 @@ func main() {
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(hospitalSysClient, tokenService, doctorDataStore, sugaredLogger)
-	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, doctorDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, sugaredLogger)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	ginServer.RegisterHandlers("/api", authHandler, appointmentHandler)

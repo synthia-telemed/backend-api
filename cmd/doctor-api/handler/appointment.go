@@ -27,28 +27,31 @@ var (
 	ErrAppointmentIDInvalid        = server.NewErrorResponse("Invalid appointment ID")
 	ErrAppointmentNotFound         = server.NewErrorResponse("Appointment not found")
 	ErrForbidden                   = server.NewErrorResponse("Forbidden")
+	ErrDoctorNotInRoom             = server.NewErrorResponse("Doctor is currently in any room")
 )
 
 type AppointmentHandler struct {
-	patientDataStore datastore.PatientDataStore
-	doctorDataStore  datastore.DoctorDataStore
-	hospitalClient   hospital.SystemClient
-	cacheClient      cache.Client
-	clock            clock.Clock
-	idGenerator      id.Generator
-	logger           *zap.SugaredLogger
+	appointmentDataStore datastore.AppointmentDataStore
+	patientDataStore     datastore.PatientDataStore
+	doctorDataStore      datastore.DoctorDataStore
+	hospitalClient       hospital.SystemClient
+	cacheClient          cache.Client
+	clock                clock.Clock
+	idGenerator          id.Generator
+	logger               *zap.SugaredLogger
 	server.GinHandler
 }
 
-func NewAppointmentHandler(pds datastore.PatientDataStore, dds datastore.DoctorDataStore, hos hospital.SystemClient, cache cache.Client, clock clock.Clock, id id.Generator, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.PatientDataStore, dds datastore.DoctorDataStore, hos hospital.SystemClient, cache cache.Client, clock clock.Clock, id id.Generator, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
-		patientDataStore: pds,
-		doctorDataStore:  dds,
-		hospitalClient:   hos,
-		cacheClient:      cache,
-		clock:            clock,
-		idGenerator:      id,
-		logger:           logger,
+		appointmentDataStore: ads,
+		patientDataStore:     pds,
+		doctorDataStore:      dds,
+		hospitalClient:       hos,
+		cacheClient:          cache,
+		clock:                clock,
+		idGenerator:          id,
+		logger:               logger,
 		GinHandler: server.GinHandler{
 			Logger: logger,
 		},
@@ -58,6 +61,7 @@ func NewAppointmentHandler(pds datastore.PatientDataStore, dds datastore.DoctorD
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.POST("/:appointmentID/init", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
+	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
 
 type InitAppointmentRoomResponse struct {
@@ -126,6 +130,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		"PatientID":     fmt.Sprintf("%d", patient.ID),
 		"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 		"AppointmentID": appointment.Id,
+		"StartedAt":     now.Format(time.RFC3339),
 	}
 	if err := h.cacheClient.HashSet(ctx, RoomInfoKey(roomID), info); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.HashSet error")
@@ -134,6 +139,61 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 
 	// TODO: Push notification to patient
 	c.JSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
+}
+
+type CompleteAppointmentResponse struct {
+	Duration float64 `json:"duration"`
+}
+
+func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
+	rawDoc, _ := c.Get("Doctor")
+	doctor := rawDoc.(*datastore.Doctor)
+
+	ctx := context.Background()
+	appointmentID, err := h.cacheClient.Get(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), false)
+	if err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	if appointmentID == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorNotInRoom)
+		return
+	}
+	roomID, err := h.cacheClient.Get(ctx, AppointmentRoomIDKey(appointmentID), false)
+	if err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	startedTimeStr, err := h.cacheClient.HashGet(ctx, RoomInfoKey(roomID), "StartedAt")
+	if err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	startedTime, err := time.Parse(time.RFC3339, startedTimeStr)
+	if err != nil {
+		h.InternalServerError(c, err, "time.Parse error")
+		return
+	}
+	duration := h.clock.Now().Sub(startedTime)
+	// Save duration to DB
+	appIDInt, _ := strconv.ParseInt(appointmentID, 10, 32)
+	appointment := datastore.Appointment{
+		RefID:    int(appIDInt),
+		Duration: duration.Seconds(),
+	}
+	if err := h.appointmentDataStore.Create(&appointment); err != nil {
+		h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
+		return
+	}
+	if err := h.cacheClient.Delete(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), AppointmentRoomIDKey(appointmentID), RoomInfoKey(roomID)); err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Delete error")
+		return
+	}
+	if err := h.hospitalClient.CompleteAppointment(ctx, int(appIDInt)); err != nil {
+		h.InternalServerError(c, err, "h.hospitalClient.CompleteAppointment error")
+		return
+	}
+	c.JSON(http.StatusOK, &CompleteAppointmentResponse{Duration: duration.Seconds()})
 }
 
 func (h AppointmentHandler) ParseDoctor(c *gin.Context) {
