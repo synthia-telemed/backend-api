@@ -174,7 +174,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "time.Parse error")
 		return
 	}
-	duration := h.clock.Now().Sub(startedTime)
+	duration := h.clock.Now().Sub(startedTime).Round(time.Second)
 	// Save duration to DB
 	appIDInt, _ := strconv.ParseInt(appointmentID, 10, 32)
 	appointment := datastore.Appointment{
