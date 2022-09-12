@@ -27,6 +27,15 @@ type Enum interface {
 	IsValid() bool
 }
 
+func RegisterValidator() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("enum", func(fl validator.FieldLevel) bool {
+			value := fl.Field().Interface().(Enum)
+			return value.IsValid()
+		})
+	}
+}
+
 func NewGinServer(cfg *config.Config, logger *zap.SugaredLogger) *Server {
 	gin.SetMode(cfg.GinMode)
 	router := gin.New()
@@ -39,12 +48,7 @@ func NewGinServer(cfg *config.Config, logger *zap.SugaredLogger) *Server {
 			"timestamp": time.Now(),
 		})
 	})
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		_ = v.RegisterValidation("enum", func(fl validator.FieldLevel) bool {
-			value := fl.Field().Interface().(Enum)
-			return value.IsValid()
-		})
-	}
+	RegisterValidator()
 
 	return &Server{
 		Engine: router,

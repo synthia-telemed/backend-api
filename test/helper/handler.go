@@ -22,6 +22,7 @@ import (
 var MockError = errors.New("error")
 
 func InitHandlerTest() (*gomock.Controller, *httptest.ResponseRecorder, *gin.Context) {
+	server.RegisterValidator()
 	rand.Seed(GinkgoRandomSeed())
 	mockCtrl := gomock.NewController(GinkgoT())
 	rec := httptest.NewRecorder()
