@@ -141,11 +141,19 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	c.JSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
 }
 
+type CompleteAppointmentRequest struct {
+	Status hospital.SettableAppointmentStatus `json:"status" binding:"required,enum"`
+}
 type CompleteAppointmentResponse struct {
 	Duration float64 `json:"duration"`
 }
 
 func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
+	var req CompleteAppointmentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
 
@@ -190,7 +198,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "h.cacheClient.Delete error")
 		return
 	}
-	if err := h.hospitalClient.CompleteAppointment(ctx, int(appIDInt)); err != nil {
+	if err := h.hospitalClient.SetAppointmentStatus(ctx, int(appIDInt), req.Status); err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.CompleteAppointment error")
 		return
 	}
