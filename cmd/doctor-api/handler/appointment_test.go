@@ -445,7 +445,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				dbAppointment = &datastore.Appointment{
 					RefID:       appointmentID,
 					Duration:    duration.Seconds(),
-					StartedTime: startedTime,
+					StartedTime: startedTime.UTC(),
 				}
 			})
 			When("save appointment to db error", func() {

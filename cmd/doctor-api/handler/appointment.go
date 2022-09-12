@@ -180,7 +180,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	appointment := datastore.Appointment{
 		RefID:       int(appIDInt),
 		Duration:    duration.Seconds(),
-		StartedTime: startedTime,
+		StartedTime: startedTime.UTC(),
 	}
 	if err := h.appointmentDataStore.Create(&appointment); err != nil {
 		h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
