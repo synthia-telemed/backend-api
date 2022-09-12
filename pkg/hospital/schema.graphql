@@ -943,6 +943,7 @@ input MedicineWhereUniqueInput {
 }
 
 type Mutation {
+    completeAppointment(id: Float!): Appointment!
     createAppointment(appointment: AppointmentCreateInput!): Appointment!
     createDoctor(doctor: DoctorCreateInput!): Doctor!
     createInvoice(invoice: InvoiceCreateInput!): Invoice!

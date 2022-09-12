@@ -31,13 +31,16 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		h           *handler.AppointmentHandler
 		handlerFunc gin.HandlerFunc
 
-		mockDoctorDataStore   *mock_datastore.MockDoctorDataStore
-		mockPatientDataStore  *mock_datastore.MockPatientDataStore
-		mockHospitalSysClient *mock_hospital_client.MockSystemClient
-		mockCacheClient       *mock_cache_client.MockClient
-		mockClock             *mock_clock.MockClock
-		mockIDGenerator       *mock_id.MockGenerator
-		doctor                *datastore.Doctor
+		mockDoctorDataStore      *mock_datastore.MockDoctorDataStore
+		mockAppointmentDataStore *mock_datastore.MockAppointmentDataStore
+		mockPatientDataStore     *mock_datastore.MockPatientDataStore
+		mockHospitalSysClient    *mock_hospital_client.MockSystemClient
+		mockCacheClient          *mock_cache_client.MockClient
+		mockClock                *mock_clock.MockClock
+		mockIDGenerator          *mock_id.MockGenerator
+		doctor                   *datastore.Doctor
+		appointment              *hospital.Appointment
+		appointmentID            int
 	)
 
 	BeforeEach(func() {
@@ -45,11 +48,13 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockDoctorDataStore = mock_datastore.NewMockDoctorDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
+		mockAppointmentDataStore = mock_datastore.NewMockAppointmentDataStore(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockIDGenerator = mock_id.NewMockGenerator(mockCtrl)
-		h = handler.NewAppointmentHandler(mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
+		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
 		doctor = testhelper.GenerateDoctor()
+		appointment, appointmentID = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 	})
 
 	JustBeforeEach(func() {
@@ -192,13 +197,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	})
 
 	Context("InitAppointmentRoom", func() {
-		var (
-			appointment *hospital.Appointment
-			//appointmentID int
-		)
 		BeforeEach(func() {
 			handlerFunc = h.InitAppointmentRoom
-			appointment, _ = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 			c.Set("Doctor", doctor)
 			c.Set("Appointment", appointment)
 		})
@@ -240,8 +240,10 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			})
 		})
 		Context("doctor is currently in a room", func() {
+			var clockTime time.Time
 			BeforeEach(func() {
-				mockClock.EXPECT().Now().Return(appointment.DateTime.Add(time.Minute)).Times(1)
+				clockTime = appointment.DateTime.Add(time.Minute)
+				mockClock.EXPECT().Now().Return(clockTime).Times(1)
 			})
 			When("doctor is in another room", func() {
 				BeforeEach(func() {
@@ -332,6 +334,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 								"AppointmentID": appointment.Id,
+								"StartedAt":     clockTime.Format(time.RFC3339),
 							}
 							mockCacheClient.EXPECT().HashSet(gomock.Any(), handler.RoomInfoKey(roomID), info).Return(testhelper.MockError).Times(1)
 						})
@@ -347,6 +350,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 								"AppointmentID": appointment.Id,
+								"StartedAt":     clockTime.Format(time.RFC3339),
 							}
 							mockCacheClient.EXPECT().HashSet(gomock.Any(), handler.RoomInfoKey(roomID), info).Return(nil).Times(1)
 						})
@@ -360,6 +364,130 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				})
 			})
 		})
+	})
 
+	Context("CompleteAppointment", func() {
+		var (
+			roomID                   string
+			getCurrentAppointmentKey string
+			getRoomIDKey             string
+			getRoomInfoKey           string
+			now                      time.Time
+			duration                 time.Duration
+			startedTime              time.Time
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.CompleteAppointment
+			c.Set("Doctor", doctor)
+			roomID = uuid.NewString()
+			getCurrentAppointmentKey = handler.CurrentDoctorAppointmentIDKey(doctor.ID)
+			getRoomIDKey = handler.AppointmentRoomIDKey(appointment.Id)
+			getRoomInfoKey = handler.RoomInfoKey(roomID)
+			now = time.Now()
+			duration = (time.Minute * 30) + (time.Second * 10)
+			startedTime = now.Add(-duration).Round(time.Second)
+		})
+
+		When("get current appointment ID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return("", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("current appointment ID is not found", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return("", nil).Times(1)
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrDoctorNotInRoom)
+			})
+		})
+		When("get room ID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return("", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("get started time from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return("", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("parsing started time error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return(startedTime.Format(time.Stamp), nil).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		Context("getting information and parse from cache success", func() {
+			var dbAppointment *datastore.Appointment
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return(startedTime.Format(time.RFC3339), nil).Times(1)
+				mockClock.EXPECT().Now().Return(now).Times(1)
+				dbAppointment = &datastore.Appointment{
+					RefID:       appointmentID,
+					Duration:    duration.Seconds(),
+					StartedTime: startedTime.UTC(),
+				}
+			})
+			When("save appointment to db error", func() {
+				BeforeEach(func() {
+					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(testhelper.MockError).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+			When("delete appointment and room information in cache error", func() {
+				BeforeEach(func() {
+					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(nil).Times(1)
+					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(testhelper.MockError).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+			When("set status of appointment in hospital sys to complete error", func() {
+				BeforeEach(func() {
+					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(nil).Times(1)
+					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
+					mockHospitalSysClient.EXPECT().CompleteAppointment(gomock.Any(), appointmentID).Return(testhelper.MockError).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+			When("no error occurred", func() {
+				BeforeEach(func() {
+					mockAppointmentDataStore.EXPECT().Create(dbAppointment).Return(nil).Times(1)
+					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
+					mockHospitalSysClient.EXPECT().CompleteAppointment(gomock.Any(), appointmentID).Return(nil).Times(1)
+				})
+				It("should return 200 with duration", func() {
+					Expect(rec.Code).To(Equal(http.StatusOK))
+					var res handler.CompleteAppointmentResponse
+					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+					Expect(res).To(Equal(handler.CompleteAppointmentResponse{Duration: duration.Seconds()}))
+				})
+			})
+		})
 	})
 })

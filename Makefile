@@ -25,9 +25,11 @@ mockgen:
 	mockgen -source=pkg/datastore/doctor.go -destination=test/mock_datastore/mock_doctor_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/credit_card.go -destination=test/mock_datastore/mock_credit_card.go -package mock_datastore
 	mockgen -source=pkg/datastore/payment.go -destination=test/mock_datastore/mock_payment.go -package mock_datastore
+	mockgen -source=pkg/datastore/appointment.go -destination=test/mock_datastore/mock_appointment.go -package mock_datastore
 
 gql-client-gen:
 	genqlient ./pkg/hospital/genqlient.yaml
+	fieldalignment -fix ./pkg/hospital/
 
 swagger:
 	swag init --parseDependency --parseInternal --dir cmd/patient-api --output cmd/patient-api/docs
