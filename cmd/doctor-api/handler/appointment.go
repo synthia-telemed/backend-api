@@ -60,7 +60,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
-	g.POST("/:appointmentID/init", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
+	g.POST("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
 
@@ -68,6 +68,20 @@ type InitAppointmentRoomResponse struct {
 	RoomID string `json:"room_id"`
 }
 
+// InitAppointmentRoom godoc
+// @Summary      Init the appointment room
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer	true "ID of the appointment"
+// @Success      201  {object}  InitAppointmentRoomResponse  "Room ID is return to be used with socket server"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      400  {object}  server.ErrorResponse   "Appointment ID is missing"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid appointment ID"
+// @Failure      400  {object}  server.ErrorResponse   "Cannot initiate room for completed or cancelled appointment"
+// @Failure      400  {object}  server.ErrorResponse   "The appointment can start 10 minutes early and not later than 3 hours"
+// @Failure      403  {object}  server.ErrorResponse   "Forbidden"
+// @Failure      404  {object}  server.ErrorResponse   "Appointment not found"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Router       /appointment/{appointmentID} [post]
 func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
@@ -142,12 +156,21 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 }
 
 type CompleteAppointmentRequest struct {
-	Status hospital.SettableAppointmentStatus `json:"status" binding:"required,enum"`
+	Status hospital.SettableAppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED"`
 }
 type CompleteAppointmentResponse struct {
 	Duration float64 `json:"duration"`
 }
 
+// CompleteAppointment godoc
+// @Summary      Finish the appointment and close the room
+// @Tags         Appointment
+// @Param 	  	 CompleteAppointmentRequest body CompleteAppointmentRequest true "Status of the appointment"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor isn't currently in any room"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Router       /appointment/complete [post]
 func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	var req CompleteAppointmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

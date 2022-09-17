@@ -2,6 +2,21 @@ basePath: /doctor/api
 consumes:
 - application/json
 definitions:
+  handler.CompleteAppointmentRequest:
+    properties:
+      status:
+        enum:
+        - CANCELLED
+        - COMPLETED
+        type: string
+    required:
+    - status
+    type: object
+  handler.InitAppointmentRoomResponse:
+    properties:
+      room_id:
+        type: string
+    type: object
   handler.SigninRequest:
     properties:
       password:
@@ -28,6 +43,60 @@ info:
   title: Synthia Doctor Backend API
   version: 1.0.0
 paths:
+  /appointment/{appointmentID}:
+    post:
+      parameters:
+      - description: ID of the appointment
+        in: path
+        name: appointmentID
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Room ID is return to be used with socket server
+          schema:
+            $ref: '#/definitions/handler.InitAppointmentRoomResponse'
+        "400":
+          description: The appointment can start 10 minutes early and not later than
+            3 hours
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Appointment not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Init the appointment room
+      tags:
+      - Appointment
+  /appointment/complete:
+    post:
+      parameters:
+      - description: Status of the appointment
+        in: body
+        name: CompleteAppointmentRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CompleteAppointmentRequest'
+      responses:
+        "400":
+          description: Doctor isn't currently in any room
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Finish the appointment and close the room
+      tags:
+      - Appointment
   /auth/signin:
     post:
       parameters:
