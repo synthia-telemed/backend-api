@@ -166,6 +166,7 @@ type CompleteAppointmentResponse struct {
 // @Summary      Finish the appointment and close the room
 // @Tags         Appointment
 // @Param 	  	 CompleteAppointmentRequest body CompleteAppointmentRequest true "Status of the appointment"
+// @Success      201  {object}  CompleteAppointmentResponse  "Return the duration in minutes"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
 // @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor isn't currently in any room"

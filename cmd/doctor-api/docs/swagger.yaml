@@ -12,6 +12,11 @@ definitions:
     required:
     - status
     type: object
+  handler.CompleteAppointmentResponse:
+    properties:
+      duration:
+        type: number
+    type: object
   handler.InitAppointmentRoomResponse:
     properties:
       room_id:
@@ -86,6 +91,10 @@ paths:
         schema:
           $ref: '#/definitions/handler.CompleteAppointmentRequest'
       responses:
+        "201":
+          description: Return the duration in minutes
+          schema:
+            $ref: '#/definitions/handler.CompleteAppointmentResponse'
         "400":
           description: Doctor isn't currently in any room
           schema:
