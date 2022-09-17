@@ -10,9 +10,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
+	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
@@ -34,6 +36,7 @@ var _ = Describe("Appointment Handler", func() {
 		mockPatientDataStore  *mock_datastore.MockPatientDataStore
 		mockPaymentDataStore  *mock_datastore.MockPaymentDataStore
 		mockHospitalSysClient *mock_hospital_client.MockSystemClient
+		mockCacheClient       *mock_cache_client.MockClient
 		mockClock             *mock_clock.MockClock
 
 		patient *datastore.Patient
@@ -44,8 +47,9 @@ var _ = Describe("Appointment Handler", func() {
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockPaymentDataStore = mock_datastore.NewMockPaymentDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
+		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
-		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockClock, zap.NewNop().Sugar())
+		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, zap.NewNop().Sugar())
 		patient = testhelper.GeneratePatient()
 		c.Set("Patient", patient)
 	})
@@ -162,9 +166,9 @@ var _ = Describe("Appointment Handler", func() {
 		})
 	})
 
-	Context("GetAppointment", func() {
+	Context("AuthorizedPatientToAppointment", func() {
 		BeforeEach(func() {
-			handlerFunc = h.GetAppointment
+			handlerFunc = h.AuthorizedPatientToAppointment
 		})
 
 		When("Patient struct is not set", func() {
@@ -218,7 +222,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("appointment is not own by the patient", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled)
+				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled, false)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})
@@ -226,12 +230,39 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
 			})
 		})
+		When("appointment is found and own by patient", func() {
+			var (
+				appointment   *hospital.Appointment
+				appointmentID int
+			)
+			BeforeEach(func() {
+				appointment, appointmentID = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled, false)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+			})
+			It("should set appointment to context", func() {
+				rawApp, exist := c.Get("Appointment")
+				Expect(exist).To(BeTrue())
+				app, ok := rawApp.(*hospital.Appointment)
+				Expect(ok).To(BeTrue())
+				Expect(app).To(Equal(appointment))
+			})
+		})
+	})
+
+	Context("GetAppointment", func() {
+		var (
+			appointment *hospital.Appointment
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.GetAppointment
+			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted, true)
+			c.Set("Appointment", appointment)
+		})
 
 		When("appointment is found and it's completed with find payment error", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {
@@ -239,16 +270,11 @@ var _ = Describe("Appointment Handler", func() {
 			})
 		})
 
-		When("appointment is found and it's completed", func() {
+		When("appointment is found and it's paid", func() {
 			var (
-				payment     *datastore.Payment
-				appointment *hospital.Appointment
+				payment *datastore.Payment
 			)
 			BeforeEach(func() {
-				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				now := time.Now()
 				card := testhelper.GenerateCreditCard()
 				payment = &datastore.Payment{
@@ -266,7 +292,7 @@ var _ = Describe("Appointment Handler", func() {
 				}
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(payment, nil).Times(1)
 			})
-			It("should return 200", func() {
+			It("should return 200 with payment info", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				var res handler.GetAppointmentResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
@@ -274,15 +300,9 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(res.Payment).ToNot(BeNil())
 			})
 		})
-		When("appointment is found and it's not completed", func() {
-			var (
-				appointment *hospital.Appointment
-			)
+		When("appointment is found and it's have not been paid paid", func() {
 			BeforeEach(func() {
-				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+				appointment.Invoice.Paid = false
 			})
 			It("should return 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
@@ -290,6 +310,45 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Id).To(Equal(appointment.Id))
 				Expect(res.Payment).To(BeNil())
+			})
+		})
+	})
+
+	Context("GetAppointmentRoomID", func() {
+		var appointment *hospital.Appointment
+		BeforeEach(func() {
+			handlerFunc = h.GetAppointmentRoomID
+			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled, false)
+			c.Set("Appointment", appointment)
+		})
+		When("get roomID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return("", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("get roomID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return("", nil).Times(1)
+			})
+			It("should return 404 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrRoomIDNotFound)
+			})
+		})
+		When("roomID of the appointment is found", func() {
+			var roomID string
+			BeforeEach(func() {
+				roomID = uuid.NewString()
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return(roomID, nil).Times(1)
+			})
+			It("should return 200 with roomID", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res handler.GetAppointmentRoomIDResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.RoomID).To(Equal(roomID))
 			})
 		})
 	})
