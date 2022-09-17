@@ -118,6 +118,28 @@ type GetAppointmentResponse struct {
 // @Security     JWSToken
 // @Router       /appointment/{appointmentID} [get]
 func (h AppointmentHandler) GetAppointment(c *gin.Context) {
+	rawAppointment, _ := c.Get("Appointment")
+	appointment, _ := rawAppointment.(*hospital.Appointment)
+	res := &GetAppointmentResponse{
+		Appointment: appointment,
+		Payment:     nil,
+	}
+	if appointment.Status == hospital.AppointmentStatusCompleted {
+		payment, err := h.paymentDataStore.FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus)
+		if err != nil {
+			h.InternalServerError(c, err, "h.paymentDataStore.FindByInvoiceID error")
+			return
+		}
+		res.Payment = payment
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+//func (h AppointmentHandler) GetAppointmentRoomID(c *gin.Context) {
+//
+//}
+
+func (h AppointmentHandler) AuthorizedPatientToAppointment(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {
 		h.InternalServerError(c, errors.New("c.Get Patient not exist"), "c.Get Patient not exist")
@@ -138,32 +160,20 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrAppointmentIDInvalid)
 		return
 	}
-	apps, err := h.hospitalClient.FindAppointmentByID(context.Background(), int(appointmentID))
+	appointment, err := h.hospitalClient.FindAppointmentByID(context.Background(), int(appointmentID))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.FindAppointmentByID error")
 		return
 	}
-	if apps == nil {
+	if appointment == nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, ErrAppointmentNotFound)
 		return
 	}
-	if apps.PatientID != patient.RefID {
+	if appointment.PatientID != patient.RefID {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
 		return
 	}
-	res := &GetAppointmentResponse{
-		Appointment: apps,
-		Payment:     nil,
-	}
-	if apps.Status == hospital.AppointmentStatusCompleted {
-		payment, err := h.paymentDataStore.FindLatestByInvoiceIDAndStatus(apps.Invoice.Id, datastore.SuccessPaymentStatus)
-		if err != nil {
-			h.InternalServerError(c, err, "h.paymentDataStore.FindByInvoiceID error")
-			return
-		}
-		res.Payment = payment
-	}
-	c.JSON(http.StatusOK, res)
+	c.Set("Appointment", appointment)
 }
 
 func (h AppointmentHandler) ParsePatient(c *gin.Context) {

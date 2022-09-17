@@ -162,9 +162,9 @@ var _ = Describe("Appointment Handler", func() {
 		})
 	})
 
-	Context("GetAppointment", func() {
+	Context("AuthorizedPatientToAppointment", func() {
 		BeforeEach(func() {
-			handlerFunc = h.GetAppointment
+			handlerFunc = h.AuthorizedPatientToAppointment
 		})
 
 		When("Patient struct is not set", func() {
@@ -226,12 +226,21 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
 			})
 		})
+	})
+
+	Context("GetAppointment", func() {
+		var (
+			appointment *hospital.Appointment
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.GetAppointment
+			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
+			c.Set("Appointment", appointment)
+		})
 
 		When("appointment is found and it's completed with find payment error", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {
@@ -241,14 +250,9 @@ var _ = Describe("Appointment Handler", func() {
 
 		When("appointment is found and it's completed", func() {
 			var (
-				payment     *datastore.Payment
-				appointment *hospital.Appointment
+				payment *datastore.Payment
 			)
 			BeforeEach(func() {
-				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 				now := time.Now()
 				card := testhelper.GenerateCreditCard()
 				payment = &datastore.Payment{
@@ -266,7 +270,7 @@ var _ = Describe("Appointment Handler", func() {
 				}
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(payment, nil).Times(1)
 			})
-			It("should return 200", func() {
+			It("should return 200 with payment info", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				var res handler.GetAppointmentResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
@@ -275,14 +279,8 @@ var _ = Describe("Appointment Handler", func() {
 			})
 		})
 		When("appointment is found and it's not completed", func() {
-			var (
-				appointment *hospital.Appointment
-			)
 			BeforeEach(func() {
-				var id int
-				appointment, id = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled)
-				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
+				appointment.Status = hospital.AppointmentStatusScheduled
 			})
 			It("should return 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
