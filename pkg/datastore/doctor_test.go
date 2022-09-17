@@ -70,4 +70,23 @@ var _ = Describe("Doctor Datastore", Ordered, func() {
 			})
 		})
 	})
+
+	Context("FindByID", func() {
+		When("doctor is found", func() {
+			It("should return doctor with no error", func() {
+				d := doctors[3]
+				foundDoc, err := doctorDataStore.FindByID(d.ID)
+				Expect(err).To(BeNil())
+				Expect(foundDoc.ID).To(Equal(d.ID))
+				Expect(foundDoc.RefID).To(Equal(d.RefID))
+			})
+		})
+		When("doctor is not found", func() {
+			It("should return nil with no error", func() {
+				foundDoc, err := doctorDataStore.FindByID(uint(rand.Uint32()))
+				Expect(err).To(BeNil())
+				Expect(foundDoc).To(BeNil())
+			})
+		})
+	})
 })

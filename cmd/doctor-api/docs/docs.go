@@ -22,6 +22,94 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/appointment/complete": {
+            "post": {
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Finish the appointment and close the room",
+                "parameters": [
+                    {
+                        "description": "Status of the appointment",
+                        "name": "CompleteAppointmentRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CompleteAppointmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Return the duration in minutes",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CompleteAppointmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Doctor isn't currently in any room",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/{appointmentID}": {
+            "post": {
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Init the appointment room",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the appointment",
+                        "name": "appointmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Room ID is return to be used with socket server",
+                        "schema": {
+                            "$ref": "#/definitions/handler.InitAppointmentRoomResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "The appointment can start 10 minutes early and not later than 3 hours",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/signin": {
             "post": {
                 "tags": [
@@ -69,6 +157,37 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.CompleteAppointmentRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "CANCELLED",
+                        "COMPLETED"
+                    ]
+                }
+            }
+        },
+        "handler.CompleteAppointmentResponse": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "number"
+                }
+            }
+        },
+        "handler.InitAppointmentRoomResponse": {
+            "type": "object",
+            "properties": {
+                "room_id": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.SigninRequest": {
             "type": "object",
             "required": [

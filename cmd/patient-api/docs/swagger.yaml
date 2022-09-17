@@ -141,6 +141,11 @@ definitions:
       status:
         type: string
     type: object
+  handler.GetAppointmentRoomIDResponse:
+    properties:
+      room_id:
+        type: string
+    type: object
   handler.GlucoseRequest:
     properties:
       date_time:
@@ -236,6 +241,8 @@ definitions:
   hospital.DoctorOverview:
     properties:
       full_name:
+        type: string
+      id:
         type: string
       position:
         type: string
@@ -346,6 +353,45 @@ paths:
       - UserID: []
       - JWSToken: []
       summary: Get an appointment detail by appointment ID
+      tags:
+      - Appointment
+  /appointment/{appointmentID}/roomID:
+    get:
+      parameters:
+      - description: ID of the appointment
+        in: path
+        name: appointmentID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Room ID for the appointment
+          schema:
+            $ref: '#/definitions/handler.GetAppointmentRoomIDResponse'
+        "400":
+          description: appointmentID is invalid
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: The patient doesn't own the appointment
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Appointment not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get room ID of the appointment
       tags:
       - Appointment
   /auth/signin:

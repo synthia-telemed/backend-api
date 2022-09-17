@@ -88,6 +88,7 @@ query getAppointment($where: AppointmentWhereInput!) {
         status
         nextAppointment
         doctor {
+            id
             initial_en
             firstname_en
             lastname_en
@@ -111,5 +112,13 @@ query getAppointment($where: AppointmentWhereInput!) {
                 description
             }
         }
+    }
+}
+
+mutation setAppointmentStatus($setAppointmentStatusId: Float!, $status: AppointmentStatus!) {
+    setAppointmentStatus(id: $setAppointmentStatusId, status: $status) {
+        id
+        status
+        dateTime
     }
 }

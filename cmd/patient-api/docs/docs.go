@@ -127,6 +127,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/appointment/{appointmentID}/roomID": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get room ID of the appointment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the appointment",
+                        "name": "appointmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room ID for the appointment",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetAppointmentRoomIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "appointmentID is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "The patient doesn't own the appointment",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/signin": {
             "post": {
                 "description": "Initiate auth process with government credential which will sent OTP to patient's phone number",
@@ -748,6 +811,14 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.GetAppointmentRoomIDResponse": {
+            "type": "object",
+            "properties": {
+                "room_id": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.GlucoseRequest": {
             "type": "object",
             "required": [
@@ -893,6 +964,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "full_name": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "position": {

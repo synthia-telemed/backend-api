@@ -139,3 +139,17 @@ func (mr *MockSystemClientMockRecorder) PaidInvoice(ctx, id interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaidInvoice", reflect.TypeOf((*MockSystemClient)(nil).PaidInvoice), ctx, id)
 }
+
+// SetAppointmentStatus mocks base method.
+func (m *MockSystemClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status hospital.SettableAppointmentStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAppointmentStatus", ctx, appointmentID, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAppointmentStatus indicates an expected call of SetAppointmentStatus.
+func (mr *MockSystemClientMockRecorder) SetAppointmentStatus(ctx, appointmentID, status interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAppointmentStatus", reflect.TypeOf((*MockSystemClient)(nil).SetAppointmentStatus), ctx, appointmentID, status)
+}

@@ -6,13 +6,15 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/synthia-telemed/backend-api/cmd/doctor-api/docs"
 	"github.com/synthia-telemed/backend-api/cmd/doctor-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
+	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/config"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/id"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/token"
-	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -56,29 +58,28 @@ func main() {
 	defer sentry.Flush(2 * time.Second)
 
 	db, err := gorm.Open(postgres.Open(cfg.DB.DSN()), &gorm.Config{})
-	assertFatalError(sugaredLogger, err, "Failed to connect to database")
+	server.AssertFatalError(sugaredLogger, err, "Failed to connect to database")
 
 	doctorDataStore, err := datastore.NewGormDoctorDataStore(db)
-	assertFatalError(sugaredLogger, err, "Failed to create doctor data store")
+	server.AssertFatalError(sugaredLogger, err, "Failed to create doctor data store")
+	patientDataStore, err := datastore.NewGormPatientDataStore(db)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create patient data store")
+	appointmentDataStore, err := datastore.NewGormAppointmentDataStore(db)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create appointment data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
+	cacheClient := cache.NewRedisClient(&cfg.Cache)
+	realClock := clock.NewRealClock()
+	idGenerator := id.NewNanoID()
 	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
-	assertFatalError(sugaredLogger, err, "Failed to create token service")
+	server.AssertFatalError(sugaredLogger, err, "Failed to create token service")
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(hospitalSysClient, tokenService, doctorDataStore, sugaredLogger)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	ginServer.RegisterHandlers("/api", authHandler)
+	ginServer.RegisterHandlers("/api", authHandler, appointmentHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
-}
-
-func assertFatalError(logger *zap.SugaredLogger, err error, msg string) {
-	if err == nil {
-		return
-	}
-	sentry.CaptureException(err)
-	sentry.Flush(time.Second * 2)
-	logger.Fatalw(msg, "error", err)
 }

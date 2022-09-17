@@ -12,6 +12,7 @@ import (
 	"github.com/synthia-telemed/backend-api/cmd/doctor-api/handler"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_token_service"
@@ -36,11 +37,7 @@ var _ = Describe("Doctor Auth Handler", func() {
 	)
 
 	BeforeEach(func() {
-		rand.Seed(GinkgoRandomSeed())
-		mockCtrl = gomock.NewController(GinkgoT())
-		rec = httptest.NewRecorder()
-		c, _ = gin.CreateTestContext(rec)
-
+		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		mockDoctorDataStore = mock_datastore.NewMockDoctorDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockTokenService = mock_token_service.NewMockService(mockCtrl)

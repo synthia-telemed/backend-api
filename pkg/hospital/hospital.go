@@ -16,6 +16,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
+	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 }
 
 type Config struct {
@@ -92,6 +93,7 @@ type AppointmentOverview struct {
 	Doctor    DoctorOverview    `json:"doctor"`
 }
 type DoctorOverview struct {
+	ID            string `json:"id"`
 	FullName      string `json:"full_name"`
 	Position      string `json:"position"`
 	ProfilePicURL string `json:"profile_pic_url"`
@@ -248,6 +250,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 		Detail:          resp.Appointment.GetDetail(),
 		Status:          resp.Appointment.GetStatus(),
 		Doctor: DoctorOverview{
+			ID:            resp.Appointment.Doctor.GetId(),
 			FullName:      parseFullName(resp.Appointment.Doctor.GetInitial_en(), resp.Appointment.Doctor.GetFirstname_en(), resp.Appointment.Doctor.GetLastname_en()),
 			Position:      resp.Appointment.Doctor.GetPosition(),
 			ProfilePicURL: resp.Appointment.Doctor.GetProfilePicURL(),
@@ -287,4 +290,32 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 
 func parseFullName(init, first, last string) string {
 	return fmt.Sprintf("%s %s %s", init, first, last)
+}
+
+type SettableAppointmentStatus string
+
+const (
+	SettableAppointmentStatusCancelled SettableAppointmentStatus = "CANCELLED"
+	SettableAppointmentStatusCompleted SettableAppointmentStatus = "COMPLETED"
+)
+
+func (s SettableAppointmentStatus) IsValid() bool {
+	switch s {
+	case SettableAppointmentStatusCompleted, SettableAppointmentStatusCancelled:
+		return true
+	default:
+		return false
+	}
+}
+
+func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error {
+	var s AppointmentStatus
+	switch status {
+	case SettableAppointmentStatusCancelled:
+		s = AppointmentStatusCancelled
+	case SettableAppointmentStatusCompleted:
+		s = AppointmentStatusCompleted
+	}
+	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), s)
+	return err
 }
