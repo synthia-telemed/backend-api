@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -27,16 +28,18 @@ type AppointmentHandler struct {
 	patientDataStore datastore.PatientDataStore
 	paymentDataStore datastore.PaymentDataStore
 	hospitalClient   hospital.SystemClient
+	cacheClient      cache.Client
 	clock            clock.Clock
 	logger           *zap.SugaredLogger
 	*server.GinHandler
 }
 
-func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
 		patientDataStore: patientDS,
 		hospitalClient:   hos,
 		paymentDataStore: paymentDS,
+		cacheClient:      cacheClient,
 		clock:            c,
 		logger:           logger,
 		GinHandler:       &server.GinHandler{Logger: logger},
@@ -135,9 +138,20 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-//func (h AppointmentHandler) GetAppointmentRoomID(c *gin.Context) {
-//
-//}
+type GetAppointmentRoomIDResponse struct {
+	RoomID string `json:"room_id"`
+}
+
+func (h AppointmentHandler) GetAppointmentRoomID(c *gin.Context) {
+	rawAppointment, _ := c.Get("Appointment")
+	appointment, _ := rawAppointment.(*hospital.Appointment)
+	roomID, err := h.cacheClient.Get(context.Background(), cache.AppointmentRoomIDKey(appointment.Id), false)
+	if err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	c.JSON(http.StatusOK, &GetAppointmentRoomIDResponse{RoomID: roomID})
+}
 
 func (h AppointmentHandler) AuthorizedPatientToAppointment(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")

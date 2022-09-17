@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
@@ -309,6 +310,36 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Id).To(Equal(appointment.Id))
 				Expect(res.Payment).To(BeNil())
+			})
+		})
+	})
+
+	Context("GetAppointmentRoomID", func() {
+		var appointment *hospital.Appointment
+		BeforeEach(func() {
+			handlerFunc = h.GetAppointmentRoomID
+			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled, false)
+			c.Set("Appointment", appointment)
+		})
+		When("get roomID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return("", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("roomID of the appointment is found", func() {
+			var roomID string
+			BeforeEach(func() {
+				roomID = uuid.NewString()
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return(roomID, nil).Times(1)
+			})
+			It("should return 200 with roomID", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res handler.GetAppointmentRoomIDResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.RoomID).To(Equal(roomID))
 			})
 		})
 	})
