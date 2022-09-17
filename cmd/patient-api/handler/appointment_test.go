@@ -218,12 +218,30 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("appointment is not own by the patient", func() {
 			BeforeEach(func() {
-				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled)
+				appointment, id := testhelper.GenerateAppointment("not-patient-id", "", hospital.AppointmentStatusScheduled, false)
 				c.AddParam("appointmentID", appointment.Id)
 				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), id).Return(appointment, nil).Times(1)
 			})
 			It("should return 403", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
+			})
+		})
+		When("appointment is found and own by patient", func() {
+			var (
+				appointment   *hospital.Appointment
+				appointmentID int
+			)
+			BeforeEach(func() {
+				appointment, appointmentID = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled, false)
+				c.AddParam("appointmentID", appointment.Id)
+				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+			})
+			It("should set appointment to context", func() {
+				rawApp, exist := c.Get("Appointment")
+				Expect(exist).To(BeTrue())
+				app, ok := rawApp.(*hospital.Appointment)
+				Expect(ok).To(BeTrue())
+				Expect(app).To(Equal(appointment))
 			})
 		})
 	})
@@ -235,7 +253,7 @@ var _ = Describe("Appointment Handler", func() {
 
 		BeforeEach(func() {
 			handlerFunc = h.GetAppointment
-			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted)
+			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted, true)
 			c.Set("Appointment", appointment)
 		})
 
@@ -248,7 +266,7 @@ var _ = Describe("Appointment Handler", func() {
 			})
 		})
 
-		When("appointment is found and it's completed", func() {
+		When("appointment is found and it's paid", func() {
 			var (
 				payment *datastore.Payment
 			)
@@ -278,9 +296,9 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(res.Payment).ToNot(BeNil())
 			})
 		})
-		When("appointment is found and it's not completed", func() {
+		When("appointment is found and it's have not been paid paid", func() {
 			BeforeEach(func() {
-				appointment.Status = hospital.AppointmentStatusScheduled
+				appointment.Invoice.Paid = false
 			})
 			It("should return 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
