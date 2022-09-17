@@ -895,6 +895,9 @@ const docTemplate = `{
                 "full_name": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "position": {
                     "type": "string"
                 },
