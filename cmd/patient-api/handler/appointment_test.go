@@ -13,6 +13,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
+	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
@@ -34,6 +35,7 @@ var _ = Describe("Appointment Handler", func() {
 		mockPatientDataStore  *mock_datastore.MockPatientDataStore
 		mockPaymentDataStore  *mock_datastore.MockPaymentDataStore
 		mockHospitalSysClient *mock_hospital_client.MockSystemClient
+		mockCacheClient       *mock_cache_client.MockClient
 		mockClock             *mock_clock.MockClock
 
 		patient *datastore.Patient
@@ -44,8 +46,9 @@ var _ = Describe("Appointment Handler", func() {
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockPaymentDataStore = mock_datastore.NewMockPaymentDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
+		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
-		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockClock, zap.NewNop().Sugar())
+		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, zap.NewNop().Sugar())
 		patient = testhelper.GeneratePatient()
 		c.Set("Patient", patient)
 	})

@@ -101,7 +101,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 
 	ctx := context.Background()
 	// Check the current room that doctor is in
-	currentAppID, err := h.cacheClient.Get(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), false)
+	currentAppID, err := h.cacheClient.Get(ctx, cache.CurrentDoctorAppointmentIDKey(doctor.ID), false)
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
@@ -111,7 +111,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorInAnotherRoom)
 			return
 		}
-		roomID, err := h.cacheClient.Get(ctx, AppointmentRoomIDKey(appointment.Id), false)
+		roomID, err := h.cacheClient.Get(ctx, cache.AppointmentRoomIDKey(appointment.Id), false)
 		if err != nil {
 			h.InternalServerError(c, err, "h.cacheClient.Get error")
 			return
@@ -127,8 +127,8 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	}
 	// Set appointment ID that doctor is currently in and room ID of the appointment
 	kv := map[string]string{
-		CurrentDoctorAppointmentIDKey(doctor.ID): appointment.Id,
-		AppointmentRoomIDKey(appointment.Id):     roomID,
+		cache.CurrentDoctorAppointmentIDKey(doctor.ID): appointment.Id,
+		cache.AppointmentRoomIDKey(appointment.Id):     roomID,
 	}
 	if err := h.cacheClient.MultipleSet(ctx, kv); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.MultipleSet error")
@@ -146,7 +146,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		"AppointmentID": appointment.Id,
 		"StartedAt":     now.Format(time.RFC3339),
 	}
-	if err := h.cacheClient.HashSet(ctx, RoomInfoKey(roomID), info); err != nil {
+	if err := h.cacheClient.HashSet(ctx, cache.RoomInfoKey(roomID), info); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.HashSet error")
 		return
 	}
@@ -182,7 +182,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	doctor := rawDoc.(*datastore.Doctor)
 
 	ctx := context.Background()
-	appointmentID, err := h.cacheClient.Get(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), false)
+	appointmentID, err := h.cacheClient.Get(ctx, cache.CurrentDoctorAppointmentIDKey(doctor.ID), false)
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
@@ -191,12 +191,12 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorNotInRoom)
 		return
 	}
-	roomID, err := h.cacheClient.Get(ctx, AppointmentRoomIDKey(appointmentID), false)
+	roomID, err := h.cacheClient.Get(ctx, cache.AppointmentRoomIDKey(appointmentID), false)
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
 	}
-	startedTimeStr, err := h.cacheClient.HashGet(ctx, RoomInfoKey(roomID), "StartedAt")
+	startedTimeStr, err := h.cacheClient.HashGet(ctx, cache.RoomInfoKey(roomID), "StartedAt")
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
@@ -218,7 +218,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
 		return
 	}
-	if err := h.cacheClient.Delete(ctx, CurrentDoctorAppointmentIDKey(doctor.ID), AppointmentRoomIDKey(appointmentID), RoomInfoKey(roomID)); err != nil {
+	if err := h.cacheClient.Delete(ctx, cache.CurrentDoctorAppointmentIDKey(doctor.ID), cache.AppointmentRoomIDKey(appointmentID), cache.RoomInfoKey(roomID)); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Delete error")
 		return
 	}
@@ -279,16 +279,4 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		return
 	}
 	c.Set("Appointment", apps)
-}
-
-func CurrentDoctorAppointmentIDKey(doctorID uint) string {
-	return fmt.Sprintf("doctor:%d:appointment_id", doctorID)
-}
-
-func AppointmentRoomIDKey(appointmentID string) string {
-	return fmt.Sprintf("appointment:%s:room_id", appointmentID)
-}
-
-func RoomInfoKey(roomID string) string {
-	return fmt.Sprintf("room:%s", roomID)
 }
