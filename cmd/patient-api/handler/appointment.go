@@ -22,6 +22,7 @@ var (
 	ErrAppointmentIDInvalid = server.NewErrorResponse("Invalid appointment ID")
 	ErrAppointmentNotFound  = server.NewErrorResponse("Appointment not found")
 	ErrForbidden            = server.NewErrorResponse("Forbidden")
+	ErrRoomIDNotFound       = server.NewErrorResponse("RoomID of the appointment not found")
 )
 
 type AppointmentHandler struct {
@@ -49,7 +50,8 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datas
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.GET("", middleware.ParseUserID, h.ParsePatient, h.ListAppointments)
-	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.GetAppointment)
+	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointment)
+	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
 }
 
 type ListAppointmentsResponse struct {
@@ -142,12 +144,32 @@ type GetAppointmentRoomIDResponse struct {
 	RoomID string `json:"room_id"`
 }
 
+// GetAppointmentRoomID godoc
+// @Summary      Get room ID of the appointment
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer 	true "ID of the appointment"
+// @Success      200  {object}	GetAppointmentRoomIDResponse "Room ID for the appointment"
+// @Failure      400  {object}  server.ErrorResponse "Patient not found"
+// @Failure      400  {object}  server.ErrorResponse "appointmentID is not provided"
+// @Failure      400  {object}  server.ErrorResponse "appointmentID is invalid"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "The patient doesn't own the appointment"
+// @Failure      404  {object}  server.ErrorResponse "Appointment not found"
+// @Failure      404  {object}  server.ErrorResponse "RoomID of the appointment not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/{appointmentID}/roomID [get]
 func (h AppointmentHandler) GetAppointmentRoomID(c *gin.Context) {
 	rawAppointment, _ := c.Get("Appointment")
 	appointment, _ := rawAppointment.(*hospital.Appointment)
 	roomID, err := h.cacheClient.Get(context.Background(), cache.AppointmentRoomIDKey(appointment.Id), false)
 	if err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	if roomID == "" {
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrRoomIDNotFound)
 		return
 	}
 	c.JSON(http.StatusOK, &GetAppointmentRoomIDResponse{RoomID: roomID})

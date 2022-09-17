@@ -329,6 +329,15 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
+		When("get roomID from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), cache.AppointmentRoomIDKey(appointment.Id), false).Return("", nil).Times(1)
+			})
+			It("should return 404 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusNotFound))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrRoomIDNotFound)
+			})
+		})
 		When("roomID of the appointment is found", func() {
 			var roomID string
 			BeforeEach(func() {
