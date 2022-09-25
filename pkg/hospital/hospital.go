@@ -86,11 +86,10 @@ type InvoiceOverview struct {
 }
 
 type AppointmentOverview struct {
-	Id        string            `json:"id"`
-	DateTime  time.Time         `json:"date_time"`
-	PatientId string            `json:"patient_id"`
-	Status    AppointmentStatus `json:"status"`
-	Doctor    DoctorOverview    `json:"doctor"`
+	Id       string            `json:"id"`
+	DateTime time.Time         `json:"date_time"`
+	Status   AppointmentStatus `json:"status"`
+	Doctor   DoctorOverview    `json:"doctor"`
 }
 type DoctorOverview struct {
 	ID            string `json:"id"`
@@ -218,13 +217,16 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 	if err != nil {
 		return nil, err
 	}
-	appointments := make([]*AppointmentOverview, len(resp.Appointments))
-	for i, a := range resp.Appointments {
+	return c.ParseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+}
+
+func (c GraphQLClient) ParseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
+	appointments := make([]*AppointmentOverview, len(hosApps))
+	for i, a := range hosApps {
 		appointments[i] = &AppointmentOverview{
-			Id:        a.Id,
-			DateTime:  a.DateTime,
-			PatientId: a.PatientId,
-			Status:    a.Status,
+			Id:       a.Id,
+			DateTime: a.DateTime,
+			Status:   a.Status,
 			Doctor: DoctorOverview{
 				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
 				Position:      a.Doctor.Position,
@@ -232,7 +234,7 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 			},
 		}
 	}
-	return appointments, nil
+	return appointments
 }
 
 func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error) {
