@@ -93,7 +93,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("List card by patient ID error", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, errors.New("err")).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -158,7 +158,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("query error", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, errors.New("err")).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -197,7 +197,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("Find patient by ID error", func() {
 			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -212,7 +212,7 @@ var _ = Describe("Payment Handler", func() {
 
 			When("create payment customer error", func() {
 				BeforeEach(func() {
-					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return("", errors.New("err")).Times(1)
+					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return("", testhelper.MockError).Times(1)
 				})
 				It("should return 500", func() {
 					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -223,7 +223,7 @@ var _ = Describe("Payment Handler", func() {
 				BeforeEach(func() {
 					mockPaymentClient.EXPECT().CreateCustomer(patientID).Return(customerID, nil).Times(1)
 					pp := &datastore.Patient{PaymentCustomerID: &customerID}
-					mockPatientDataStore.EXPECT().Save(pp).Return(errors.New("err")).Times(1)
+					mockPatientDataStore.EXPECT().Save(pp).Return(testhelper.MockError).Times(1)
 				})
 				It("should return 500", func() {
 					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -275,7 +275,7 @@ var _ = Describe("Payment Handler", func() {
 		When("find credit card by ID error", func() {
 			BeforeEach(func() {
 				c.AddParam("cardID", fmt.Sprintf("%v", cardID))
-				mockCreditCardDataStore.EXPECT().FindByID(cardID).Return(nil, errors.New("err")).Times(1)
+				mockCreditCardDataStore.EXPECT().FindByID(cardID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -329,7 +329,7 @@ var _ = Describe("Payment Handler", func() {
 			BeforeEach(func() {
 				c.Set("CreditCard", card)
 				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(nil).Times(1)
-				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(errors.New("err")).Times(1)
+				mockPaymentClient.EXPECT().RemoveCreditCard(customerID, card.CardID).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -338,7 +338,7 @@ var _ = Describe("Payment Handler", func() {
 		When("remove credit card from data store failed", func() {
 			BeforeEach(func() {
 				c.Set("CreditCard", card)
-				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(errors.New("err")).Times(1)
+				mockCreditCardDataStore.EXPECT().Delete(card.ID).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -373,7 +373,7 @@ var _ = Describe("Payment Handler", func() {
 		When("find invoice by ID with hospital sys client error", func() {
 			BeforeEach(func() {
 				c.AddParam("invoiceID", fmt.Sprintf("%d", invoiceID))
-				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(nil, errors.New("err")).Times(1)
+				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -404,7 +404,7 @@ var _ = Describe("Payment Handler", func() {
 				p := &datastore.Patient{ID: patientID, RefID: uuid.New().String()}
 				i := &hospital.InvoiceOverview{PatientID: p.RefID}
 				mockhospitalSysClient.EXPECT().FindInvoiceByID(gomock.Any(), invoiceID).Return(i, nil).Times(1)
-				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, errors.New("err")).Times(1)
+				mockPatientDataStore.EXPECT().FindByID(patientID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -457,7 +457,7 @@ var _ = Describe("Payment Handler", func() {
 		})
 		When("pay with credit card error", func() {
 			BeforeEach(func() {
-				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(nil, errors.New("err")).Times(1)
+				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -469,7 +469,7 @@ var _ = Describe("Payment Handler", func() {
 				mockPaymentClient.EXPECT().PayWithCreditCard(customerID, creditCard.CardID, invoiceIDStr, int(invoice.Total*100)).Return(p, nil).Times(1)
 				now := time.Now()
 				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
-				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(errors.New("err")).Times(1)
+				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -482,7 +482,7 @@ var _ = Describe("Payment Handler", func() {
 				now := time.Now()
 				mockClock.EXPECT().NowPointer().Return(&now).Times(1)
 				mockhospitalSysClient.EXPECT().PaidInvoice(gomock.Any(), invoice.Id).Return(nil).Times(1)
-				mockPaymentDataStore.EXPECT().Create(gomock.Any()).Return(errors.New("err")).Times(1)
+				mockPaymentDataStore.EXPECT().Create(gomock.Any()).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
