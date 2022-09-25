@@ -61,7 +61,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 }
 
 type AddCreditCardRequest struct {
-	Name      string `json:"name" binding:"required"`
+	Name      string `json:"name"`
 	CardToken string `json:"card_token" binding:"required"`
 }
 
