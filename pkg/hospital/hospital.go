@@ -90,12 +90,17 @@ type AppointmentOverview struct {
 	DateTime time.Time         `json:"date_time"`
 	Status   AppointmentStatus `json:"status"`
 	Doctor   DoctorOverview    `json:"doctor"`
+	Patient  PatientOverview   `json:"patient"`
 }
 type DoctorOverview struct {
 	ID            string `json:"id"`
 	FullName      string `json:"full_name"`
 	Position      string `json:"position"`
 	ProfilePicURL string `json:"profile_pic_url"`
+}
+type PatientOverview struct {
+	ID       string `json:"id"`
+	FullName string `json:"full_name"`
 }
 
 type Appointment struct {
@@ -217,10 +222,27 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 	if err != nil {
 		return nil, err
 	}
-	return c.ParseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
-func (c GraphQLClient) ParseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
+func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID int, date time.Time) ([]*AppointmentOverview, error) {
+	desc := SortOrderDesc
+	startTime := date.Truncate(time.Hour * 24)
+	endTime := date.Round(time.Hour * 24)
+
+	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
+		DoctorId: &IntFilter{Equals: &doctorID},
+		DateTime: &DateTimeFilter{Gte: &startTime, Lt: &endTime},
+	}, []*AppointmentOrderByWithRelationInput{
+		{DateTime: &desc},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+}
+
+func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
 	appointments := make([]*AppointmentOverview, len(hosApps))
 	for i, a := range hosApps {
 		appointments[i] = &AppointmentOverview{
@@ -228,9 +250,14 @@ func (c GraphQLClient) ParseHospitalAppointmentToAppointmentOverview(hosApps []*
 			DateTime: a.DateTime,
 			Status:   a.Status,
 			Doctor: DoctorOverview{
+				ID:            a.Doctor.Id,
 				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
 				Position:      a.Doctor.Position,
 				ProfilePicURL: a.Doctor.ProfilePicURL,
+			},
+			Patient: PatientOverview{
+				ID:       a.Patient.Id,
+				FullName: parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
 			},
 		}
 	}
