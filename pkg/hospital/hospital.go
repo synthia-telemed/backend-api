@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Khan/genqlient/graphql"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -15,8 +16,10 @@ type SystemClient interface {
 	FindInvoiceByID(ctx context.Context, id int) (*InvoiceOverview, error)
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
+	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
+	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
 }
 
 type Config struct {
@@ -225,13 +228,19 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
-func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID int, date time.Time) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error) {
 	desc := SortOrderDesc
-	startTime := date.Truncate(time.Hour * 24)
-	endTime := date.Round(time.Hour * 24)
+	startTime := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	endTime := startTime.Add(time.Hour * 24)
+
+	doctorIDInt64, err := strconv.ParseInt(doctorID, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	doctorIDInt := int(doctorIDInt64)
 
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
-		DoctorId: &IntFilter{Equals: &doctorID},
+		DoctorId: &IntFilter{Equals: &doctorIDInt},
 		DateTime: &DateTimeFilter{Gte: &startTime, Lt: &endTime},
 	}, []*AppointmentOrderByWithRelationInput{
 		{DateTime: &desc},
@@ -347,4 +356,36 @@ func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID i
 	}
 	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), s)
 	return err
+}
+
+type CategorizedAppointment struct {
+	Completed []*AppointmentOverview `json:"completed"`
+	Scheduled []*AppointmentOverview `json:"scheduled"`
+	Cancelled []*AppointmentOverview `json:"cancelled"`
+}
+
+func (c GraphQLClient) CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment {
+	res := CategorizedAppointment{
+		Completed: make([]*AppointmentOverview, 0),
+		Scheduled: make([]*AppointmentOverview, 0),
+		Cancelled: make([]*AppointmentOverview, 0),
+	}
+	for _, a := range apps {
+		switch a.Status {
+		case AppointmentStatusCancelled:
+			res.Cancelled = append(res.Cancelled, a)
+		case AppointmentStatusCompleted:
+			res.Completed = append(res.Completed, a)
+		case AppointmentStatusScheduled:
+			res.Scheduled = append(res.Scheduled, a)
+		}
+	}
+	ReverseSlice(res.Scheduled)
+	return &res
+}
+
+func ReverseSlice[T comparable](s []T) {
+	sort.SliceStable(s, func(i, j int) bool {
+		return i > j
+	})
 }

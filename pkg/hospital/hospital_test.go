@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"math/rand"
 	"time"
 )
@@ -139,14 +140,14 @@ var _ = Describe("Hospital Client", func() {
 	Context("ListAppointmentsByDoctorID", func() {
 		When("no appointment is found", func() {
 			It("should return empty slice with no error", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, 24, time.Date(2022, 9, 9, 10, 3, 2, 0, time.UTC))
+				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, "24", time.Date(2022, 9, 9, 10, 3, 2, 0, time.UTC))
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(0))
 			})
 		})
 		When("appointment are found", func() {
 			It("should return appointments on that date", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, 9, time.Date(2022, 9, 7, 13, 43, 0, 0, time.UTC))
+				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, "9", time.Date(2022, 9, 7, 13, 43, 0, 0, time.UTC))
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(3))
 			})
@@ -200,4 +201,32 @@ var _ = Describe("Hospital Client", func() {
 		Entry("set status of appointment to complete", 34, hospital.SettableAppointmentStatusCompleted, hospital.AppointmentStatusCompleted),
 		Entry("set status of appointment to cancelled", 86, hospital.SettableAppointmentStatusCancelled, hospital.AppointmentStatusCancelled),
 	)
+
+	Context("CategorizeAppointmentByStatus", func() {
+		It("should categorized appointment by status", func() {
+			categorized := hospital.CategorizedAppointment{
+				Completed: testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCompleted, 3),
+				Scheduled: testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusScheduled, 2),
+				Cancelled: testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCancelled, 3),
+			}
+
+			appointments := make([]*hospital.AppointmentOverview, 0)
+			appointments = append(appointments, categorized.Completed...)
+			appointments = append(appointments, categorized.Scheduled...)
+			appointments = append(appointments, categorized.Cancelled...)
+			res := graphQLClient.CategorizeAppointmentByStatus(appointments)
+			hospital.ReverseSlice(categorized.Scheduled)
+			Expect(res.Completed).To(Equal(categorized.Completed))
+			Expect(res.Scheduled).To(Equal(categorized.Scheduled))
+			Expect(res.Cancelled).To(Equal(categorized.Cancelled))
+		})
+	})
+
+	Context("ReverseSlice", func() {
+		It("should reserve the order of elements", func() {
+			s := []int{1, 2, 3, 4, 5}
+			hospital.ReverseSlice(s)
+			Expect(s).To(Equal([]int{5, 4, 3, 2, 1}))
+		})
+	})
 })
