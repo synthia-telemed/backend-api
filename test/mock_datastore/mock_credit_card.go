@@ -92,6 +92,21 @@ func (mr *MockCreditCardDataStoreMockRecorder) FindByPatientID(patientID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPatientID", reflect.TypeOf((*MockCreditCardDataStore)(nil).FindByPatientID), patientID)
 }
 
+// IsFirstCreditCard mocks base method.
+func (m *MockCreditCardDataStore) IsFirstCreditCard(patientID uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFirstCreditCard", patientID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsFirstCreditCard indicates an expected call of IsFirstCreditCard.
+func (mr *MockCreditCardDataStoreMockRecorder) IsFirstCreditCard(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFirstCreditCard", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsFirstCreditCard), patientID)
+}
+
 // IsOwnCreditCard mocks base method.
 func (m *MockCreditCardDataStore) IsOwnCreditCard(patientID, cardID uint) (bool, error) {
 	m.ctrl.T.Helper()
