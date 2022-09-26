@@ -12,7 +12,6 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -87,19 +86,7 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByPatientID error")
 		return
 	}
-	res := ListAppointmentsResponse{}
-	for _, a := range apps {
-		switch a.Status {
-		case hospital.AppointmentStatusCancelled:
-			res.Cancelled = append(res.Cancelled, a)
-		case hospital.AppointmentStatusCompleted:
-			res.Completed = append(res.Completed, a)
-		case hospital.AppointmentStatusScheduled:
-			res.Scheduled = append(res.Scheduled, a)
-		}
-	}
-	ReverseSlice(res.Scheduled)
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, h.hospitalClient.CategorizeAppointmentByStatus(apps))
 }
 
 type GetAppointmentResponse struct {
@@ -224,10 +211,4 @@ func (h AppointmentHandler) ParsePatient(c *gin.Context) {
 		return
 	}
 	c.Set("Patient", patient)
-}
-
-func ReverseSlice[T comparable](s []T) {
-	sort.SliceStable(s, func(i, j int) bool {
-		return i > j
-	})
 }
