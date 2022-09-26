@@ -139,6 +139,7 @@ var _ = Describe("Appointment Handler", func() {
 				scheduled    []*hospital.AppointmentOverview
 				cancelled    []*hospital.AppointmentOverview
 				completed    []*hospital.AppointmentOverview
+				categorized  *hospital.CategorizedAppointment
 			)
 			BeforeEach(func() {
 				mockClock.EXPECT().Now().Return(time.Now()).Times(1)
@@ -153,15 +154,20 @@ var _ = Describe("Appointment Handler", func() {
 					appointments[i*3+2] = completed[i]
 				}
 				mockHospitalSysClient.EXPECT().ListAppointmentsByPatientID(gomock.Any(), patient.RefID, gomock.Any()).Return(appointments, nil).Times(1)
+				categorized = &hospital.CategorizedAppointment{
+					Completed: completed,
+					Scheduled: scheduled,
+					Cancelled: cancelled,
+				}
+				mockHospitalSysClient.EXPECT().CategorizeAppointmentByStatus(appointments).Return(categorized)
 			})
 			It("should return 200 with list of appointments group by status", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				var res handler.ListAppointmentsResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Completed).To(HaveLen(n))
-				testhelper.AssertListOfAppointments(res.Scheduled, hospital.AppointmentStatusScheduled, testhelper.ASC)
-				testhelper.AssertListOfAppointments(res.Completed, hospital.AppointmentStatusCompleted, testhelper.DESC)
-				testhelper.AssertListOfAppointments(res.Cancelled, hospital.AppointmentStatusCancelled, testhelper.DESC)
+				Expect(res.Cancelled).To(HaveLen(n))
+				Expect(res.Scheduled).To(HaveLen(n))
 			})
 		})
 	})

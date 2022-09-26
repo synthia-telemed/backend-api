@@ -62,7 +62,7 @@ type ListAppointmentsResponse struct {
 // ListAppointments godoc
 // @Summary      Get list of appointment of the patient
 // @Tags         Appointment
-// @Success      200  {object}	ListAppointmentsResponse "List of appointment group by status"
+// @Success      200  {object}	hospital.CategorizedAppointment "List of appointment group by status"
 // @Failure      400  {object}  server.ErrorResponse "Patient not found"
 // @Failure      401  {object}  server.ErrorResponse "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
