@@ -121,3 +121,17 @@ func (mr *MockCreditCardDataStoreMockRecorder) IsOwnCreditCard(patientID, cardID
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwnCreditCard", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsOwnCreditCard), patientID, cardID)
 }
+
+// SetAllToNonDefault mocks base method.
+func (m *MockCreditCardDataStore) SetAllToNonDefault(patientID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAllToNonDefault", patientID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAllToNonDefault indicates an expected call of SetAllToNonDefault.
+func (mr *MockCreditCardDataStoreMockRecorder) SetAllToNonDefault(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAllToNonDefault", reflect.TypeOf((*MockCreditCardDataStore)(nil).SetAllToNonDefault), patientID)
+}

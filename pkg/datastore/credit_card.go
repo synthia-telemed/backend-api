@@ -26,6 +26,7 @@ type CreditCardDataStore interface {
 	FindByPatientID(patientID uint) ([]CreditCard, error)
 	IsOwnCreditCard(patientID, cardID uint) (bool, error)
 	Count(patientID uint) (int, error)
+	SetAllToNonDefault(patientID uint) error
 	Delete(id uint) error
 }
 
@@ -81,4 +82,8 @@ func (g GormCreditCardDataStore) Count(patientID uint) (int, error) {
 		return 0, err
 	}
 	return int(count), nil
+}
+
+func (g GormCreditCardDataStore) SetAllToNonDefault(patientID uint) error {
+	return g.db.Model(&CreditCard{}).Where(&CreditCard{PatientID: patientID}).Update("is_default", false).Error
 }

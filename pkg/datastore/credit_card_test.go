@@ -35,7 +35,7 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		patient = generatePatient()
 		Expect(db.AutoMigrate(&datastore.Patient{})).To(Succeed())
 		Expect(db.Create(patient).Error).To(Succeed())
-		card = generateCreditCard(patient.ID)
+		card = generateCreditCard(patient.ID, true)
 		Expect(db.Create(card).Error).To(Succeed())
 	})
 
@@ -45,7 +45,7 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 
 	Context("Create credit card", func() {
 		It("should create new credit card", func() {
-			newCard := generateCreditCard(patient.ID)
+			newCard := generateCreditCard(patient.ID, false)
 			Expect(creditCardDataStore.Create(newCard)).To(Succeed())
 			var retrievedCard datastore.CreditCard
 			Expect(db.First(&retrievedCard, newCard.ID).Error).To(Succeed())
@@ -137,6 +137,21 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 				Expect(err).To(BeNil())
 				Expect(isFirst).ToNot(BeZero())
 			})
+		})
+	})
+
+	Context("SetAllToNonDefault", func() {
+		BeforeEach(func() {
+			c := generateCreditCard(patient.ID, true)
+			Expect(db.Create(c).Error).To(BeNil())
+		})
+		It("should set isDefault of all cards to be false", func() {
+			Expect(creditCardDataStore.SetAllToNonDefault(patient.ID)).To(Succeed())
+			var cards []datastore.CreditCard
+			Expect(db.Where(&datastore.CreditCard{PatientID: patient.ID}).Find(&cards).Error).To(BeNil())
+			for _, c := range cards {
+				Expect(c.IsDefault).To(BeFalse())
+			}
 		})
 	})
 })
