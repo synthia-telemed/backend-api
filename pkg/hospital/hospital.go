@@ -230,8 +230,8 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 
 func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error) {
 	desc := SortOrderDesc
-	startTime := date.Truncate(time.Hour * 24)
-	endTime := date.Round(time.Hour * 24)
+	startTime := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	endTime := startTime.Add(time.Hour * 24)
 
 	doctorIDInt64, err := strconv.ParseInt(doctorID, 10, 32)
 	if err != nil {
@@ -365,7 +365,11 @@ type CategorizedAppointment struct {
 }
 
 func (c GraphQLClient) CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment {
-	res := CategorizedAppointment{}
+	res := CategorizedAppointment{
+		Completed: make([]*AppointmentOverview, 0),
+		Scheduled: make([]*AppointmentOverview, 0),
+		Cancelled: make([]*AppointmentOverview, 0),
+	}
 	for _, a := range apps {
 		switch a.Status {
 		case AppointmentStatusCancelled:

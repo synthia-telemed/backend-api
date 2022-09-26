@@ -60,6 +60,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
+	g.GET("/today", middleware.ParseUserID, h.ParseDoctor, h.TodayAppointment)
 	g.POST("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
@@ -71,8 +72,8 @@ type InitAppointmentRoomResponse struct {
 func (h AppointmentHandler) TodayAppointment(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
-
-	appointments, err := h.hospitalClient.ListAppointmentsByDoctorID(context.Background(), doctor.RefID, h.clock.Now())
+	loc, _ := time.LoadLocation("Asia/Bangkok")
+	appointments, err := h.hospitalClient.ListAppointmentsByDoctorID(context.Background(), doctor.RefID, h.clock.Now().In(loc))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByDoctorID error")
 		return
