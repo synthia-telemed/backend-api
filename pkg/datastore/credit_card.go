@@ -25,7 +25,7 @@ type CreditCardDataStore interface {
 	FindByID(id uint) (*CreditCard, error)
 	FindByPatientID(patientID uint) ([]CreditCard, error)
 	IsOwnCreditCard(patientID, cardID uint) (bool, error)
-	IsFirstCreditCard(patientID uint) (bool, error)
+	Count(patientID uint) (int64, error)
 	Delete(id uint) error
 }
 
@@ -75,10 +75,10 @@ func (g GormCreditCardDataStore) FindByID(id uint) (*CreditCard, error) {
 	return &c, nil
 }
 
-func (g GormCreditCardDataStore) IsFirstCreditCard(patientID uint) (bool, error) {
+func (g GormCreditCardDataStore) Count(patientID uint) (int64, error) {
 	var count int64
 	if err := g.db.Model(&CreditCard{}).Where(&CreditCard{PatientID: patientID}).Count(&count).Error; err != nil {
-		return false, err
+		return 0, err
 	}
-	return count == 0, nil
+	return count, nil
 }

@@ -123,19 +123,19 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 		})
 	})
 
-	Context("IsFirstCreditCard", func() {
+	Context("Count credit card", func() {
 		When("patient has no credit card", func() {
-			It("should return true", func() {
-				isFirst, err := creditCardDataStore.IsFirstCreditCard(uint(rand.Uint32()))
+			It("should return 0", func() {
+				isFirst, err := creditCardDataStore.Count(uint(rand.Uint32()))
 				Expect(err).To(BeNil())
-				Expect(isFirst).To(BeTrue())
+				Expect(isFirst).To(BeZero())
 			})
 		})
-		When("patient has no credit card", func() {
-			It("should return true", func() {
-				isFirst, err := creditCardDataStore.IsFirstCreditCard(patient.ID)
+		When("patient has a credit card", func() {
+			It("should return more than 0", func() {
+				isFirst, err := creditCardDataStore.Count(patient.ID)
 				Expect(err).To(BeNil())
-				Expect(isFirst).To(BeFalse())
+				Expect(isFirst).ToNot(BeZero())
 			})
 		})
 	})
