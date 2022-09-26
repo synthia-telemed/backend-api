@@ -63,6 +63,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 type AddCreditCardRequest struct {
 	Name      string `json:"name"`
 	CardToken string `json:"card_token" binding:"required"`
+	IsDefault bool   `json:"is_default"`
 }
 
 // AddCreditCard godoc
@@ -110,7 +111,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		PatientID:   patientID,
 		CardID:      card.ID,
 		Name:        req.Name,
-		IsDefault:   cardCount == 0,
+		IsDefault:   cardCount == 0 || req.IsDefault,
 	}
 	if err := h.creditCardDataStore.Create(newCard); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")
