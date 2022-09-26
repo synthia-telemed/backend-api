@@ -54,6 +54,7 @@ func generateCreditCard(patientID uint, isDefault bool) *datastore.CreditCard {
 		CardID:      uuid.New().String(),
 		Name:        "test_card",
 		IsDefault:   isDefault,
+		Expiry:      fmt.Sprintf("12/%d", time.Now().Year()),
 	}
 }
 

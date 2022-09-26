@@ -18,6 +18,7 @@ type CreditCard struct {
 	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	PatientID   uint           `json:"patient_id" gorm:"not null"`
 	IsDefault   bool           `json:"is_default"`
+	Expiry      string         `json:"expiry"`
 }
 
 type CreditCardDataStore interface {

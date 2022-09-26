@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"fmt"
 	"github.com/omise/omise-go"
 	"github.com/omise/omise-go/operations"
 )
@@ -47,6 +48,7 @@ func (c OmisePaymentClient) AddCreditCard(customerID, cardToken string) (*Card, 
 		ID:          card.ID,
 		Last4Digits: card.LastDigits,
 		Brand:       card.Brand,
+		Expiry:      fmt.Sprintf("%d/%d", int(card.ExpirationMonth), card.ExpirationYear),
 	}, nil
 }
 
