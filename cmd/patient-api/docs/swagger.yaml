@@ -29,6 +29,8 @@ definitions:
         type: string
       created_at:
         type: string
+      expiry:
+        type: string
       id:
         type: integer
       is_default:
@@ -162,21 +164,6 @@ definitions:
     - is_before_meal
     - value
     type: object
-  handler.ListAppointmentsResponse:
-    properties:
-      cancelled:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-      completed:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-      scheduled:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-    type: object
   handler.PayInvoiceWithCreditCardResponse:
     properties:
       amount:
@@ -236,10 +223,25 @@ definitions:
         $ref: '#/definitions/hospital.DoctorOverview'
       id:
         type: string
-      patient_id:
-        type: string
+      patient:
+        $ref: '#/definitions/hospital.PatientOverview'
       status:
         type: string
+    type: object
+  hospital.CategorizedAppointment:
+    properties:
+      cancelled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      completed:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      scheduled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
     type: object
   hospital.DoctorOverview:
     properties:
@@ -274,6 +276,13 @@ definitions:
       quantity:
         type: integer
     type: object
+  hospital.PatientOverview:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+    type: object
   hospital.Prescription:
     properties:
       amount:
@@ -300,7 +309,7 @@ paths:
         "200":
           description: List of appointment group by status
           schema:
-            $ref: '#/definitions/handler.ListAppointmentsResponse'
+            $ref: '#/definitions/hospital.CategorizedAppointment'
         "400":
           description: Patient not found
           schema:
