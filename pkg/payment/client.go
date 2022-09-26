@@ -11,6 +11,7 @@ type Card struct {
 	ID          string `json:"id"`
 	Last4Digits string `json:"last_4_digits"`
 	Brand       string `json:"brand"`
+	Expiry      string `json:"expiry"`
 }
 
 type Payment struct {
