@@ -113,6 +113,12 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		Name:        req.Name,
 		IsDefault:   cardCount == 0 || req.IsDefault,
 	}
+	if cardCount > 0 && req.IsDefault {
+		if err := h.creditCardDataStore.SetAllToNonDefault(patientID); err != nil {
+			h.InternalServerError(c, err, "h.creditCardDataStore.SetAllToNonDefault error")
+			return
+		}
+	}
 	if err := h.creditCardDataStore.Create(newCard); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")
 		return

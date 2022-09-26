@@ -155,6 +155,7 @@ var _ = Describe("Payment Handler", func() {
 			When("patient already has some cards and set new card as default", func() {
 				BeforeEach(func() {
 					mockCreditCardDataStore.EXPECT().Count(patientID).Return(3, nil).Times(1)
+					mockCreditCardDataStore.EXPECT().SetAllToNonDefault(patientID).Return(nil).Times(1)
 				})
 				It("should return 201 with credit card set as default", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
