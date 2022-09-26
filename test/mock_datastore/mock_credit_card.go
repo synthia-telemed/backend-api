@@ -34,6 +34,21 @@ func (m *MockCreditCardDataStore) EXPECT() *MockCreditCardDataStoreMockRecorder 
 	return m.recorder
 }
 
+// Count mocks base method.
+func (m *MockCreditCardDataStore) Count(patientID uint) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count", patientID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count.
+func (mr *MockCreditCardDataStoreMockRecorder) Count(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockCreditCardDataStore)(nil).Count), patientID)
+}
+
 // Create mocks base method.
 func (m *MockCreditCardDataStore) Create(card *datastore.CreditCard) error {
 	m.ctrl.T.Helper()
@@ -90,21 +105,6 @@ func (m *MockCreditCardDataStore) FindByPatientID(patientID uint) ([]datastore.C
 func (mr *MockCreditCardDataStoreMockRecorder) FindByPatientID(patientID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPatientID", reflect.TypeOf((*MockCreditCardDataStore)(nil).FindByPatientID), patientID)
-}
-
-// IsFirstCreditCard mocks base method.
-func (m *MockCreditCardDataStore) IsFirstCreditCard(patientID uint) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsFirstCreditCard", patientID)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsFirstCreditCard indicates an expected call of IsFirstCreditCard.
-func (mr *MockCreditCardDataStoreMockRecorder) IsFirstCreditCard(patientID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFirstCreditCard", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsFirstCreditCard), patientID)
 }
 
 // IsOwnCreditCard mocks base method.

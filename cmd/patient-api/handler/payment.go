@@ -88,12 +88,12 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		return
 	}
 
-	cards, err := h.creditCardDataStore.FindByPatientID(patientID)
+	cardCount, err := h.creditCardDataStore.Count(patientID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.FindByPatientID error")
 		return
 	}
-	if len(cards) >= 5 {
+	if cardCount >= 5 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrLimitNumberOfCreditCardReached)
 		return
 	}
@@ -110,6 +110,7 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		PatientID:   patientID,
 		CardID:      card.ID,
 		Name:        req.Name,
+		IsDefault:   cardCount == 0,
 	}
 	if err := h.creditCardDataStore.Create(newCard); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")
