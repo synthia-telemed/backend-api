@@ -34,6 +34,21 @@ func (m *MockCreditCardDataStore) EXPECT() *MockCreditCardDataStoreMockRecorder 
 	return m.recorder
 }
 
+// Count mocks base method.
+func (m *MockCreditCardDataStore) Count(patientID uint) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count", patientID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count.
+func (mr *MockCreditCardDataStoreMockRecorder) Count(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockCreditCardDataStore)(nil).Count), patientID)
+}
+
 // Create mocks base method.
 func (m *MockCreditCardDataStore) Create(card *datastore.CreditCard) error {
 	m.ctrl.T.Helper()
@@ -105,4 +120,18 @@ func (m *MockCreditCardDataStore) IsOwnCreditCard(patientID, cardID uint) (bool,
 func (mr *MockCreditCardDataStoreMockRecorder) IsOwnCreditCard(patientID, cardID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwnCreditCard", reflect.TypeOf((*MockCreditCardDataStore)(nil).IsOwnCreditCard), patientID, cardID)
+}
+
+// SetAllToNonDefault mocks base method.
+func (m *MockCreditCardDataStore) SetAllToNonDefault(patientID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAllToNonDefault", patientID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAllToNonDefault indicates an expected call of SetAllToNonDefault.
+func (mr *MockCreditCardDataStoreMockRecorder) SetAllToNonDefault(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAllToNonDefault", reflect.TypeOf((*MockCreditCardDataStore)(nil).SetAllToNonDefault), patientID)
 }

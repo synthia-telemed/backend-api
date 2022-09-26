@@ -76,7 +76,7 @@ var _ = Describe("Payment Handler", func() {
 		BeforeEach(func() {
 			handlerFunc = h.AddCreditCard
 
-			req = &handler.AddCreditCardRequest{CardToken: uuid.New().String(), Name: "test_card"}
+			req = &handler.AddCreditCardRequest{CardToken: uuid.New().String(), Name: "test_card", IsDefault: true}
 			reqBody, err := json.Marshal(&req)
 			Expect(err).To(BeNil())
 			c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
@@ -91,9 +91,9 @@ var _ = Describe("Payment Handler", func() {
 			})
 		})
 
-		When("List card by patient ID error", func() {
+		When("Count card by patient ID error", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(nil, testhelper.MockError).Times(1)
+				mockCreditCardDataStore.EXPECT().Count(patientID).Return(0, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -102,7 +102,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("Patient has maximum number of card", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(testhelper.GenerateCreditCards(5), nil).Times(1)
+				mockCreditCardDataStore.EXPECT().Count(patientID).Return(5, nil).Times(1)
 			})
 			It("should return 400", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -111,7 +111,7 @@ var _ = Describe("Payment Handler", func() {
 
 		When("add credit card to Omise error", func() {
 			BeforeEach(func() {
-				mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
+				mockCreditCardDataStore.EXPECT().Count(patientID).Return(0, nil).Times(1)
 				mockPaymentClient.EXPECT().AddCreditCard(customerID, req.CardToken).Return(nil, errors.New("error")).Times(1)
 			})
 			It("should return 400", func() {
@@ -126,24 +126,52 @@ var _ = Describe("Payment Handler", func() {
 			)
 
 			BeforeEach(func() {
-				pCard, dCard = testhelper.GeneratePaymentAndDataStoreCard(patientID, req.Name)
+				pCard, dCard = testhelper.GeneratePaymentAndDataStoreCard(patientID, req.Name, true)
 				mockPaymentClient.EXPECT().AddCreditCard(customerID, req.CardToken).Return(pCard, nil).Times(1)
 				mockCreditCardDataStore.EXPECT().Create(dCard).Return(nil).Times(1)
 			})
 
-			When("it's the first credit card", func() {
+			When("it's the first credit card and set as not default", func() {
 				BeforeEach(func() {
-					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return([]datastore.CreditCard{}, nil).Times(1)
+					req.IsDefault = false
+					reqBody, err := json.Marshal(&req)
+					Expect(err).To(BeNil())
+					c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
+					mockCreditCardDataStore.EXPECT().Count(patientID).Return(0, nil).Times(1)
 				})
-				It("should return 201", func() {
+				It("should return 201 with credit card set as default", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
 				})
 			})
-			When("patient already has some cards", func() {
+			When("it's the first credit card and set as default", func() {
 				BeforeEach(func() {
-					mockCreditCardDataStore.EXPECT().FindByPatientID(patientID).Return(testhelper.GenerateCreditCards(3), nil).Times(1)
+					mockCreditCardDataStore.EXPECT().Count(patientID).Return(0, nil).Times(1)
 				})
-				It("should return 201", func() {
+				It("should return 201 with credit card set as default", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
+				})
+			})
+
+			When("patient already has some cards and set new card as default", func() {
+				BeforeEach(func() {
+					mockCreditCardDataStore.EXPECT().Count(patientID).Return(3, nil).Times(1)
+					mockCreditCardDataStore.EXPECT().SetAllToNonDefault(patientID).Return(nil).Times(1)
+				})
+				It("should return 201 with credit card set as default", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
+				})
+			})
+			When("patient already has some cards and set new card as not default", func() {
+				BeforeEach(func() {
+					req.IsDefault = false
+					reqBody, err := json.Marshal(&req)
+					Expect(err).To(BeNil())
+					c.Request = httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
+
+					mockCreditCardDataStore.EXPECT().Count(patientID).Return(3, nil).Times(1)
+					dCard.IsDefault = false
+				})
+				It("should return 201 with credit card set as non default", func() {
 					Expect(rec.Code).To(Equal(http.StatusCreated))
 				})
 			})

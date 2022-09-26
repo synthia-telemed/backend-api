@@ -176,7 +176,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "Appointment not found",
+                        "description": "RoomID of the appointment not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -645,6 +645,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_default": {
+                    "type": "boolean"
+                },
                 "last_4_digits": {
                     "type": "string"
                 },
@@ -738,12 +741,14 @@ const docTemplate = `{
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
-                "card_token",
-                "name"
+                "card_token"
             ],
             "properties": {
                 "card_token": {
                     "type": "string"
+                },
+                "is_default": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

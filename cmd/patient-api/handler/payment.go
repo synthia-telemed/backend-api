@@ -63,6 +63,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 type AddCreditCardRequest struct {
 	Name      string `json:"name"`
 	CardToken string `json:"card_token" binding:"required"`
+	IsDefault bool   `json:"is_default"`
 }
 
 // AddCreditCard godoc
@@ -88,12 +89,12 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		return
 	}
 
-	cards, err := h.creditCardDataStore.FindByPatientID(patientID)
+	cardCount, err := h.creditCardDataStore.Count(patientID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.FindByPatientID error")
 		return
 	}
-	if len(cards) >= 5 {
+	if cardCount >= 5 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrLimitNumberOfCreditCardReached)
 		return
 	}
@@ -110,6 +111,13 @@ func (h PaymentHandler) AddCreditCard(c *gin.Context) {
 		PatientID:   patientID,
 		CardID:      card.ID,
 		Name:        req.Name,
+		IsDefault:   cardCount == 0 || req.IsDefault,
+	}
+	if cardCount > 0 && req.IsDefault {
+		if err := h.creditCardDataStore.SetAllToNonDefault(patientID); err != nil {
+			h.InternalServerError(c, err, "h.creditCardDataStore.SetAllToNonDefault error")
+			return
+		}
 	}
 	if err := h.creditCardDataStore.Create(newCard); err != nil {
 		h.InternalServerError(c, err, "h.creditCardDataStore.Create error")

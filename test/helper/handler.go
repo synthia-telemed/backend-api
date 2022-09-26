@@ -60,7 +60,7 @@ func GenerateCreditCards(n int) []datastore.CreditCard {
 	return cards
 }
 
-func GeneratePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card, *datastore.CreditCard) {
+func GeneratePaymentAndDataStoreCard(patientID uint, name string, isDefault bool) (*payment.Card, *datastore.CreditCard) {
 	pCard := &payment.Card{
 		ID:          uuid.New().String(),
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
@@ -72,6 +72,7 @@ func GeneratePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card
 		PatientID:   patientID,
 		CardID:      pCard.ID,
 		Name:        name,
+		IsDefault:   isDefault,
 	}
 	return pCard, dCard
 }
@@ -134,14 +135,17 @@ func GenerateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*h
 
 func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
 	return &hospital.AppointmentOverview{
-		Id:        uuid.New().String(),
-		DateTime:  time.Now(),
-		PatientId: uuid.New().String(),
-		Status:    status,
+		Id:       uuid.New().String(),
+		DateTime: time.Now(),
+		Status:   status,
 		Doctor: hospital.DoctorOverview{
 			FullName:      uuid.New().String(),
 			Position:      uuid.New().String(),
 			ProfilePicURL: uuid.New().String(),
+		},
+		Patient: hospital.PatientOverview{
+			ID:       uuid.New().String(),
+			FullName: uuid.New().String(),
 		},
 	}
 }
