@@ -36,7 +36,7 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 
 		patient = generatePatient()
 		Expect(db.Create(patient).Error).To(Succeed())
-		creditCard = generateCreditCard(patient.ID)
+		creditCard = generateCreditCard(patient.ID, false)
 		Expect(db.Create(creditCard).Error).To(Succeed())
 	})
 

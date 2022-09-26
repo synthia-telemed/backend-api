@@ -60,7 +60,7 @@ func GenerateCreditCards(n int) []datastore.CreditCard {
 	return cards
 }
 
-func GeneratePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card, *datastore.CreditCard) {
+func GeneratePaymentAndDataStoreCard(patientID uint, name string, isDefault bool) (*payment.Card, *datastore.CreditCard) {
 	pCard := &payment.Card{
 		ID:          uuid.New().String(),
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
@@ -72,6 +72,7 @@ func GeneratePaymentAndDataStoreCard(patientID uint, name string) (*payment.Card
 		PatientID:   patientID,
 		CardID:      pCard.ID,
 		Name:        name,
+		IsDefault:   isDefault,
 	}
 	return pCard, dCard
 }

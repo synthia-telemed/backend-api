@@ -17,6 +17,7 @@ type CreditCard struct {
 	Payments    []Payment      `json:"-" gorm:"foreignKey:CreditCardID"`
 	ID          uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 	PatientID   uint           `json:"patient_id" gorm:"not null"`
+	IsDefault   bool           `json:"is_default"`
 }
 
 type CreditCardDataStore interface {
@@ -24,6 +25,8 @@ type CreditCardDataStore interface {
 	FindByID(id uint) (*CreditCard, error)
 	FindByPatientID(patientID uint) ([]CreditCard, error)
 	IsOwnCreditCard(patientID, cardID uint) (bool, error)
+	Count(patientID uint) (int, error)
+	SetAllToNonDefault(patientID uint) error
 	Delete(id uint) error
 }
 
@@ -71,4 +74,16 @@ func (g GormCreditCardDataStore) FindByID(id uint) (*CreditCard, error) {
 		return nil, err
 	}
 	return &c, nil
+}
+
+func (g GormCreditCardDataStore) Count(patientID uint) (int, error) {
+	var count int64
+	if err := g.db.Model(&CreditCard{}).Where(&CreditCard{PatientID: patientID}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
+func (g GormCreditCardDataStore) SetAllToNonDefault(patientID uint) error {
+	return g.db.Model(&CreditCard{}).Where(&CreditCard{PatientID: patientID}).Update("is_default", false).Error
 }

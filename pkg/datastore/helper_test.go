@@ -46,13 +46,14 @@ func assertRecord(db *gorm.DB, t interface{}) {
 	Expect(db.Where(t).First(t).Error).To(Succeed())
 }
 
-func generateCreditCard(patientID uint) *datastore.CreditCard {
+func generateCreditCard(patientID uint, isDefault bool) *datastore.CreditCard {
 	return &datastore.CreditCard{
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "Visa",
 		PatientID:   patientID,
 		CardID:      uuid.New().String(),
 		Name:        "test_card",
+		IsDefault:   isDefault,
 	}
 }
 
