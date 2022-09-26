@@ -508,4 +508,61 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			})
 		})
 	})
+
+	Context("TodayAppointment", func() {
+		var (
+			now time.Time
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.TodayAppointment
+			c.Set("Doctor", doctor)
+
+			loc, _ := time.LoadLocation("Asia/Bangkok")
+			now = time.Now().In(loc)
+			mockClock.EXPECT().Now().Return(now).Times(1)
+		})
+
+		When("list appointments by doctor id graphQL error", func() {
+			BeforeEach(func() {
+				mockHospitalSysClient.EXPECT().ListAppointmentsByDoctorID(gomock.Any(), doctor.RefID, now).Return(nil, testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("no error occurred", func() {
+			var (
+				n int
+			)
+			BeforeEach(func() {
+				n = 3
+				scheduled := testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusScheduled, n)
+				cancelled := testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCancelled, n)
+				completed := testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCompleted, n)
+				appointments := make([]*hospital.AppointmentOverview, n*3)
+				for i := 0; i < n; i++ {
+					appointments[i*3+0] = scheduled[i]
+					appointments[i*3+1] = cancelled[i]
+					appointments[i*3+2] = completed[i]
+				}
+				categorized := &hospital.CategorizedAppointment{
+					Completed: completed,
+					Scheduled: scheduled,
+					Cancelled: cancelled,
+				}
+				mockHospitalSysClient.EXPECT().ListAppointmentsByDoctorID(gomock.Any(), doctor.RefID, now).Return(appointments, nil).Times(1)
+				mockHospitalSysClient.EXPECT().CategorizeAppointmentByStatus(appointments).Return(categorized)
+			})
+			It("should return 200 with list of appointments group by status", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res hospital.CategorizedAppointment
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.Completed).To(HaveLen(n))
+				Expect(res.Cancelled).To(HaveLen(n))
+				Expect(res.Scheduled).To(HaveLen(n))
+			})
+		})
+	})
 })
