@@ -61,10 +61,12 @@ func GenerateCreditCards(n int) []datastore.CreditCard {
 }
 
 func GeneratePaymentAndDataStoreCard(patientID uint, name string, isDefault bool) (*payment.Card, *datastore.CreditCard) {
+	expiry := fmt.Sprintf("12/%d", time.Now().Year())
 	pCard := &payment.Card{
 		ID:          uuid.New().String(),
 		Last4Digits: fmt.Sprintf("%d", rand.Intn(10000)),
 		Brand:       "MasterCard",
+		Expiry:      expiry,
 	}
 	dCard := &datastore.CreditCard{
 		Last4Digits: pCard.Last4Digits,
@@ -73,6 +75,7 @@ func GeneratePaymentAndDataStoreCard(patientID uint, name string, isDefault bool
 		CardID:      pCard.ID,
 		Name:        name,
 		IsDefault:   isDefault,
+		Expiry:      expiry,
 	}
 	return pCard, dCard
 }
