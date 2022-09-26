@@ -136,6 +136,23 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
+	Context("ListAppointmentsByDoctorID", func() {
+		When("no appointment is found", func() {
+			It("should return empty slice with no error", func() {
+				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, 24, time.Date(2022, 9, 9, 10, 3, 2, 0, time.UTC))
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(0))
+			})
+		})
+		When("appointment are found", func() {
+			It("should return appointments on that date", func() {
+				appointments, err := graphQLClient.ListAppointmentsByDoctorID(ctx, 9, time.Date(2022, 9, 7, 13, 43, 0, 0, time.UTC))
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(3))
+			})
+		})
+	})
+
 	Context("FindAppointmentByID", func() {
 		When("appointment is not found", func() {
 			It("should return nil with no error", func() {

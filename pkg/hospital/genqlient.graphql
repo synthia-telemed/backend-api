@@ -67,14 +67,20 @@ query getAppointments($where: AppointmentWhereInput, $orderBy: [AppointmentOrder
     appointments(where: $where, orderBy: $orderBy) {
         id
         dateTime
-        patientId
         status
         doctor {
+            id
             initial_en
             firstname_en
             lastname_en
             position
             profilePicURL
+        }
+        patient {
+            id
+            initial_en
+            firstname_en
+            lastname_en
         }
     }
 }

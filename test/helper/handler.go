@@ -134,10 +134,9 @@ func GenerateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*h
 
 func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
 	return &hospital.AppointmentOverview{
-		Id:        uuid.New().String(),
-		DateTime:  time.Now(),
-		PatientId: uuid.New().String(),
-		Status:    status,
+		Id:       uuid.New().String(),
+		DateTime: time.Now(),
+		Status:   status,
 		Doctor: hospital.DoctorOverview{
 			FullName:      uuid.New().String(),
 			Position:      uuid.New().String(),
