@@ -142,6 +142,10 @@ func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 			Position:      uuid.New().String(),
 			ProfilePicURL: uuid.New().String(),
 		},
+		Patient: hospital.PatientOverview{
+			ID:       uuid.New().String(),
+			FullName: uuid.New().String(),
+		},
 	}
 }
 

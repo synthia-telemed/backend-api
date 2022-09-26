@@ -163,7 +163,7 @@ var _ = Describe("Appointment Handler", func() {
 			})
 			It("should return 200 with list of appointments group by status", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
-				var res handler.ListAppointmentsResponse
+				var res hospital.CategorizedAppointment
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Completed).To(HaveLen(n))
 				Expect(res.Cancelled).To(HaveLen(n))

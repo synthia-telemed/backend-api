@@ -53,12 +53,6 @@ func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
 }
 
-type ListAppointmentsResponse struct {
-	Completed []*hospital.AppointmentOverview `json:"completed"`
-	Scheduled []*hospital.AppointmentOverview `json:"scheduled"`
-	Cancelled []*hospital.AppointmentOverview `json:"cancelled"`
-}
-
 // ListAppointments godoc
 // @Summary      Get list of appointment of the patient
 // @Tags         Appointment
