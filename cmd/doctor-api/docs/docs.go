@@ -24,6 +24,14 @@ const docTemplate = `{
     "paths": {
         "/appointment/complete": {
             "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
                 "tags": [
                     "Appointment"
                 ],
@@ -52,6 +60,54 @@ const docTemplate = `{
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/today": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get list of today appointment",
+                "responses": {
+                    "200": {
+                        "description": "List of appointment group by status",
+                        "schema": {
+                            "$ref": "#/definitions/hospital.CategorizedAppointment"
+                        }
+                    },
+                    "400": {
+                        "description": "Doctor not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -63,6 +119,14 @@ const docTemplate = `{
         },
         "/appointment/{appointmentID}": {
             "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
                 "tags": [
                     "Appointment"
                 ],
@@ -85,6 +149,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "The appointment can start 10 minutes early and not later than 3 hours",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -207,6 +277,77 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.AppointmentOverview": {
+            "type": "object",
+            "properties": {
+                "date_time": {
+                    "type": "string"
+                },
+                "doctor": {
+                    "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "patient": {
+                    "$ref": "#/definitions/hospital.PatientOverview"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.CategorizedAppointment": {
+            "type": "object",
+            "properties": {
+                "cancelled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "completed": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "scheduled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                }
+            }
+        },
+        "hospital.DoctorOverview": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.PatientOverview": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }

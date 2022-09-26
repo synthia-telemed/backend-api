@@ -37,6 +37,52 @@ definitions:
       token:
         type: string
     type: object
+  hospital.AppointmentOverview:
+    properties:
+      date_time:
+        type: string
+      doctor:
+        $ref: '#/definitions/hospital.DoctorOverview'
+      id:
+        type: string
+      patient:
+        $ref: '#/definitions/hospital.PatientOverview'
+      status:
+        type: string
+    type: object
+  hospital.CategorizedAppointment:
+    properties:
+      cancelled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      completed:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      scheduled:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+    type: object
+  hospital.DoctorOverview:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+      position:
+        type: string
+      profile_pic_url:
+        type: string
+    type: object
+  hospital.PatientOverview:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+    type: object
   server.ErrorResponse:
     properties:
       message:
@@ -66,6 +112,10 @@ paths:
             3 hours
           schema:
             $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
         "403":
           description: Forbidden
           schema:
@@ -78,6 +128,9 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
       summary: Init the appointment room
       tags:
       - Appointment
@@ -99,11 +152,43 @@ paths:
           description: Doctor isn't currently in any room
           schema:
             $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
       summary: Finish the appointment and close the room
+      tags:
+      - Appointment
+  /appointment/today:
+    get:
+      responses:
+        "200":
+          description: List of appointment group by status
+          schema:
+            $ref: '#/definitions/hospital.CategorizedAppointment'
+        "400":
+          description: Doctor not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get list of today appointment
       tags:
       - Appointment
   /auth/signin:

@@ -69,6 +69,16 @@ type InitAppointmentRoomResponse struct {
 	RoomID string `json:"room_id"`
 }
 
+// TodayAppointment godoc
+// @Summary      Get list of today appointment
+// @Tags         Appointment
+// @Success      200  {object}	hospital.CategorizedAppointment "List of appointment group by status"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/today [get]
 func (h AppointmentHandler) TodayAppointment(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
@@ -91,9 +101,12 @@ func (h AppointmentHandler) TodayAppointment(c *gin.Context) {
 // @Failure      400  {object}  server.ErrorResponse   "Invalid appointment ID"
 // @Failure      400  {object}  server.ErrorResponse   "Cannot initiate room for completed or cancelled appointment"
 // @Failure      400  {object}  server.ErrorResponse   "The appointment can start 10 minutes early and not later than 3 hours"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
 // @Failure      403  {object}  server.ErrorResponse   "Forbidden"
 // @Failure      404  {object}  server.ErrorResponse   "Appointment not found"
 // @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
 // @Router       /appointment/{appointmentID} [post]
 func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
@@ -183,7 +196,10 @@ type CompleteAppointmentResponse struct {
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
 // @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor isn't currently in any room"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
 // @Router       /appointment/complete [post]
 func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	var req CompleteAppointmentRequest
