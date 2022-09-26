@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Khan/genqlient/graphql"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -18,6 +19,7 @@ type SystemClient interface {
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
+	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
 }
 
 type Config struct {
@@ -354,4 +356,32 @@ func (c GraphQLClient) SetAppointmentStatus(ctx context.Context, appointmentID i
 	}
 	_, err := setAppointmentStatus(ctx, c.client, float64(appointmentID), s)
 	return err
+}
+
+type CategorizedAppointment struct {
+	Completed []*AppointmentOverview `json:"completed"`
+	Scheduled []*AppointmentOverview `json:"scheduled"`
+	Cancelled []*AppointmentOverview `json:"cancelled"`
+}
+
+func (c GraphQLClient) CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment {
+	res := CategorizedAppointment{}
+	for _, a := range apps {
+		switch a.Status {
+		case AppointmentStatusCancelled:
+			res.Cancelled = append(res.Cancelled, a)
+		case AppointmentStatusCompleted:
+			res.Completed = append(res.Completed, a)
+		case AppointmentStatusScheduled:
+			res.Scheduled = append(res.Scheduled, a)
+		}
+	}
+	ReverseSlice(res.Scheduled)
+	return &res
+}
+
+func ReverseSlice[T comparable](s []T) {
+	sort.SliceStable(s, func(i, j int) bool {
+		return i > j
+	})
 }

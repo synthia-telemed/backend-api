@@ -51,6 +51,20 @@ func (mr *MockSystemClientMockRecorder) AssertDoctorCredential(ctx, username, pa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssertDoctorCredential", reflect.TypeOf((*MockSystemClient)(nil).AssertDoctorCredential), ctx, username, password)
 }
 
+// CategorizeAppointmentByStatus mocks base method.
+func (m *MockSystemClient) CategorizeAppointmentByStatus(apps []*hospital.AppointmentOverview) *hospital.CategorizedAppointment {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CategorizeAppointmentByStatus", apps)
+	ret0, _ := ret[0].(*hospital.CategorizedAppointment)
+	return ret0
+}
+
+// CategorizeAppointmentByStatus indicates an expected call of CategorizeAppointmentByStatus.
+func (mr *MockSystemClientMockRecorder) CategorizeAppointmentByStatus(apps interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategorizeAppointmentByStatus", reflect.TypeOf((*MockSystemClient)(nil).CategorizeAppointmentByStatus), apps)
+}
+
 // FindAppointmentByID mocks base method.
 func (m *MockSystemClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*hospital.Appointment, error) {
 	m.ctrl.T.Helper()
