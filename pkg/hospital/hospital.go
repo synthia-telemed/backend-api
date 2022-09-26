@@ -225,13 +225,19 @@ func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientI
 	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
-func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID int, date time.Time) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error) {
 	desc := SortOrderDesc
 	startTime := date.Truncate(time.Hour * 24)
 	endTime := date.Round(time.Hour * 24)
 
+	doctorIDInt64, err := strconv.ParseInt(doctorID, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	doctorIDInt := int(doctorIDInt64)
+
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
-		DoctorId: &IntFilter{Equals: &doctorID},
+		DoctorId: &IntFilter{Equals: &doctorIDInt},
 		DateTime: &DateTimeFilter{Gte: &startTime, Lt: &endTime},
 	}, []*AppointmentOrderByWithRelationInput{
 		{DateTime: &desc},
