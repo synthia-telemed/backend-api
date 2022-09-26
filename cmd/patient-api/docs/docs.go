@@ -40,7 +40,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of appointment group by status",
                         "schema": {
-                            "$ref": "#/definitions/handler.ListAppointmentsResponse"
+                            "$ref": "#/definitions/hospital.CategorizedAppointment"
                         }
                     },
                     "400": {
@@ -642,6 +642,9 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "expiry": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -843,29 +846,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ListAppointmentsResponse": {
-            "type": "object",
-            "properties": {
-                "cancelled": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                },
-                "completed": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                },
-                "scheduled": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                }
-            }
-        },
         "handler.PayInvoiceWithCreditCardResponse": {
             "type": "object",
             "properties": {
@@ -957,11 +937,34 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "patient_id": {
-                    "type": "string"
+                "patient": {
+                    "$ref": "#/definitions/hospital.PatientOverview"
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "hospital.CategorizedAppointment": {
+            "type": "object",
+            "properties": {
+                "cancelled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "completed": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "scheduled": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
                 }
             }
         },
@@ -1013,6 +1016,17 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "hospital.PatientOverview": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
                 }
             }
         },
