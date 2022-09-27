@@ -1014,6 +1014,7 @@ type Medicine {
     description: String!
     id: ID!
     name: String!
+    pictureURL: String!
     prescriptions: [Prescription!]
     updatedAt: DateTime!
 }
@@ -1032,6 +1033,7 @@ type MedicineCountAggregate {
     description: Int!
     id: Int!
     name: Int!
+    pictureURL: Int!
     updatedAt: Int!
 }
 
@@ -1039,6 +1041,7 @@ input MedicineCreateInput {
     createdAt: DateTime
     description: String!
     name: String!
+    pictureURL: String!
     prescriptions: PrescriptionCreateNestedManyWithoutMedicineInput
     updatedAt: DateTime
 }
@@ -1058,6 +1061,7 @@ input MedicineCreateWithoutPrescriptionsInput {
     createdAt: DateTime
     description: String!
     name: String!
+    pictureURL: String!
     updatedAt: DateTime
 }
 
@@ -1066,6 +1070,7 @@ type MedicineMaxAggregate {
     description: String
     id: Int
     name: String
+    pictureURL: String
     updatedAt: DateTime
 }
 
@@ -1074,6 +1079,7 @@ type MedicineMinAggregate {
     description: String
     id: Int
     name: String
+    pictureURL: String
     updatedAt: DateTime
 }
 
@@ -1082,6 +1088,7 @@ input MedicineOrderByWithRelationInput {
     description: SortOrder
     id: SortOrder
     name: SortOrder
+    pictureURL: SortOrder
     prescriptions: PrescriptionOrderByRelationAggregateInput
     updatedAt: SortOrder
 }
@@ -1096,6 +1103,7 @@ enum MedicineScalarFieldEnum {
     description
     id
     name
+    pictureURL
     updatedAt
 }
 
@@ -1111,6 +1119,7 @@ input MedicineWhereInput {
     description: StringFilter
     id: IntFilter
     name: StringFilter
+    pictureURL: StringFilter
     prescriptions: PrescriptionListRelationFilter
     updatedAt: DateTimeFilter
 }
