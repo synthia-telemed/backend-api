@@ -33,11 +33,12 @@ var _ = Describe("Appointment Handler", func() {
 		h           *handler.AppointmentHandler
 		handlerFunc gin.HandlerFunc
 
-		mockPatientDataStore  *mock_datastore.MockPatientDataStore
-		mockPaymentDataStore  *mock_datastore.MockPaymentDataStore
-		mockHospitalSysClient *mock_hospital_client.MockSystemClient
-		mockCacheClient       *mock_cache_client.MockClient
-		mockClock             *mock_clock.MockClock
+		mockPatientDataStore     *mock_datastore.MockPatientDataStore
+		mockPaymentDataStore     *mock_datastore.MockPaymentDataStore
+		mockAppointmentDataStore *mock_datastore.MockAppointmentDataStore
+		mockHospitalSysClient    *mock_hospital_client.MockSystemClient
+		mockCacheClient          *mock_cache_client.MockClient
+		mockClock                *mock_clock.MockClock
 
 		patient *datastore.Patient
 	)
@@ -46,10 +47,11 @@ var _ = Describe("Appointment Handler", func() {
 		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockPaymentDataStore = mock_datastore.NewMockPaymentDataStore(mockCtrl)
+		mockAppointmentDataStore = mock_datastore.NewMockAppointmentDataStore(mockCtrl)
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
-		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, zap.NewNop().Sugar())
+		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockAppointmentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, zap.NewNop().Sugar())
 		patient = testhelper.GeneratePatient()
 		c.Set("Patient", patient)
 	})
@@ -258,17 +260,44 @@ var _ = Describe("Appointment Handler", func() {
 
 	Context("GetAppointment", func() {
 		var (
-			appointment *hospital.Appointment
+			appointment   *hospital.Appointment
+			appointmentDS *datastore.Appointment
 		)
 
 		BeforeEach(func() {
 			handlerFunc = h.GetAppointment
 			appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusCompleted, true)
+			appointmentDS = testhelper.GenerateDataStoreAppointment(appointment.Id)
 			c.Set("Appointment", appointment)
 		})
 
-		When("appointment is found and it's completed with find payment error", func() {
+		When("appointment is found and it's scheduled", func() {
 			BeforeEach(func() {
+				appointment, _ = testhelper.GenerateAppointment(patient.RefID, "", hospital.AppointmentStatusScheduled, false)
+				c.Set("Appointment", appointment)
+			})
+			It("should return appointment", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res handler.GetAppointmentResponse
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.Id).To(Equal(appointment.Id))
+				Expect(res.Payment).To(BeNil())
+				Expect(res.Duration).To(BeNil())
+			})
+		})
+
+		When("completed appointment is found but find local appointment error", func() {
+			BeforeEach(func() {
+				mockAppointmentDataStore.EXPECT().FindByRefID(appointment.Id).Return(nil, testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("completed appointment is found but find payment error", func() {
+			BeforeEach(func() {
+				mockAppointmentDataStore.EXPECT().FindByRefID(appointment.Id).Return(appointmentDS, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(nil, errors.New("err")).Times(1)
 			})
 			It("should return 500", func() {
@@ -276,7 +305,7 @@ var _ = Describe("Appointment Handler", func() {
 			})
 		})
 
-		When("appointment is found and it's paid", func() {
+		When("completed appointment is found and it's paid", func() {
 			var (
 				payment *datastore.Payment
 			)
@@ -296,6 +325,7 @@ var _ = Describe("Appointment Handler", func() {
 					CreditCard:   card,
 					CreditCardID: &card.ID,
 				}
+				mockAppointmentDataStore.EXPECT().FindByRefID(appointment.Id).Return(appointmentDS, nil).Times(1)
 				mockPaymentDataStore.EXPECT().FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus).Return(payment, nil).Times(1)
 			})
 			It("should return 200 with payment info", func() {
@@ -304,18 +334,21 @@ var _ = Describe("Appointment Handler", func() {
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Id).To(Equal(appointment.Id))
 				Expect(res.Payment).ToNot(BeNil())
+				Expect(res.Duration).ToNot(BeNil())
 			})
 		})
-		When("appointment is found and it's have not been paid paid", func() {
+		When("completed appointment is found and it's have not been paid paid", func() {
 			BeforeEach(func() {
+				mockAppointmentDataStore.EXPECT().FindByRefID(appointment.Id).Return(appointmentDS, nil).Times(1)
 				appointment.Invoice.Paid = false
 			})
-			It("should return 200", func() {
+			It("should return 200 with payment is null", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 				var res handler.GetAppointmentResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Id).To(Equal(appointment.Id))
 				Expect(res.Payment).To(BeNil())
+				Expect(res.Duration).ToNot(BeNil())
 			})
 		})
 	})

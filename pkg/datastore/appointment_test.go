@@ -1,6 +1,7 @@
 package datastore_test
 
 import (
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
@@ -39,7 +40,7 @@ var _ = Describe("Appointment Datastore", Ordered, func() {
 	Context("Create", func() {
 		It("should save new appointment to db", func() {
 			appointment := datastore.Appointment{
-				RefID:       int(rand.Int31()),
+				RefID:       uuid.NewString(),
 				Duration:    (time.Minute * 10).Seconds(),
 				StartedTime: time.Now(),
 			}
@@ -54,7 +55,7 @@ var _ = Describe("Appointment Datastore", Ordered, func() {
 	Context("FindByRefID", func() {
 		When("appointment is not found", func() {
 			It("should return nil with no error", func() {
-				app, err := appointmentDataStore.FindByRefID(rand.Int())
+				app, err := appointmentDataStore.FindByRefID(uuid.NewString())
 				Expect(err).To(BeNil())
 				Expect(app).To(BeNil())
 			})
@@ -63,7 +64,7 @@ var _ = Describe("Appointment Datastore", Ordered, func() {
 			var appointment datastore.Appointment
 			BeforeEach(func() {
 				appointment = datastore.Appointment{
-					RefID:       int(rand.Int31()),
+					RefID:       uuid.NewString(),
 					Duration:    (time.Minute * 10).Seconds(),
 					StartedTime: time.Now(),
 				}

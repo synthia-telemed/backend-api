@@ -184,6 +184,15 @@ func GenerateAppointment(patientID string, doctorID string, status hospital.Appo
 	}, int(id)
 }
 
+func GenerateDataStoreAppointment(appointmentID string) *datastore.Appointment {
+	return &datastore.Appointment{
+		StartedTime: time.Now(),
+		RefID:       appointmentID,
+		Duration:    float64(rand.Intn(200)),
+		ID:          uint(rand.Uint32()),
+	}
+}
+
 type Ordering string
 
 const (
