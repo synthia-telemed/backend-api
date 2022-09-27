@@ -25,24 +25,26 @@ var (
 )
 
 type AppointmentHandler struct {
-	patientDataStore datastore.PatientDataStore
-	paymentDataStore datastore.PaymentDataStore
-	hospitalClient   hospital.SystemClient
-	cacheClient      cache.Client
-	clock            clock.Clock
-	logger           *zap.SugaredLogger
+	patientDataStore     datastore.PatientDataStore
+	paymentDataStore     datastore.PaymentDataStore
+	appointmentDataStore datastore.AppointmentDataStore
+	hospitalClient       hospital.SystemClient
+	cacheClient          cache.Client
+	clock                clock.Clock
+	logger               *zap.SugaredLogger
 	*server.GinHandler
 }
 
-func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, appsDS datastore.AppointmentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
-		patientDataStore: patientDS,
-		hospitalClient:   hos,
-		paymentDataStore: paymentDS,
-		cacheClient:      cacheClient,
-		clock:            c,
-		logger:           logger,
-		GinHandler:       &server.GinHandler{Logger: logger},
+		patientDataStore:     patientDS,
+		hospitalClient:       hos,
+		paymentDataStore:     paymentDS,
+		appointmentDataStore: appsDS,
+		cacheClient:          cacheClient,
+		clock:                c,
+		logger:               logger,
+		GinHandler:           &server.GinHandler{Logger: logger},
 	}
 }
 
@@ -85,7 +87,8 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 
 type GetAppointmentResponse struct {
 	*hospital.Appointment
-	Payment *datastore.Payment `json:"payment"`
+	Payment  *datastore.Payment `json:"payment"`
+	Duration *float64           `json:"duration"`
 }
 
 // GetAppointment godoc
@@ -117,6 +120,15 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 			return
 		}
 		res.Payment = payment
+	}
+	if appointment.Status == hospital.AppointmentStatusCompleted {
+		compAppData, err := h.appointmentDataStore.FindByRefID(appointment.Id)
+		if err != nil {
+			h.InternalServerError(c, err, "h.appointmentDataStore.FindByRefID error")
+			return
+		}
+		res.Duration = &compAppData.Duration
+
 	}
 	c.JSON(http.StatusOK, res)
 }
