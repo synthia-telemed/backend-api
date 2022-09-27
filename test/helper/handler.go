@@ -157,10 +157,11 @@ func GenerateAppointment(patientID string, doctorID string, status hospital.Appo
 	var invoice *hospital.Invoice
 	if status == hospital.AppointmentStatusCompleted {
 		invoice = &hospital.Invoice{
-			Id:           int(rand.Int31()),
-			Total:        rand.Float64() * 10000,
-			Paid:         isPaid,
-			InvoiceItems: nil,
+			Id:               int(rand.Int31()),
+			Total:            rand.Float64() * 10000,
+			Paid:             isPaid,
+			InvoiceItems:     nil,
+			InvoiceDiscounts: nil,
 		}
 	}
 	id := rand.Int31()
