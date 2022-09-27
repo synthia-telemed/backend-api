@@ -138,6 +138,7 @@ type InvoiceDiscount struct {
 type Prescription struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	PictureURL  string `json:"picture_url"`
 	Amount      int    `json:"amount"`
 }
 
@@ -336,6 +337,7 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 				Amount:      p.GetAmount(),
 				Name:        p.Medicine.GetName(),
 				Description: p.Medicine.GetDescription(),
+				PictureURL:  p.Medicine.GetPictureURL(),
 			}
 		}
 	}

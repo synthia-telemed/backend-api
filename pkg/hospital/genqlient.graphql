@@ -123,6 +123,7 @@ query getAppointment($where: AppointmentWhereInput!) {
             medicine {
                 name
                 description
+                pictureURL
             }
         }
     }
