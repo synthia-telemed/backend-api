@@ -239,7 +239,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 	// Save duration to DB
 	appIDInt, _ := strconv.ParseInt(appointmentID, 10, 32)
 	appointment := datastore.Appointment{
-		RefID:       int(appIDInt),
+		RefID:       appointmentID,
 		Duration:    duration.Seconds(),
 		StartedTime: startedTime.UTC(),
 	}

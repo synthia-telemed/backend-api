@@ -49,7 +49,7 @@ func (mr *MockAppointmentDataStoreMockRecorder) Create(appointment interface{}) 
 }
 
 // FindByRefID mocks base method.
-func (m *MockAppointmentDataStore) FindByRefID(refID int) (*datastore.Appointment, error) {
+func (m *MockAppointmentDataStore) FindByRefID(refID string) (*datastore.Appointment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByRefID", refID)
 	ret0, _ := ret[0].(*datastore.Appointment)
