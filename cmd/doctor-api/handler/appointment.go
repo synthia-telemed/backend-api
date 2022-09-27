@@ -119,7 +119,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 	now := h.clock.Now()
-	diff := appointment.DateTime.Sub(now)
+	diff := appointment.StartDateTime.Sub(now)
 	if diff < -time.Hour*3 || diff > time.Minute*10 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrNotTimeYet)
 		return
