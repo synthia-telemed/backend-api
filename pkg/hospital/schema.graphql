@@ -1,16 +1,17 @@
 type Appointment {
     _count: AppointmentCount!
     createdAt: DateTime!
-    dateTime: DateTime!
     detail: String!
     doctor: Doctor!
     doctorId: Int!
+    endDateTime: DateTime!
     id: ID!
     invoice: Invoice
     nextAppointment: DateTime
     patient: Patient!
     patientId: String!
     prescriptions: [Prescription!]
+    startDateTime: DateTime!
     status: AppointmentStatus!
     updatedAt: DateTime!
 }
@@ -27,36 +28,39 @@ type AppointmentCount {
 type AppointmentCountAggregate {
     _all: Int!
     createdAt: Int!
-    dateTime: Int!
     detail: Int!
     doctorId: Int!
+    endDateTime: Int!
     id: Int!
     nextAppointment: Int!
     patientId: Int!
+    startDateTime: Int!
     status: Int!
     updatedAt: Int!
 }
 
 input AppointmentCreateInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
     doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+    endDateTime: DateTime!
     invoice: InvoiceCreateNestedOneWithoutAppointmentInput
     nextAppointment: DateTime
     patient: PatientCreateNestedOneWithoutAppointmentsInput!
     prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
 
 input AppointmentCreateManyDoctorInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
+    endDateTime: DateTime!
     id: Int
     nextAppointment: DateTime
     patientId: String!
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
@@ -68,11 +72,12 @@ input AppointmentCreateManyDoctorInputEnvelope {
 
 input AppointmentCreateManyPatientInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
     doctorId: Int!
+    endDateTime: DateTime!
     id: Int
     nextAppointment: DateTime
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
@@ -130,48 +135,52 @@ input AppointmentCreateOrConnectWithoutPrescriptionsInput {
 
 input AppointmentCreateWithoutDoctorInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
+    endDateTime: DateTime!
     invoice: InvoiceCreateNestedOneWithoutAppointmentInput
     nextAppointment: DateTime
     patient: PatientCreateNestedOneWithoutAppointmentsInput!
     prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
 
 input AppointmentCreateWithoutInvoiceInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
     doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+    endDateTime: DateTime!
     nextAppointment: DateTime
     patient: PatientCreateNestedOneWithoutAppointmentsInput!
     prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
 
 input AppointmentCreateWithoutPatientInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
     doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+    endDateTime: DateTime!
     invoice: InvoiceCreateNestedOneWithoutAppointmentInput
     nextAppointment: DateTime
     prescriptions: PrescriptionCreateNestedManyWithoutAppointmentInput
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
 
 input AppointmentCreateWithoutPrescriptionsInput {
     createdAt: DateTime
-    dateTime: DateTime!
     detail: String!
     doctor: DoctorCreateNestedOneWithoutAppointmentsInput!
+    endDateTime: DateTime!
     invoice: InvoiceCreateNestedOneWithoutAppointmentInput
     nextAppointment: DateTime
     patient: PatientCreateNestedOneWithoutAppointmentsInput!
+    startDateTime: DateTime!
     status: AppointmentStatus
     updatedAt: DateTime
 }
@@ -184,24 +193,26 @@ input AppointmentListRelationFilter {
 
 type AppointmentMaxAggregate {
     createdAt: DateTime
-    dateTime: DateTime
     detail: String
     doctorId: Int
+    endDateTime: DateTime
     id: Int
     nextAppointment: DateTime
     patientId: String
+    startDateTime: DateTime
     status: AppointmentStatus
     updatedAt: DateTime
 }
 
 type AppointmentMinAggregate {
     createdAt: DateTime
-    dateTime: DateTime
     detail: String
     doctorId: Int
+    endDateTime: DateTime
     id: Int
     nextAppointment: DateTime
     patientId: String
+    startDateTime: DateTime
     status: AppointmentStatus
     updatedAt: DateTime
 }
@@ -212,16 +223,17 @@ input AppointmentOrderByRelationAggregateInput {
 
 input AppointmentOrderByWithRelationInput {
     createdAt: SortOrder
-    dateTime: SortOrder
     detail: SortOrder
     doctor: DoctorOrderByWithRelationInput
     doctorId: SortOrder
+    endDateTime: SortOrder
     id: SortOrder
     invoice: InvoiceOrderByWithRelationInput
     nextAppointment: SortOrder
     patient: PatientOrderByWithRelationInput
     patientId: SortOrder
     prescriptions: PrescriptionOrderByRelationAggregateInput
+    startDateTime: SortOrder
     status: SortOrder
     updatedAt: SortOrder
 }
@@ -233,12 +245,13 @@ input AppointmentRelationFilter {
 
 enum AppointmentScalarFieldEnum {
     createdAt
-    dateTime
     detail
     doctorId
+    endDateTime
     id
     nextAppointment
     patientId
+    startDateTime
     status
     updatedAt
 }
@@ -259,16 +272,17 @@ input AppointmentWhereInput {
     NOT: [AppointmentWhereInput!]
     OR: [AppointmentWhereInput!]
     createdAt: DateTimeFilter
-    dateTime: DateTimeFilter
     detail: StringFilter
     doctor: DoctorRelationFilter
     doctorId: IntFilter
+    endDateTime: DateTimeFilter
     id: IntFilter
     invoice: InvoiceRelationFilter
     nextAppointment: DateTimeNullableFilter
     patient: PatientRelationFilter
     patientId: StringFilter
     prescriptions: PrescriptionListRelationFilter
+    startDateTime: DateTimeFilter
     status: EnumAppointmentStatusFilter
     updatedAt: DateTimeFilter
 }
@@ -537,6 +551,7 @@ input IntFilter {
 }
 
 type Invoice {
+    InvoiceDiscount: [InvoiceDiscount!]
     _count: InvoiceCount!
     appointment: Appointment!
     appointmentId: Int!
@@ -555,6 +570,7 @@ type InvoiceAvgAggregate {
 }
 
 type InvoiceCount {
+    InvoiceDiscount: Int!
     invoiceItems: Int!
 }
 
@@ -569,6 +585,7 @@ type InvoiceCountAggregate {
 }
 
 input InvoiceCreateInput {
+    InvoiceDiscount: InvoiceDiscountCreateNestedManyWithoutInvoiceInput
     appointment: AppointmentCreateNestedOneWithoutInvoiceInput!
     createdAt: DateTime
     invoiceItems: InvoiceItemCreateNestedManyWithoutInvoiceInput
@@ -583,6 +600,12 @@ input InvoiceCreateNestedOneWithoutAppointmentInput {
     create: InvoiceCreateWithoutAppointmentInput
 }
 
+input InvoiceCreateNestedOneWithoutInvoiceDiscountInput {
+    connect: InvoiceWhereUniqueInput
+    connectOrCreate: InvoiceCreateOrConnectWithoutInvoiceDiscountInput
+    create: InvoiceCreateWithoutInvoiceDiscountInput
+}
+
 input InvoiceCreateNestedOneWithoutInvoiceItemsInput {
     connect: InvoiceWhereUniqueInput
     connectOrCreate: InvoiceCreateOrConnectWithoutInvoiceItemsInput
@@ -594,12 +617,27 @@ input InvoiceCreateOrConnectWithoutAppointmentInput {
     where: InvoiceWhereUniqueInput!
 }
 
+input InvoiceCreateOrConnectWithoutInvoiceDiscountInput {
+    create: InvoiceCreateWithoutInvoiceDiscountInput!
+    where: InvoiceWhereUniqueInput!
+}
+
 input InvoiceCreateOrConnectWithoutInvoiceItemsInput {
     create: InvoiceCreateWithoutInvoiceItemsInput!
     where: InvoiceWhereUniqueInput!
 }
 
 input InvoiceCreateWithoutAppointmentInput {
+    InvoiceDiscount: InvoiceDiscountCreateNestedManyWithoutInvoiceInput
+    createdAt: DateTime
+    invoiceItems: InvoiceItemCreateNestedManyWithoutInvoiceInput
+    paid: Boolean
+    total: Float!
+    updatedAt: DateTime
+}
+
+input InvoiceCreateWithoutInvoiceDiscountInput {
+    appointment: AppointmentCreateNestedOneWithoutInvoiceInput!
     createdAt: DateTime
     invoiceItems: InvoiceItemCreateNestedManyWithoutInvoiceInput
     paid: Boolean
@@ -608,11 +646,148 @@ input InvoiceCreateWithoutAppointmentInput {
 }
 
 input InvoiceCreateWithoutInvoiceItemsInput {
+    InvoiceDiscount: InvoiceDiscountCreateNestedManyWithoutInvoiceInput
     appointment: AppointmentCreateNestedOneWithoutInvoiceInput!
     createdAt: DateTime
     paid: Boolean
     total: Float!
     updatedAt: DateTime
+}
+
+type InvoiceDiscount {
+    amount: Float!
+    createdAt: DateTime!
+    id: ID!
+    invoice: Invoice!
+    invoiceId: Int!
+    name: String!
+    updatedAt: DateTime!
+}
+
+type InvoiceDiscountAvgAggregate {
+    amount: Float
+    id: Float
+    invoiceId: Float
+}
+
+type InvoiceDiscountCountAggregate {
+    _all: Int!
+    amount: Int!
+    createdAt: Int!
+    id: Int!
+    invoiceId: Int!
+    name: Int!
+    updatedAt: Int!
+}
+
+input InvoiceDiscountCreateInput {
+    amount: Float!
+    createdAt: DateTime
+    invoice: InvoiceCreateNestedOneWithoutInvoiceDiscountInput!
+    name: String!
+    updatedAt: DateTime
+}
+
+input InvoiceDiscountCreateManyInvoiceInput {
+    amount: Float!
+    createdAt: DateTime
+    id: Int
+    name: String!
+    updatedAt: DateTime
+}
+
+input InvoiceDiscountCreateManyInvoiceInputEnvelope {
+    data: [InvoiceDiscountCreateManyInvoiceInput!]!
+    skipDuplicates: Boolean
+}
+
+input InvoiceDiscountCreateNestedManyWithoutInvoiceInput {
+    connect: [InvoiceDiscountWhereUniqueInput!]
+    connectOrCreate: [InvoiceDiscountCreateOrConnectWithoutInvoiceInput!]
+    create: [InvoiceDiscountCreateWithoutInvoiceInput!]
+    createMany: InvoiceDiscountCreateManyInvoiceInputEnvelope
+}
+
+input InvoiceDiscountCreateOrConnectWithoutInvoiceInput {
+    create: InvoiceDiscountCreateWithoutInvoiceInput!
+    where: InvoiceDiscountWhereUniqueInput!
+}
+
+input InvoiceDiscountCreateWithoutInvoiceInput {
+    amount: Float!
+    createdAt: DateTime
+    name: String!
+    updatedAt: DateTime
+}
+
+input InvoiceDiscountListRelationFilter {
+    every: InvoiceDiscountWhereInput
+    none: InvoiceDiscountWhereInput
+    some: InvoiceDiscountWhereInput
+}
+
+type InvoiceDiscountMaxAggregate {
+    amount: Float
+    createdAt: DateTime
+    id: Int
+    invoiceId: Int
+    name: String
+    updatedAt: DateTime
+}
+
+type InvoiceDiscountMinAggregate {
+    amount: Float
+    createdAt: DateTime
+    id: Int
+    invoiceId: Int
+    name: String
+    updatedAt: DateTime
+}
+
+input InvoiceDiscountOrderByRelationAggregateInput {
+    _count: SortOrder
+}
+
+input InvoiceDiscountOrderByWithRelationInput {
+    amount: SortOrder
+    createdAt: SortOrder
+    id: SortOrder
+    invoice: InvoiceOrderByWithRelationInput
+    invoiceId: SortOrder
+    name: SortOrder
+    updatedAt: SortOrder
+}
+
+enum InvoiceDiscountScalarFieldEnum {
+    amount
+    createdAt
+    id
+    invoiceId
+    name
+    updatedAt
+}
+
+type InvoiceDiscountSumAggregate {
+    amount: Float
+    id: Int
+    invoiceId: Int
+}
+
+input InvoiceDiscountWhereInput {
+    AND: [InvoiceDiscountWhereInput!]
+    NOT: [InvoiceDiscountWhereInput!]
+    OR: [InvoiceDiscountWhereInput!]
+    amount: FloatFilter
+    createdAt: DateTimeFilter
+    id: IntFilter
+    invoice: InvoiceRelationFilter
+    invoiceId: IntFilter
+    name: StringFilter
+    updatedAt: DateTimeFilter
+}
+
+input InvoiceDiscountWhereUniqueInput {
+    id: Int
 }
 
 type InvoiceItem {
@@ -782,6 +957,7 @@ type InvoiceMinAggregate {
 }
 
 input InvoiceOrderByWithRelationInput {
+    InvoiceDiscount: InvoiceDiscountOrderByRelationAggregateInput
     appointment: AppointmentOrderByWithRelationInput
     appointmentId: SortOrder
     createdAt: SortOrder
@@ -814,6 +990,7 @@ type InvoiceSumAggregate {
 
 input InvoiceWhereInput {
     AND: [InvoiceWhereInput!]
+    InvoiceDiscount: InvoiceDiscountListRelationFilter
     NOT: [InvoiceWhereInput!]
     OR: [InvoiceWhereInput!]
     appointment: AppointmentRelationFilter
@@ -946,6 +1123,7 @@ type Mutation {
     createAppointment(appointment: AppointmentCreateInput!): Appointment!
     createDoctor(doctor: DoctorCreateInput!): Doctor!
     createInvoice(invoice: InvoiceCreateInput!): Invoice!
+    createInvoiceDiscount(invoiceDiscount: InvoiceDiscountCreateInput!): InvoiceDiscount!
     createInvoiceItem(invoiceItem: InvoiceItemCreateInput!): InvoiceItem!
     createMedicine(medicine: MedicineCreateInput!): Medicine!
     createPatient(patient: PatientCreateInput!): Patient!
@@ -1448,6 +1626,8 @@ type Query {
     doctor(where: DoctorWhereInput!): Doctor
     doctors(cursor: DoctorWhereUniqueInput, distinct: [DoctorScalarFieldEnum!], orderBy: [DoctorOrderByWithRelationInput!], skip: Int, take: Int, where: DoctorWhereInput): [Doctor!]!
     invoice(where: InvoiceWhereInput!): Invoice
+    invoiceDiscount(where: InvoiceDiscountWhereInput!): InvoiceDiscount
+    invoiceDiscounts(cursor: InvoiceDiscountWhereUniqueInput, distinct: [InvoiceDiscountScalarFieldEnum!], orderBy: [InvoiceDiscountOrderByWithRelationInput!], skip: Int, take: Int, where: InvoiceDiscountWhereInput): [InvoiceDiscount!]!
     invoiceItem(where: InvoiceItemWhereInput!): InvoiceItem
     invoiceItems(cursor: InvoiceItemWhereUniqueInput, distinct: [InvoiceItemScalarFieldEnum!], orderBy: [InvoiceItemOrderByWithRelationInput!], skip: Int, take: Int, where: InvoiceItemWhereInput): [InvoiceItem!]!
     invoices(cursor: InvoiceWhereUniqueInput, distinct: [InvoiceScalarFieldEnum!], orderBy: [InvoiceOrderByWithRelationInput!], skip: Int, take: Int, where: InvoiceWhereInput): [Invoice!]!

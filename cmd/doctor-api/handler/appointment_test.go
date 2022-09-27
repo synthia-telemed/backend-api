@@ -217,7 +217,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("init room earlier than 10 minutes of the appointment time", func() {
 			BeforeEach(func() {
-				mockClock.EXPECT().Now().Return(appointment.DateTime.Add(-time.Minute * 10).Add(-time.Second))
+				mockClock.EXPECT().Now().Return(appointment.StartDateTime.Add(-time.Minute * 10).Add(-time.Second))
 			})
 			It("should return 400 with not time yet error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -226,7 +226,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("init room later than 3 hours of the appointment time", func() {
 			BeforeEach(func() {
-				mockClock.EXPECT().Now().Return(appointment.DateTime.Add(time.Hour * 3).Add(time.Second))
+				mockClock.EXPECT().Now().Return(appointment.StartDateTime.Add(time.Hour * 3).Add(time.Second))
 			})
 			It("should return 400 with not time yet error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -235,7 +235,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("get current appointment of the doctor from cache error", func() {
 			BeforeEach(func() {
-				mockClock.EXPECT().Now().Return(appointment.DateTime.Add(time.Minute)).Times(1)
+				mockClock.EXPECT().Now().Return(appointment.StartDateTime.Add(time.Minute)).Times(1)
 				mockCacheClient.EXPECT().Get(gomock.Any(), cache.CurrentDoctorAppointmentIDKey(doctor.ID), false).Return("", testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
@@ -245,7 +245,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		Context("doctor is currently in a room", func() {
 			var clockTime time.Time
 			BeforeEach(func() {
-				clockTime = appointment.DateTime.Add(time.Minute)
+				clockTime = appointment.StartDateTime.Add(time.Minute)
 				mockClock.EXPECT().Now().Return(clockTime).Times(1)
 			})
 			When("doctor is in another room", func() {

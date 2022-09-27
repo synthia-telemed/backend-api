@@ -39,14 +39,16 @@ definitions:
     type: object
   hospital.AppointmentOverview:
     properties:
-      date_time:
-        type: string
       doctor:
         $ref: '#/definitions/hospital.DoctorOverview'
+      end_date_time:
+        type: string
       id:
         type: string
       patient:
         $ref: '#/definitions/hospital.PatientOverview'
+      start_date_time:
+        type: string
       status:
         type: string
     type: object

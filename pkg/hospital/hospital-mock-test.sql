@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.4 (Debian 14.4-1.pgdg110+1)
+-- Dumped from database version 13.8
 -- Dumped by pg_dump version 14.4
 
 SET statement_timeout = 0;
@@ -74,15 +74,16 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public."Appointment" (
-                                      id integer NOT NULL,
-                                      "patientId" text NOT NULL,
-                                      "doctorId" integer NOT NULL,
-                                      "dateTime" timestamp(3) without time zone NOT NULL,
-                                      detail text NOT NULL,
-                                      "nextAppointment" timestamp(3) without time zone,
-                                      status public."AppointmentStatus" DEFAULT 'SCHEDULED'::public."AppointmentStatus" NOT NULL,
-                                      "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                      "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    "patientId" text NOT NULL,
+    "doctorId" integer NOT NULL,
+    "startDateTime" timestamp(3) without time zone NOT NULL,
+    "endDateTime" timestamp(3) without time zone NOT NULL,
+    detail text NOT NULL,
+    "nextAppointment" timestamp(3) without time zone,
+    status public."AppointmentStatus" DEFAULT 'SCHEDULED'::public."AppointmentStatus" NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -115,19 +116,19 @@ ALTER SEQUENCE public."Appointment_id_seq" OWNED BY public."Appointment".id;
 --
 
 CREATE TABLE public."Doctor" (
-                                 id integer NOT NULL,
-                                 initial_th text NOT NULL,
-                                 firstname_th text NOT NULL,
-                                 lastname_th text NOT NULL,
-                                 initial_en text NOT NULL,
-                                 firstname_en text NOT NULL,
-                                 lastname_en text NOT NULL,
-                                 "position" text NOT NULL,
-                                 username text NOT NULL,
-                                 password text NOT NULL,
-                                 "profilePicURL" text NOT NULL,
-                                 "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                 "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    initial_th text NOT NULL,
+    firstname_th text NOT NULL,
+    lastname_th text NOT NULL,
+    initial_en text NOT NULL,
+    firstname_en text NOT NULL,
+    lastname_en text NOT NULL,
+    "position" text NOT NULL,
+    username text NOT NULL,
+    password text NOT NULL,
+    "profilePicURL" text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -160,29 +161,67 @@ ALTER SEQUENCE public."Doctor_id_seq" OWNED BY public."Doctor".id;
 --
 
 CREATE TABLE public."Invoice" (
-                                  id integer NOT NULL,
-                                  "appointmentId" integer NOT NULL,
-                                  paid boolean DEFAULT false NOT NULL,
-                                  total double precision NOT NULL,
-                                  "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                  "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    "appointmentId" integer NOT NULL,
+    paid boolean DEFAULT false NOT NULL,
+    total double precision NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
 ALTER TABLE public."Invoice" OWNER TO postgres;
 
 --
+-- Name: InvoiceDiscount; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."InvoiceDiscount" (
+    id integer NOT NULL,
+    name text NOT NULL,
+    amount double precision NOT NULL,
+    "invoiceId" integer NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
+);
+
+
+ALTER TABLE public."InvoiceDiscount" OWNER TO postgres;
+
+--
+-- Name: InvoiceDiscount_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."InvoiceDiscount_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."InvoiceDiscount_id_seq" OWNER TO postgres;
+
+--
+-- Name: InvoiceDiscount_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."InvoiceDiscount_id_seq" OWNED BY public."InvoiceDiscount".id;
+
+
+--
 -- Name: InvoiceItem; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceItem" (
-                                      id integer NOT NULL,
-                                      name text NOT NULL,
-                                      price double precision NOT NULL,
-                                      quantity integer NOT NULL,
-                                      "invoiceId" integer NOT NULL,
-                                      "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                      "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    name text NOT NULL,
+    price double precision NOT NULL,
+    quantity integer NOT NULL,
+    "invoiceId" integer NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -237,11 +276,11 @@ ALTER SEQUENCE public."Invoice_id_seq" OWNED BY public."Invoice".id;
 --
 
 CREATE TABLE public."Medicine" (
-                                   id integer NOT NULL,
-                                   name text NOT NULL,
-                                   description text NOT NULL,
-                                   "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                   "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    name text NOT NULL,
+    description text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -274,23 +313,23 @@ ALTER SEQUENCE public."Medicine_id_seq" OWNED BY public."Medicine".id;
 --
 
 CREATE TABLE public."Patient" (
-                                  id text NOT NULL,
-                                  initial_th text NOT NULL,
-                                  firstname_th text NOT NULL,
-                                  lastname_th text NOT NULL,
-                                  initial_en text NOT NULL,
-                                  firstname_en text NOT NULL,
-                                  lastname_en text NOT NULL,
-                                  nationality text NOT NULL,
-                                  "nationalId" text,
-                                  "passportId" text,
-                                  "phoneNumber" text NOT NULL,
-                                  weight double precision NOT NULL,
-                                  height double precision NOT NULL,
-                                  "birthDate" timestamp(3) without time zone NOT NULL,
-                                  "bloodType" public."BloodType" NOT NULL,
-                                  "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                  "updatedAt" timestamp(3) without time zone NOT NULL
+    id text NOT NULL,
+    initial_th text NOT NULL,
+    firstname_th text NOT NULL,
+    lastname_th text NOT NULL,
+    initial_en text NOT NULL,
+    firstname_en text NOT NULL,
+    lastname_en text NOT NULL,
+    nationality text NOT NULL,
+    "nationalId" text,
+    "passportId" text,
+    "phoneNumber" text NOT NULL,
+    weight double precision NOT NULL,
+    height double precision NOT NULL,
+    "birthDate" timestamp(3) without time zone NOT NULL,
+    "bloodType" public."BloodType" NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -301,12 +340,12 @@ ALTER TABLE public."Patient" OWNER TO postgres;
 --
 
 CREATE TABLE public."Prescription" (
-                                       id integer NOT NULL,
-                                       "medicineId" integer NOT NULL,
-                                       "appointmentId" integer NOT NULL,
-                                       amount integer NOT NULL,
-                                       "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                       "updatedAt" timestamp(3) without time zone NOT NULL
+    id integer NOT NULL,
+    "medicineId" integer NOT NULL,
+    "appointmentId" integer NOT NULL,
+    amount integer NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
 );
 
 
@@ -335,6 +374,24 @@ ALTER SEQUENCE public."Prescription_id_seq" OWNED BY public."Prescription".id;
 
 
 --
+-- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public._prisma_migrations (
+    id character varying(36) NOT NULL,
+    checksum character varying(64) NOT NULL,
+    finished_at timestamp with time zone,
+    migration_name character varying(255) NOT NULL,
+    logs text,
+    rolled_back_at timestamp with time zone,
+    started_at timestamp with time zone DEFAULT now() NOT NULL,
+    applied_steps_count integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public._prisma_migrations OWNER TO postgres;
+
+--
 -- Name: Appointment id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -353,6 +410,13 @@ ALTER TABLE ONLY public."Doctor" ALTER COLUMN id SET DEFAULT nextval('public."Do
 --
 
 ALTER TABLE ONLY public."Invoice" ALTER COLUMN id SET DEFAULT nextval('public."Invoice_id_seq"'::regclass);
+
+
+--
+-- Name: InvoiceDiscount id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."InvoiceDiscount" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceDiscount_id_seq"'::regclass);
 
 
 --
@@ -380,106 +444,106 @@ ALTER TABLE ONLY public."Prescription" ALTER COLUMN id SET DEFAULT nextval('publ
 -- Data for Name: Appointment; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (1, 'HN-693045', 24, '2023-08-09 14:09:30.449', 'Assumenda quia et aspernatur sit quidem maxime qui. Perferendis aut nihil eveniet. Quo accusamus sint totam dolorem. Modi sed minima eius autem occaecati exercitationem voluptatum. Impedit assumenda sit ut quia. Tempora ut error ex vero dicta voluptatem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (2, 'HN-414878', 23, '2022-04-09 04:24:38.009', 'Officia totam rerum et. Dolorum reiciendis veniam et et sit qui tenetur. Deleniti voluptas consectetur ut natus officia odio debitis sapiente soluta. Placeat et iure. Corporis dolor fugiat animi.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (3, 'HN-126977', 27, '2022-09-08 03:19:48.698', 'Molestiae voluptatum aut. Autem reprehenderit ab dignissimos ipsum vitae deleniti vel quis. Odio quasi molestiae.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (4, 'HN-796550', 30, '2021-10-15 08:57:21.519', 'Quos quas dolorem provident quia aut. Voluptas numquam accusantium quia rerum ad non magni aut aliquam. Qui vel explicabo accusantium velit quos voluptas voluptatem officiis quia.', '2023-07-26 02:29:29.449', 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (5, 'HN-874621', 12, '2022-09-07 19:23:43.144', 'Magnam laboriosam quia sit ullam nobis corrupti repudiandae voluptatem. Incidunt quos excepturi error ipsam vero. Aut tempore cupiditate quia. Quibusdam debitis animi aut repellendus molestias voluptas et perferendis. Omnis perferendis sit est qui iure qui dolorem rerum aperiam. Tempora tenetur excepturi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (6, 'HN-634304', 20, '2022-03-31 04:23:17.078', 'Quae et sint similique temporibus. Officia assumenda animi laborum sequi quia. Illum cumque ab. Velit ipsam facere qui provident enim sunt sit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (7, 'HN-835237', 10, '2023-02-25 00:48:02.597', 'Magnam odio odit enim dolorem. Voluptatem aperiam quis laboriosam quam eos quod culpa nihil consequatur. Fuga dolore nesciunt eveniet.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (8, 'HN-414878', 3, '2022-09-06 02:45:24.798', 'Et rerum sed eaque deleniti et eveniet rerum voluptatibus est. Ratione quos qui id itaque reiciendis. Aut commodi rerum dolorum est vel ipsum. Vel impedit error nobis dicta sit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (9, 'HN-190919', 29, '2021-12-07 15:12:03.825', 'Amet illum sit aut rem qui aut deleniti ullam magni. Eum est nesciunt aliquid consectetur reiciendis rerum. Id deserunt molestiae. Iure possimus libero iste quibusdam delectus voluptas odio. Est fuga velit.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (10, 'HN-162951', 28, '2022-09-08 08:06:46.307', 'Excepturi delectus similique ea laudantium incidunt repudiandae eum. Pariatur similique optio alias eius quis. Dolorem perspiciatis quis fugit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (11, 'HN-757364', 20, '2021-10-22 04:51:30.537', 'Quo ut accusamus consequatur sint vel rem hic tempora esse. Itaque error repellat reiciendis ab expedita quia iure. Repellat qui debitis expedita.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (12, 'HN-209464', 22, '2023-09-06 06:07:20.472', 'Eius quibusdam commodi. Voluptas maxime quo ut sint et qui. Eligendi qui sapiente laborum distinctio numquam. Id reprehenderit et. Aperiam id quis corrupti vel consequatur dolores. Similique fugiat quaerat ipsa soluta reprehenderit ullam voluptatem deleniti id.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (13, 'HN-853857', 16, '2023-06-07 02:05:30.575', 'Vel soluta dolor eos adipisci ipsum ipsum. Harum voluptatem et. Et repellendus nihil veritatis ea ea laudantium provident ut. Corporis qui laudantium aut deleniti placeat animi excepturi itaque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (14, 'HN-618756', 16, '2023-01-24 22:55:21.63', 'Fuga voluptatem nobis sint ratione. Quidem fugit fugit repudiandae harum sapiente vitae vero inventore. Vero non excepturi sit repudiandae. Ab perferendis non et. Non quod provident repellendus ut architecto rerum deserunt ut. Rerum consequuntur et.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (15, 'HN-725244', 28, '2022-09-08 01:14:46.857', 'Vel est alias omnis. Facilis numquam porro aut. Repellat asperiores ad. Sit ut doloribus vero sunt ea aut. Natus cumque ex a adipisci est ut quidem magnam nam. Provident odio repudiandae iusto.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (16, 'HN-254739', 27, '2022-08-05 21:15:52.633', 'Aut dolorum eum est assumenda. Quae voluptatem in voluptas ut ex voluptatem numquam et qui. Atque et qui vitae rerum blanditiis iusto vel et. Voluptatem recusandae voluptates tenetur magni ea itaque et. Officia non recusandae consequatur quia fuga. Sunt consequatur qui commodi consequatur.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (17, 'HN-779528', 7, '2022-09-06 13:03:23.757', 'Repellendus ducimus rem distinctio fuga qui. Eos et quia doloribus atque non est. Cum adipisci quibusdam est autem consequatur. Quam itaque quidem. Atque harum vel et dolorem a.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (18, 'HN-254739', 18, '2022-06-01 18:19:31.728', 'Reprehenderit deleniti enim. Doloribus ipsa enim ut. Quas a enim tenetur voluptatem veniam. Impedit adipisci quo. Animi dolorum reiciendis sed non at suscipit dolor suscipit harum.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (19, 'HN-997298', 22, '2022-09-07 11:03:45.607', 'Itaque ex nihil tempore accusantium occaecati incidunt. Beatae amet quam nobis minus placeat. Odit impedit culpa et doloribus. Cupiditate aliquam tempore.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (20, 'HN-159601', 24, '2022-09-06 19:33:40.989', 'Culpa occaecati minima velit repellat nisi quam. Quas quia ad labore. Et facilis itaque deleniti architecto at. A est sit magni. Sed et neque minus voluptatem molestiae aut fugiat aut. Consequatur saepe consequatur eaque corporis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (21, 'HN-843948', 8, '2022-07-03 05:17:41.951', 'Accusantium et temporibus magni. Autem recusandae corrupti. Illum earum quia quae ut itaque ipsa officiis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (22, 'HN-126977', 5, '2022-09-07 12:38:43.086', 'Quis excepturi vel aut perferendis minus et quam dolores dignissimos. Nisi quo dolorum et et doloremque dolores culpa aut necessitatibus. Et autem dolor.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (23, 'HN-618756', 22, '2021-12-12 02:08:11.96', 'Et fugiat dolorum enim voluptatibus delectus id ipsa explicabo placeat. Ut laborum doloremque. Adipisci sequi tempore cumque molestiae. Corporis tenetur dolor qui corrupti.', '2023-01-30 02:36:50.537', 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (24, 'HN-693045', 2, '2023-05-09 09:17:21.151', 'Consequatur dignissimos nostrum dolor perspiciatis repudiandae molestiae quo maiores. Quia perspiciatis ipsa dolor atque. Et reiciendis qui sed tenetur. Ut nihil pariatur molestias. Nisi inventore illum dolor repellat voluptatem et voluptas rem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (25, 'HN-314696', 29, '2022-09-06 23:47:25.171', 'Modi dolore saepe aliquid. Ab eveniet possimus sed id nemo eos enim amet quas. Veritatis quod vero facilis ratione voluptatem hic optio dignissimos sunt. Temporibus quas eligendi sequi optio aut. Saepe vel nihil sit quo id nihil culpa aut cum. Ipsum quasi nostrum a et voluptates voluptas.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (26, 'HN-897438', 14, '2022-09-07 14:02:00.678', 'Blanditiis sunt numquam dolor dolorem. Necessitatibus a eveniet sapiente voluptas qui temporibus veritatis. Vero voluptas qui eligendi hic fugiat saepe aliquam. Eum modi atque in laborum nulla magnam tempora animi magnam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (27, 'HN-519312', 5, '2021-11-07 05:53:41.031', 'Quidem quis commodi et nesciunt. Perferendis nihil quia adipisci vel repellendus. Neque neque ea quisquam quam sit est labore. Voluptatum tempora totam velit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (28, 'HN-188305', 3, '2022-04-23 10:08:02.616', 'Eveniet alias qui quidem quod velit sed consectetur voluptatem. Veritatis ut recusandae et reprehenderit cupiditate in et laborum voluptatem. Sequi mollitia qui dolorem.', '2023-04-03 13:29:11.101', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (29, 'HN-919225', 1, '2022-09-07 21:43:50.288', 'Quos magni voluptatem ratione explicabo perferendis sunt quis quis. Voluptatem et cumque ea. Alias aut quo. Quia eligendi rerum at.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (32, 'HN-897438', 19, '2022-12-08 08:45:32.172', 'Fugiat tempore aut qui voluptatem quae vel vitae sint tempora. Sint quasi quo magni sit architecto culpa. Impedit architecto quia ipsum molestiae et. Ut aut ut ea sed aliquam aut saepe.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (43, 'HN-853857', 19, '2023-05-13 05:59:48.796', 'In commodi nesciunt magnam eius vitae eos ea adipisci. Eum explicabo corrupti dignissimos facilis. Totam reiciendis impedit maxime. Numquam porro iusto eius quaerat est omnis sint iusto. Adipisci et rerum culpa voluptas temporibus rerum. Consequatur impedit accusantium similique omnis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (52, 'HN-126977', 25, '2023-03-20 11:31:26.924', 'Ut aliquid delectus iste neque dolorum porro eum consequatur. Saepe illum eius. Possimus molestiae molestiae harum tempora vero quos et. Et tempore eos quae sequi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (62, 'HN-881131', 30, '2022-09-07 12:05:49.489', 'Eius qui enim. Aliquid odit in rerum. Dolorem aut facere. Natus occaecati excepturi quae placeat voluptates quisquam hic natus exercitationem. Enim minus et.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (67, 'HN-629664', 15, '2022-03-29 15:24:54.407', 'Eos non libero aliquid sit dolorem veniam odit nisi. Expedita id sint molestias eum cumque veniam sunt. Corrupti enim voluptatibus amet blanditiis vel architecto et quod.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (76, 'HN-784077', 17, '2022-09-07 09:32:51.088', 'Praesentium fugit placeat non eum et et. Id quos qui. Enim suscipit autem ducimus quia sapiente voluptas. Assumenda sit laboriosam architecto.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (90, 'HN-179590', 5, '2022-09-06 18:32:35.477', 'Ut odit qui itaque facere. Velit recusandae vero dicta id id. Dignissimos earum consequatur ratione aperiam voluptatem eveniet earum excepturi non.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (30, 'HN-129512', 29, '2022-12-31 05:32:12.722', 'Dolorum accusamus est sequi dolores sed. Omnis et quod officiis impedit fugit dolores architecto velit. Veritatis est et voluptas quod aut nesciunt est sit. Harum commodi qui consequatur aliquam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (31, 'HN-119713', 10, '2022-07-13 08:10:44.169', 'Et molestias autem voluptas voluptatem numquam iure corporis quo error. Qui qui assumenda quo expedita fuga. Voluptatem at numquam cumque nihil. Provident error aperiam molestiae voluptates.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (33, 'HN-519312', 1, '2023-07-14 02:54:44.048', 'Magnam eius molestiae soluta. Voluptatem culpa accusamus eaque est. Optio explicabo dolor quae est deserunt. Consequatur est praesentium et cum quo laudantium quidem est. Dolore distinctio et nulla aut nam fugit harum exercitationem. Odio accusamus perspiciatis quod et aut dolorem eos.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (44, 'HN-861496', 27, '2022-06-06 01:06:20.497', 'Quod architecto asperiores ipsum ea quis ut tempora distinctio officiis. Tenetur iusto maxime non autem eveniet odio magnam repellendus quidem. Asperiores repudiandae rerum officiis velit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (47, 'HN-853857', 16, '2023-08-10 17:25:34.98', 'Quia molestiae animi. Animi et aliquam ut minima consequatur. Aliquam nulla repudiandae nostrum odio sapiente. Incidunt ut eius eos. Et voluptatem quae quia ex. Illum facere accusantium fugit voluptatem eligendi excepturi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (53, 'HN-910978', 11, '2022-09-06 23:45:54.808', 'Porro occaecati ullam voluptas quos impedit quia earum. Sit perferendis in quibusdam consequatur quia. Et et laboriosam cumque excepturi provident mollitia quo dolore.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (58, 'HN-162462', 6, '2022-01-03 01:54:49.11', 'Maiores ipsum officia rerum. Voluptate omnis voluptatem rem ut. Harum iusto dicta et et ut.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (66, 'HN-919225', 7, '2023-06-17 13:46:25.884', 'Inventore magnam eum odio quam necessitatibus. Molestiae ea sunt dolore aut voluptatibus consequatur quia cumque. Quia sit aut fugiat dicta.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (68, 'HN-323662', 10, '2023-05-06 16:48:03.439', 'Veniam iure sint doloribus architecto molestiae aut id tempora. Amet iste sit perferendis velit mollitia ullam. Voluptatem laboriosam nobis est id quam quaerat non. Et id soluta non. Et quae ea similique assumenda minima quia voluptates voluptatem. Sit necessitatibus quisquam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (77, 'HN-633981', 2, '2023-04-06 03:36:27.46', 'Quo aut omnis quod aut accusamus sed rerum. Officiis non optio adipisci ut expedita. Pariatur qui animi enim a consequatur consectetur cum. Consequatur saepe est quo ex. Temporibus officiis et optio ab corporis corrupti iure provident odit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (78, 'HN-883377', 10, '2023-09-03 04:17:21.949', 'Porro voluptas dolorem ad explicabo corporis quidem. Sit incidunt corporis. Quia ut impedit est et error quas blanditiis odio. Aperiam quo a perferendis aut dolor. Eveniet laudantium fuga voluptatem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (88, 'HN-873016', 20, '2022-09-08 09:18:26.159', 'Et atque possimus nam. Fuga numquam quas molestiae sunt rerum. Omnis fuga et qui molestias. Minus quaerat dolores magnam voluptatem non esse qui. Sed quis ea ea pariatur.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (98, 'HN-285237', 26, '2021-12-31 07:07:35.921', 'Est illo recusandae mollitia qui. Maiores non omnis. Atque deserunt cumque autem. Exercitationem molestiae earum quibusdam. Dolor qui minus vel occaecati. Minus ut consequatur voluptatem eveniet ab et ut iure.', '2023-01-29 06:21:18.349', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (34, 'HN-113321', 2, '2022-09-14 16:39:23.036', 'Soluta illo vero sapiente voluptatem et quo dolorum a. Adipisci labore illum molestiae dolores. Quae quis sequi eum at ratione qui voluptatem quae. Veniam modi dolores earum sequi sit voluptas facere. Expedita eaque voluptatibus architecto debitis id autem veniam repellat suscipit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (45, 'HN-561154', 24, '2022-09-07 10:24:57.746', 'Quibusdam eos pariatur modi sunt incidunt quisquam quia nulla modi. Veniam delectus deleniti voluptas quis excepturi facere qui amet. Quaerat magnam saepe consequuntur illo eos. Quibusdam sed dolorem eos illo facere voluptatem sed. Corrupti et numquam dolores dignissimos sequi corporis odio omnis. Accusantium laboriosam voluptatem similique nihil eius enim ut officiis quam.', '2023-07-18 20:25:25.047', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (55, 'HN-137318', 5, '2022-09-07 23:48:00.437', 'Voluptates consequuntur et. Quibusdam accusantium omnis. Facilis sit alias et aut nam cum voluptas. Dolorem quos ratione non qui.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (71, 'HN-200755', 6, '2022-09-08 02:14:18.583', 'Et cum debitis distinctio accusamus vel et qui et numquam. Ex vitae sit voluptas est vel commodi harum et iusto. Omnis magni dolorem accusamus repudiandae voluptate mollitia in consequatur aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (84, 'HN-932425', 13, '2022-07-09 17:49:14.073', 'Ex laborum nam dolores nulla perspiciatis accusamus facilis. Mollitia omnis nam. Et unde sequi perferendis mollitia fugiat maiores nam et.', '2022-09-11 22:14:02.591', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (35, 'HN-698271', 12, '2023-03-01 14:52:00.743', 'Alias nemo tenetur quidem eligendi incidunt quaerat. Et amet a quia repudiandae eligendi ex nisi aliquam aut. Facere vero nemo sed quidem a rerum in. Excepturi fuga placeat debitis dolore sapiente.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (42, 'HN-618756', 4, '2022-09-08 02:59:00.286', 'Molestiae dolorum vel laborum possimus. Dolorem quia laudantium velit quis. Quis dignissimos hic excepturi placeat expedita sed. Animi officiis quia quasi nam quia enim dignissimos eligendi aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (49, 'HN-740157', 4, '2022-09-06 14:58:21.154', 'Laudantium accusamus numquam adipisci. Blanditiis error cupiditate. Minus facere enim quia a accusantium dolor pariatur corporis accusamus.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (69, 'HN-209014', 15, '2022-09-07 21:33:03.268', 'Architecto et molestiae omnis fugiat totam. Repudiandae at qui nesciunt ducimus sit unde in et possimus. Autem tempora et explicabo praesentium et voluptatum sint quidem eos. Aut aliquam ut. Doloribus ex itaque sed consequuntur consectetur qui sint veniam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (81, 'HN-932425', 2, '2023-03-12 11:59:49.753', 'Provident quia et ut sed numquam libero. Est voluptatem ea nisi quasi voluptatem maiores vero expedita et. Sunt et repellat.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (92, 'HN-162462', 17, '2023-01-07 20:55:20.356', 'Sed quo ipsum tenetur quod et sed tenetur. Earum ea culpa veritatis. Non qui consequuntur voluptates perspiciatis magnam. Nulla perferendis molestiae impedit quia numquam repudiandae unde. Reiciendis voluptates rerum.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (36, 'HN-209014', 9, '2022-09-08 10:26:00.093', 'Laboriosam suscipit maxime reiciendis necessitatibus voluptatem. Non ducimus repellendus hic minima repellendus fuga. Aut odio dolor minus sequi ut repudiandae velit. Voluptates eveniet deleniti vel aut corrupti impedit unde rerum. Tempore ut est in consequatur repudiandae laboriosam. Iusto aut eum temporibus tempora corporis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (41, 'HN-910978', 8, '2022-12-13 10:01:51.768', 'Placeat nihil ullam praesentium. In ab fugit qui aut tenetur non. Corporis consequatur unde aut minus rerum expedita voluptatem beatae temporibus.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (54, 'HN-651394', 1, '2022-11-17 15:12:51.276', 'Cumque id nihil corrupti quo id voluptas nihil. Voluptatem non et totam odit adipisci qui. Sed laborum praesentium nobis aut possimus repellendus dolores. Ut deleniti ipsa mollitia maiores non voluptatum fugit itaque libero. Consectetur sunt explicabo et odit maiores aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (60, 'HN-881131', 19, '2022-09-07 16:53:01.227', 'Reiciendis aut veritatis atque quis sed consequatur enim enim. Iusto blanditiis ut repellendus ab qui fuga. Eum eligendi enim error aut rerum labore adipisci voluptatem temporibus. Error nobis quam et est possimus aut et. Quasi sit odio labore assumenda consectetur enim consequatur ut qui. Eum dicta aspernatur.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (72, 'HN-934746', 24, '2023-03-31 02:47:11.009', 'Inventore voluptates pariatur quae magnam totam aut voluptatem. Animi ratione laboriosam. Ut doloribus laboriosam rerum modi voluptas exercitationem repellat provident assumenda. Eveniet fugiat ut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (83, 'HN-517246', 21, '2022-09-07 02:42:19.376', 'Et explicabo sunt illo quaerat. Odit inventore est quia sed amet reprehenderit rerum. Facilis nobis voluptatibus sed. Veritatis dolor at fuga esse. Mollitia animi ab non esse. Quo aliquam et necessitatibus rerum dolore voluptatem modi nulla eius.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (94, 'HN-113321', 2, '2023-04-07 15:19:18.252', 'Velit adipisci modi dolore non aut eveniet adipisci vel. Ut qui enim eius aut autem doloremque. Non eligendi est aliquid similique quo. Qui accusamus rerum nobis rerum veritatis asperiores fugit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (37, 'HN-562380', 12, '2022-09-07 01:17:23.081', 'Illum nam in sunt iure et. In et quaerat qui suscipit fugit qui dolorem nostrum. Totam distinctio aspernatur aut nulla sit consequuntur debitis nemo eaque. Quaerat qui repellendus et molestias. Iste sunt et ullam distinctio et. Excepturi sed laborum aspernatur inventore.', '2023-06-16 15:58:38.764', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (48, 'HN-873016', 11, '2023-07-18 06:26:45.882', 'Et ab tempore nemo sunt qui. Rem eum sed eum sint autem et distinctio illo sunt. Perspiciatis itaque at consequatur praesentium et et blanditiis. Numquam sed alias quia eaque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (59, 'HN-963617', 14, '2022-09-07 02:41:12.199', 'Saepe et et dolorem. Deleniti quis alias quis magni perferendis cupiditate. Est molestias autem consequatur. Qui praesentium commodi beatae nostrum assumenda sint quidem dignissimos sequi.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (75, 'HN-853857', 20, '2022-09-07 19:06:21.417', 'Impedit possimus aut. Aut doloribus ex et aut aperiam. Numquam molestiae est at inventore atque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (93, 'HN-126977', 4, '2022-08-16 02:33:52.253', 'Aliquam aut dolor. Dolores ut tempore aliquam. Non facilis adipisci vel qui aut velit harum.', '2022-10-17 20:35:45.695', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (38, 'HN-883377', 12, '2022-09-07 05:08:19.726', 'Mollitia facere fugit cumque odio. Fugit occaecati ratione. Totam facilis provident autem maiores dolores cum quia est nesciunt.', '2023-06-28 09:50:45.821', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (39, 'HN-740755', 28, '2021-12-23 12:22:15.373', 'Ratione saepe aut vero non fugiat harum sed doloribus. Veniam neque dolorum iusto quos quis. Nesciunt dignissimos exercitationem soluta labore aut.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (50, 'HN-285237', 11, '2022-04-28 01:13:21.323', 'Laudantium ut sit. Est autem illo voluptas ea autem praesentium aut magnam voluptatibus. Incidunt eius et beatae aut impedit necessitatibus nemo.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (63, 'HN-443354', 6, '2022-09-07 08:21:02.519', 'Ipsum aspernatur et corrupti in assumenda quis doloremque. Vel sit voluptates alias repudiandae minima laudantium sint. Deleniti cumque et.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (70, 'HN-297559', 20, '2022-08-07 09:20:40.931', 'Ducimus aspernatur eius dolor reiciendis et quo. Unde aut maxime autem nisi. Omnis eos rerum velit hic. In minima aut quod nemo voluptatem dolores soluta aperiam et. Tempore ea et earum suscipit sunt eum. Quia voluptatem repellat distinctio adipisci quia qui.', '2023-06-15 04:46:57.383', 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (82, 'HN-629664', 18, '2022-07-01 07:17:52.166', 'Quam ut deserunt porro. Rerum quam rem consequatur impedit deserunt. Iste recusandae impedit tenetur minima ut.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (86, 'HN-844945', 23, '2023-03-03 10:45:45.945', 'Animi officiis hic aut distinctio doloribus commodi. Quo quis quia explicabo dolores voluptas quis quaerat et aut. Ipsa aspernatur est non. Facilis consectetur magnam porro debitis sed. Excepturi consequuntur voluptatem vitae amet. Et labore eveniet sit hic officiis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (91, 'HN-179590', 25, '2022-09-07 02:28:12.616', 'Et assumenda dolor eveniet et neque quia praesentium veniam. Eum et aut doloremque quisquam consequatur veniam suscipit. Alias beatae vero assumenda ut. Pariatur ducimus quo doloremque aspernatur aliquam eaque numquam. Rerum rerum voluptate soluta est illo ut. Et aut atque et sunt omnis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (99, 'HN-517289', 10, '2022-08-20 14:49:13.55', 'Et a aliquid eum velit sapiente blanditiis voluptas. Odio perferendis qui voluptatem et dignissimos alias reiciendis. Earum officiis et modi fugiat sint. Id ducimus est et et ad nemo iste. Nesciunt incidunt asperiores error et deserunt voluptas eaque nostrum.', '2023-02-22 05:42:17.211', 'COMPLETED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (40, 'HN-803959', 6, '2022-09-06 16:56:09.01', 'Non voluptatem ut molestiae vel officiis sequi odit. Hic incidunt distinctio et. Repellendus sed exercitationem ea deserunt sed molestias incidunt aspernatur. Praesentium consequuntur repellat quidem velit quo vero soluta. Magnam commodi illo dolor tenetur animi.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (46, 'HN-347868', 18, '2022-09-07 09:09:31.443', 'Qui ipsum blanditiis voluptas qui vel unde delectus est exercitationem. Ab labore aut. Dolores ut cum est aliquam ea. Laborum earum labore omnis voluptatem. Et non ut ea amet consectetur optio in possimus.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (51, 'HN-209464', 15, '2022-09-06 11:04:29.767', 'Blanditiis delectus qui maxime. Velit non vero. Magni cumque mollitia et quia ex quia. Laborum hic sequi. Nihil sequi ut amet eius necessitatibus quia sit ducimus non.', NULL, 'CANCELLED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (56, 'HN-450439', 23, '2022-09-07 09:27:40.095', 'Corporis consectetur rerum. Exercitationem deleniti eos sed quod dolor. Et commodi aut corrupti quasi vel itaque est laboriosam ut. Deleniti sint omnis delectus quia ipsam magni et impedit. Quasi expedita odit. Dolore pariatur omnis rerum aut molestias.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (57, 'HN-835237', 19, '2022-09-08 04:40:44.362', 'Velit hic dolores deleniti doloremque dignissimos totam. Earum eligendi nulla pariatur sed quaerat voluptatem itaque facilis soluta. Ut doloribus aut sed ea mollitia deserunt et veritatis. Neque numquam recusandae dolor autem at. Qui velit non iure. Repudiandae eaque ab qui quia ut assumenda.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (61, 'HN-129512', 9, '2022-04-16 01:47:25.487', 'Sapiente fugit deleniti est eaque nam odit ut. Nulla incidunt optio in molestiae nemo. Quia nisi earum ea quisquam in amet est et.', NULL, 'CANCELLED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (64, 'HN-221203', 22, '2022-09-07 01:53:41.308', 'Non excepturi omnis ut. Minima est et accusantium ea similique voluptatibus aliquid ea. Modi molestiae sed doloremque qui mollitia amet consequatur officiis.', '2023-06-18 11:45:42.049', 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (65, 'HN-853857', 18, '2022-09-08 00:03:37.478', 'Molestiae velit aut nam voluptatem aut voluptatem. Vitae omnis non tempora praesentium aut autem veritatis maiores aliquam. Ipsum tempora blanditiis debitis veritatis ea ut repellendus similique.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (73, 'HN-421398', 2, '2021-10-19 04:41:07.012', 'Reprehenderit omnis rerum sit neque et eaque excepturi dolor. Possimus eaque fuga aut qui. Et explicabo officia. Nihil natus voluptatem ut totam omnis itaque sit voluptas aspernatur. Eos impedit et dolores quibusdam nobis sequi esse.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (74, 'HN-725244', 4, '2022-09-06 23:40:12.482', 'Perferendis ipsa minus illum consequuntur tenetur blanditiis consectetur. Veritatis soluta aut molestiae sit quia aut saepe repudiandae quia. Non enim voluptatibus aperiam ullam adipisci. Ad temporibus cum consectetur.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (79, 'HN-993787', 3, '2022-09-07 21:29:14.744', 'Accusamus iste odit fugiat autem odit omnis aut quae. Aut deserunt tenetur aut. Est ipsum voluptatum blanditiis eius velit est illo a voluptas. Minus voluptas itaque. Et ullam fugiat praesentium quas.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (80, 'HN-297559', 1, '2023-08-28 12:37:40.244', 'In aut qui nostrum. Sed id aliquam aut quas rerum voluptatem. Cum nobis reprehenderit cumque provident tempora eligendi. Optio dolorem est odit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (85, 'HN-209464', 9, '2022-09-07 06:41:54.9', 'Et magnam beatae quibusdam quia. Mollitia voluptatem eius omnis voluptatem quis. Distinctio fugit consequatur.', '2022-10-14 08:58:42.13', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (87, 'HN-159601', 9, '2022-09-07 04:00:57.836', 'Placeat autem ducimus ea tempore quibusdam. Autem ipsum nesciunt debitis voluptatibus unde et doloremque. Delectus et laudantium laudantium incidunt ipsa molestiae. Aut quia provident quibusdam nostrum omnis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (89, 'HN-262701', 24, '2022-02-07 08:49:46.417', 'Explicabo molestias ex deleniti molestias. Placeat aut architecto culpa praesentium. Voluptatum maxime sed est magnam mollitia assumenda. Nihil aut vero. Est aperiam est molestiae dolorem rerum illo nihil voluptatum praesentium. Ex dolores tempore omnis sunt.', NULL, 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (95, 'HN-951062', 27, '2022-09-08 05:05:51.765', 'Temporibus mollitia quis. Assumenda quis atque deserunt dolore ut. Repellendus ratione deserunt accusamus nemo similique cumque dolore. Sed unde aut saepe enim voluptas et. Temporibus impedit libero earum assumenda. Accusantium facere quidem aliquam maxime.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (96, 'HN-163878', 11, '2021-09-10 15:22:03.598', 'Ut ullam laudantium sit expedita et. Possimus nihil nihil. Veritatis et eos quidem omnis itaque ut a libero corporis. Et sed non vel molestiae natus facilis aspernatur libero.', NULL, 'COMPLETED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.955');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (97, 'HN-846103', 1, '2022-09-07 09:38:25.587', 'Similique eaque cumque doloremque fuga blanditiis placeat. Qui nesciunt aut consequatur. Minus id magni repellendus. Quis officiis optio dicta sed.', '2022-09-07 19:00:11.081', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
-INSERT INTO public."Appointment" (id, "patientId", "doctorId", "dateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (100, 'HN-162462', 9, '2022-09-07 16:35:10.023', 'Minima quidem nostrum quo mollitia. Qui ad qui quo. Placeat ut similique. Commodi occaecati temporibus deserunt aut ipsa. Corporis culpa rerum dolore quia.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (12, 'HN-209464', 22, '2023-09-06 06:07:20.472', '2023-09-06 06:37:20.472', 'Eius quibusdam commodi. Voluptas maxime quo ut sint et qui. Eligendi qui sapiente laborum distinctio numquam. Id reprehenderit et. Aperiam id quis corrupti vel consequatur dolores. Similique fugiat quaerat ipsa soluta reprehenderit ullam voluptatem deleniti id.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (13, 'HN-853857', 16, '2023-06-07 02:05:30.575', '2023-06-07 02:35:30.575', 'Vel soluta dolor eos adipisci ipsum ipsum. Harum voluptatem et. Et repellendus nihil veritatis ea ea laudantium provident ut. Corporis qui laudantium aut deleniti placeat animi excepturi itaque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (14, 'HN-618756', 16, '2023-01-24 22:55:21.63', '2023-01-24 23:25:21.63', 'Fuga voluptatem nobis sint ratione. Quidem fugit fugit repudiandae harum sapiente vitae vero inventore. Vero non excepturi sit repudiandae. Ab perferendis non et. Non quod provident repellendus ut architecto rerum deserunt ut. Rerum consequuntur et.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (15, 'HN-725244', 28, '2022-09-08 01:14:46.857', '2022-09-08 01:44:46.857', 'Vel est alias omnis. Facilis numquam porro aut. Repellat asperiores ad. Sit ut doloribus vero sunt ea aut. Natus cumque ex a adipisci est ut quidem magnam nam. Provident odio repudiandae iusto.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (16, 'HN-254739', 27, '2022-08-05 21:15:52.633', '2022-08-05 21:45:52.633', 'Aut dolorum eum est assumenda. Quae voluptatem in voluptas ut ex voluptatem numquam et qui. Atque et qui vitae rerum blanditiis iusto vel et. Voluptatem recusandae voluptates tenetur magni ea itaque et. Officia non recusandae consequatur quia fuga. Sunt consequatur qui commodi consequatur.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (17, 'HN-779528', 7, '2022-09-06 13:03:23.757', '2022-09-06 13:33:23.757', 'Repellendus ducimus rem distinctio fuga qui. Eos et quia doloribus atque non est. Cum adipisci quibusdam est autem consequatur. Quam itaque quidem. Atque harum vel et dolorem a.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (18, 'HN-254739', 18, '2022-06-01 18:19:31.728', '2022-06-01 18:49:31.728', 'Reprehenderit deleniti enim. Doloribus ipsa enim ut. Quas a enim tenetur voluptatem veniam. Impedit adipisci quo. Animi dolorum reiciendis sed non at suscipit dolor suscipit harum.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (19, 'HN-997298', 22, '2022-09-07 11:03:45.607', '2022-09-07 11:33:45.607', 'Itaque ex nihil tempore accusantium occaecati incidunt. Beatae amet quam nobis minus placeat. Odit impedit culpa et doloribus. Cupiditate aliquam tempore.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (20, 'HN-159601', 24, '2022-09-06 19:33:40.989', '2022-09-06 20:03:40.989', 'Culpa occaecati minima velit repellat nisi quam. Quas quia ad labore. Et facilis itaque deleniti architecto at. A est sit magni. Sed et neque minus voluptatem molestiae aut fugiat aut. Consequatur saepe consequatur eaque corporis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (21, 'HN-843948', 8, '2022-07-03 05:17:41.951', '2022-07-03 05:47:41.951', 'Accusantium et temporibus magni. Autem recusandae corrupti. Illum earum quia quae ut itaque ipsa officiis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (22, 'HN-126977', 5, '2022-09-07 12:38:43.086', '2022-09-07 13:08:43.086', 'Quis excepturi vel aut perferendis minus et quam dolores dignissimos. Nisi quo dolorum et et doloremque dolores culpa aut necessitatibus. Et autem dolor.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (23, 'HN-618756', 22, '2021-12-12 02:08:11.96', '2021-12-12 02:38:11.96', 'Et fugiat dolorum enim voluptatibus delectus id ipsa explicabo placeat. Ut laborum doloremque. Adipisci sequi tempore cumque molestiae. Corporis tenetur dolor qui corrupti.', '2023-01-30 02:36:50.537', 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (24, 'HN-693045', 2, '2023-05-09 09:17:21.151', '2023-05-09 09:47:21.151', 'Consequatur dignissimos nostrum dolor perspiciatis repudiandae molestiae quo maiores. Quia perspiciatis ipsa dolor atque. Et reiciendis qui sed tenetur. Ut nihil pariatur molestias. Nisi inventore illum dolor repellat voluptatem et voluptas rem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (25, 'HN-314696', 29, '2022-09-06 23:47:25.171', '2022-09-07 00:17:25.171', 'Modi dolore saepe aliquid. Ab eveniet possimus sed id nemo eos enim amet quas. Veritatis quod vero facilis ratione voluptatem hic optio dignissimos sunt. Temporibus quas eligendi sequi optio aut. Saepe vel nihil sit quo id nihil culpa aut cum. Ipsum quasi nostrum a et voluptates voluptas.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (26, 'HN-897438', 14, '2022-09-07 14:02:00.678', '2022-09-07 14:32:00.678', 'Blanditiis sunt numquam dolor dolorem. Necessitatibus a eveniet sapiente voluptas qui temporibus veritatis. Vero voluptas qui eligendi hic fugiat saepe aliquam. Eum modi atque in laborum nulla magnam tempora animi magnam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (27, 'HN-519312', 5, '2021-11-07 05:53:41.031', '2021-11-07 06:23:41.031', 'Quidem quis commodi et nesciunt. Perferendis nihil quia adipisci vel repellendus. Neque neque ea quisquam quam sit est labore. Voluptatum tempora totam velit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (28, 'HN-188305', 3, '2022-04-23 10:08:02.616', '2022-04-23 10:38:02.616', 'Eveniet alias qui quidem quod velit sed consectetur voluptatem. Veritatis ut recusandae et reprehenderit cupiditate in et laborum voluptatem. Sequi mollitia qui dolorem.', '2023-04-03 13:29:11.101', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (29, 'HN-919225', 1, '2022-09-07 21:43:50.288', '2022-09-07 22:13:50.288', 'Quos magni voluptatem ratione explicabo perferendis sunt quis quis. Voluptatem et cumque ea. Alias aut quo. Quia eligendi rerum at.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (32, 'HN-897438', 19, '2022-12-08 08:45:32.172', '2022-12-08 09:15:32.172', 'Fugiat tempore aut qui voluptatem quae vel vitae sint tempora. Sint quasi quo magni sit architecto culpa. Impedit architecto quia ipsum molestiae et. Ut aut ut ea sed aliquam aut saepe.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (43, 'HN-853857', 19, '2023-05-13 05:59:48.796', '2023-05-13 06:29:48.796', 'In commodi nesciunt magnam eius vitae eos ea adipisci. Eum explicabo corrupti dignissimos facilis. Totam reiciendis impedit maxime. Numquam porro iusto eius quaerat est omnis sint iusto. Adipisci et rerum culpa voluptas temporibus rerum. Consequatur impedit accusantium similique omnis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (52, 'HN-126977', 25, '2023-03-20 11:31:26.924', '2023-03-20 12:01:26.924', 'Ut aliquid delectus iste neque dolorum porro eum consequatur. Saepe illum eius. Possimus molestiae molestiae harum tempora vero quos et. Et tempore eos quae sequi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (62, 'HN-881131', 30, '2022-09-07 12:05:49.489', '2022-09-07 12:35:49.489', 'Eius qui enim. Aliquid odit in rerum. Dolorem aut facere. Natus occaecati excepturi quae placeat voluptates quisquam hic natus exercitationem. Enim minus et.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (67, 'HN-629664', 15, '2022-03-29 15:24:54.407', '2022-03-29 15:54:54.407', 'Eos non libero aliquid sit dolorem veniam odit nisi. Expedita id sint molestias eum cumque veniam sunt. Corrupti enim voluptatibus amet blanditiis vel architecto et quod.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (76, 'HN-784077', 17, '2022-09-07 09:32:51.088', '2022-09-07 10:02:51.088', 'Praesentium fugit placeat non eum et et. Id quos qui. Enim suscipit autem ducimus quia sapiente voluptas. Assumenda sit laboriosam architecto.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (90, 'HN-179590', 5, '2022-09-06 18:32:35.477', '2022-09-06 19:02:35.477', 'Ut odit qui itaque facere. Velit recusandae vero dicta id id. Dignissimos earum consequatur ratione aperiam voluptatem eveniet earum excepturi non.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (30, 'HN-129512', 29, '2022-12-31 05:32:12.722', '2022-12-31 06:02:12.722', 'Dolorum accusamus est sequi dolores sed. Omnis et quod officiis impedit fugit dolores architecto velit. Veritatis est et voluptas quod aut nesciunt est sit. Harum commodi qui consequatur aliquam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (31, 'HN-119713', 10, '2022-07-13 08:10:44.169', '2022-07-13 08:40:44.169', 'Et molestias autem voluptas voluptatem numquam iure corporis quo error. Qui qui assumenda quo expedita fuga. Voluptatem at numquam cumque nihil. Provident error aperiam molestiae voluptates.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (11, 'HN-757364', 20, '2021-10-22 04:51:30.537', '2021-10-22 05:21:30.537', 'Quo ut accusamus consequatur sint vel rem hic tempora esse. Itaque error repellat reiciendis ab expedita quia iure. Repellat qui debitis expedita.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (33, 'HN-519312', 1, '2023-07-14 02:54:44.048', '2023-07-14 03:24:44.048', 'Magnam eius molestiae soluta. Voluptatem culpa accusamus eaque est. Optio explicabo dolor quae est deserunt. Consequatur est praesentium et cum quo laudantium quidem est. Dolore distinctio et nulla aut nam fugit harum exercitationem. Odio accusamus perspiciatis quod et aut dolorem eos.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (44, 'HN-861496', 27, '2022-06-06 01:06:20.497', '2022-06-06 01:36:20.497', 'Quod architecto asperiores ipsum ea quis ut tempora distinctio officiis. Tenetur iusto maxime non autem eveniet odio magnam repellendus quidem. Asperiores repudiandae rerum officiis velit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (47, 'HN-853857', 16, '2023-08-10 17:25:34.98', '2023-08-10 17:55:34.98', 'Quia molestiae animi. Animi et aliquam ut minima consequatur. Aliquam nulla repudiandae nostrum odio sapiente. Incidunt ut eius eos. Et voluptatem quae quia ex. Illum facere accusantium fugit voluptatem eligendi excepturi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (53, 'HN-910978', 11, '2022-09-06 23:45:54.808', '2022-09-07 00:15:54.808', 'Porro occaecati ullam voluptas quos impedit quia earum. Sit perferendis in quibusdam consequatur quia. Et et laboriosam cumque excepturi provident mollitia quo dolore.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (58, 'HN-162462', 6, '2022-01-03 01:54:49.11', '2022-01-03 02:24:49.11', 'Maiores ipsum officia rerum. Voluptate omnis voluptatem rem ut. Harum iusto dicta et et ut.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (66, 'HN-919225', 7, '2023-06-17 13:46:25.884', '2023-06-17 14:16:25.884', 'Inventore magnam eum odio quam necessitatibus. Molestiae ea sunt dolore aut voluptatibus consequatur quia cumque. Quia sit aut fugiat dicta.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (68, 'HN-323662', 10, '2023-05-06 16:48:03.439', '2023-05-06 17:18:03.439', 'Veniam iure sint doloribus architecto molestiae aut id tempora. Amet iste sit perferendis velit mollitia ullam. Voluptatem laboriosam nobis est id quam quaerat non. Et id soluta non. Et quae ea similique assumenda minima quia voluptates voluptatem. Sit necessitatibus quisquam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (77, 'HN-633981', 2, '2023-04-06 03:36:27.46', '2023-04-06 04:06:27.46', 'Quo aut omnis quod aut accusamus sed rerum. Officiis non optio adipisci ut expedita. Pariatur qui animi enim a consequatur consectetur cum. Consequatur saepe est quo ex. Temporibus officiis et optio ab corporis corrupti iure provident odit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (78, 'HN-883377', 10, '2023-09-03 04:17:21.949', '2023-09-03 04:47:21.949', 'Porro voluptas dolorem ad explicabo corporis quidem. Sit incidunt corporis. Quia ut impedit est et error quas blanditiis odio. Aperiam quo a perferendis aut dolor. Eveniet laudantium fuga voluptatem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (88, 'HN-873016', 20, '2022-09-08 09:18:26.159', '2022-09-08 09:48:26.159', 'Et atque possimus nam. Fuga numquam quas molestiae sunt rerum. Omnis fuga et qui molestias. Minus quaerat dolores magnam voluptatem non esse qui. Sed quis ea ea pariatur.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (98, 'HN-285237', 26, '2021-12-31 07:07:35.921', '2021-12-31 07:37:35.921', 'Est illo recusandae mollitia qui. Maiores non omnis. Atque deserunt cumque autem. Exercitationem molestiae earum quibusdam. Dolor qui minus vel occaecati. Minus ut consequatur voluptatem eveniet ab et ut iure.', '2023-01-29 06:21:18.349', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (34, 'HN-113321', 2, '2022-09-14 16:39:23.036', '2022-09-14 17:09:23.036', 'Soluta illo vero sapiente voluptatem et quo dolorum a. Adipisci labore illum molestiae dolores. Quae quis sequi eum at ratione qui voluptatem quae. Veniam modi dolores earum sequi sit voluptas facere. Expedita eaque voluptatibus architecto debitis id autem veniam repellat suscipit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (45, 'HN-561154', 24, '2022-09-07 10:24:57.746', '2022-09-07 10:54:57.746', 'Quibusdam eos pariatur modi sunt incidunt quisquam quia nulla modi. Veniam delectus deleniti voluptas quis excepturi facere qui amet. Quaerat magnam saepe consequuntur illo eos. Quibusdam sed dolorem eos illo facere voluptatem sed. Corrupti et numquam dolores dignissimos sequi corporis odio omnis. Accusantium laboriosam voluptatem similique nihil eius enim ut officiis quam.', '2023-07-18 20:25:25.047', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (55, 'HN-137318', 5, '2022-09-07 23:48:00.437', '2022-09-08 00:18:00.437', 'Voluptates consequuntur et. Quibusdam accusantium omnis. Facilis sit alias et aut nam cum voluptas. Dolorem quos ratione non qui.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (71, 'HN-200755', 6, '2022-09-08 02:14:18.583', '2022-09-08 02:44:18.583', 'Et cum debitis distinctio accusamus vel et qui et numquam. Ex vitae sit voluptas est vel commodi harum et iusto. Omnis magni dolorem accusamus repudiandae voluptate mollitia in consequatur aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (84, 'HN-932425', 13, '2022-07-09 17:49:14.073', '2022-07-09 18:19:14.073', 'Ex laborum nam dolores nulla perspiciatis accusamus facilis. Mollitia omnis nam. Et unde sequi perferendis mollitia fugiat maiores nam et.', '2022-09-11 22:14:02.591', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (35, 'HN-698271', 12, '2023-03-01 14:52:00.743', '2023-03-01 15:22:00.743', 'Alias nemo tenetur quidem eligendi incidunt quaerat. Et amet a quia repudiandae eligendi ex nisi aliquam aut. Facere vero nemo sed quidem a rerum in. Excepturi fuga placeat debitis dolore sapiente.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (42, 'HN-618756', 4, '2022-09-08 02:59:00.286', '2022-09-08 03:29:00.286', 'Molestiae dolorum vel laborum possimus. Dolorem quia laudantium velit quis. Quis dignissimos hic excepturi placeat expedita sed. Animi officiis quia quasi nam quia enim dignissimos eligendi aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (49, 'HN-740157', 4, '2022-09-06 14:58:21.154', '2022-09-06 15:28:21.154', 'Laudantium accusamus numquam adipisci. Blanditiis error cupiditate. Minus facere enim quia a accusantium dolor pariatur corporis accusamus.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (69, 'HN-209014', 15, '2022-09-07 21:33:03.268', '2022-09-07 22:03:03.268', 'Architecto et molestiae omnis fugiat totam. Repudiandae at qui nesciunt ducimus sit unde in et possimus. Autem tempora et explicabo praesentium et voluptatum sint quidem eos. Aut aliquam ut. Doloribus ex itaque sed consequuntur consectetur qui sint veniam.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (81, 'HN-932425', 2, '2023-03-12 11:59:49.753', '2023-03-12 12:29:49.753', 'Provident quia et ut sed numquam libero. Est voluptatem ea nisi quasi voluptatem maiores vero expedita et. Sunt et repellat.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (92, 'HN-162462', 17, '2023-01-07 20:55:20.356', '2023-01-07 21:25:20.356', 'Sed quo ipsum tenetur quod et sed tenetur. Earum ea culpa veritatis. Non qui consequuntur voluptates perspiciatis magnam. Nulla perferendis molestiae impedit quia numquam repudiandae unde. Reiciendis voluptates rerum.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (36, 'HN-209014', 9, '2022-09-08 10:26:00.093', '2022-09-08 10:56:00.093', 'Laboriosam suscipit maxime reiciendis necessitatibus voluptatem. Non ducimus repellendus hic minima repellendus fuga. Aut odio dolor minus sequi ut repudiandae velit. Voluptates eveniet deleniti vel aut corrupti impedit unde rerum. Tempore ut est in consequatur repudiandae laboriosam. Iusto aut eum temporibus tempora corporis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (41, 'HN-910978', 8, '2022-12-13 10:01:51.768', '2022-12-13 10:31:51.768', 'Placeat nihil ullam praesentium. In ab fugit qui aut tenetur non. Corporis consequatur unde aut minus rerum expedita voluptatem beatae temporibus.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (54, 'HN-651394', 1, '2022-11-17 15:12:51.276', '2022-11-17 15:42:51.276', 'Cumque id nihil corrupti quo id voluptas nihil. Voluptatem non et totam odit adipisci qui. Sed laborum praesentium nobis aut possimus repellendus dolores. Ut deleniti ipsa mollitia maiores non voluptatum fugit itaque libero. Consectetur sunt explicabo et odit maiores aut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (73, 'HN-421398', 2, '2021-10-19 04:41:07.012', '2021-10-19 05:11:07.012', 'Reprehenderit omnis rerum sit neque et eaque excepturi dolor. Possimus eaque fuga aut qui. Et explicabo officia. Nihil natus voluptatem ut totam omnis itaque sit voluptas aspernatur. Eos impedit et dolores quibusdam nobis sequi esse.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (60, 'HN-881131', 19, '2022-09-07 16:53:01.227', '2022-09-07 17:23:01.227', 'Reiciendis aut veritatis atque quis sed consequatur enim enim. Iusto blanditiis ut repellendus ab qui fuga. Eum eligendi enim error aut rerum labore adipisci voluptatem temporibus. Error nobis quam et est possimus aut et. Quasi sit odio labore assumenda consectetur enim consequatur ut qui. Eum dicta aspernatur.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (72, 'HN-934746', 24, '2023-03-31 02:47:11.009', '2023-03-31 03:17:11.009', 'Inventore voluptates pariatur quae magnam totam aut voluptatem. Animi ratione laboriosam. Ut doloribus laboriosam rerum modi voluptas exercitationem repellat provident assumenda. Eveniet fugiat ut.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (83, 'HN-517246', 21, '2022-09-07 02:42:19.376', '2022-09-07 03:12:19.376', 'Et explicabo sunt illo quaerat. Odit inventore est quia sed amet reprehenderit rerum. Facilis nobis voluptatibus sed. Veritatis dolor at fuga esse. Mollitia animi ab non esse. Quo aliquam et necessitatibus rerum dolore voluptatem modi nulla eius.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (94, 'HN-113321', 2, '2023-04-07 15:19:18.252', '2023-04-07 15:49:18.252', 'Velit adipisci modi dolore non aut eveniet adipisci vel. Ut qui enim eius aut autem doloremque. Non eligendi est aliquid similique quo. Qui accusamus rerum nobis rerum veritatis asperiores fugit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (37, 'HN-562380', 12, '2022-09-07 01:17:23.081', '2022-09-07 01:47:23.081', 'Illum nam in sunt iure et. In et quaerat qui suscipit fugit qui dolorem nostrum. Totam distinctio aspernatur aut nulla sit consequuntur debitis nemo eaque. Quaerat qui repellendus et molestias. Iste sunt et ullam distinctio et. Excepturi sed laborum aspernatur inventore.', '2023-06-16 15:58:38.764', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (59, 'HN-963617', 14, '2022-09-07 02:41:12.199', '2022-09-07 03:11:12.199', 'Saepe et et dolorem. Deleniti quis alias quis magni perferendis cupiditate. Est molestias autem consequatur. Qui praesentium commodi beatae nostrum assumenda sint quidem dignissimos sequi.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (75, 'HN-853857', 20, '2022-09-07 19:06:21.417', '2022-09-07 19:36:21.417', 'Impedit possimus aut. Aut doloribus ex et aut aperiam. Numquam molestiae est at inventore atque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (93, 'HN-126977', 4, '2022-08-16 02:33:52.253', '2022-08-16 03:03:52.253', 'Aliquam aut dolor. Dolores ut tempore aliquam. Non facilis adipisci vel qui aut velit harum.', '2022-10-17 20:35:45.695', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (38, 'HN-883377', 12, '2022-09-07 05:08:19.726', '2022-09-07 05:38:19.726', 'Mollitia facere fugit cumque odio. Fugit occaecati ratione. Totam facilis provident autem maiores dolores cum quia est nesciunt.', '2023-06-28 09:50:45.821', 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (39, 'HN-740755', 28, '2021-12-23 12:22:15.373', '2021-12-23 12:52:15.373', 'Ratione saepe aut vero non fugiat harum sed doloribus. Veniam neque dolorum iusto quos quis. Nesciunt dignissimos exercitationem soluta labore aut.', NULL, 'COMPLETED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (50, 'HN-285237', 11, '2022-04-28 01:13:21.323', '2022-04-28 01:43:21.323', 'Laudantium ut sit. Est autem illo voluptas ea autem praesentium aut magnam voluptatibus. Incidunt eius et beatae aut impedit necessitatibus nemo.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (63, 'HN-443354', 6, '2022-09-07 08:21:02.519', '2022-09-07 08:51:02.519', 'Ipsum aspernatur et corrupti in assumenda quis doloremque. Vel sit voluptates alias repudiandae minima laudantium sint. Deleniti cumque et.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (70, 'HN-297559', 20, '2022-08-07 09:20:40.931', '2022-08-07 09:50:40.931', 'Ducimus aspernatur eius dolor reiciendis et quo. Unde aut maxime autem nisi. Omnis eos rerum velit hic. In minima aut quod nemo voluptatem dolores soluta aperiam et. Tempore ea et earum suscipit sunt eum. Quia voluptatem repellat distinctio adipisci quia qui.', '2023-06-15 04:46:57.383', 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (82, 'HN-629664', 18, '2022-07-01 07:17:52.166', '2022-07-01 07:47:52.166', 'Quam ut deserunt porro. Rerum quam rem consequatur impedit deserunt. Iste recusandae impedit tenetur minima ut.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (86, 'HN-844945', 23, '2023-03-03 10:45:45.945', '2023-03-03 11:15:45.945', 'Animi officiis hic aut distinctio doloribus commodi. Quo quis quia explicabo dolores voluptas quis quaerat et aut. Ipsa aspernatur est non. Facilis consectetur magnam porro debitis sed. Excepturi consequuntur voluptatem vitae amet. Et labore eveniet sit hic officiis.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (91, 'HN-179590', 25, '2022-09-07 02:28:12.616', '2022-09-07 02:58:12.616', 'Et assumenda dolor eveniet et neque quia praesentium veniam. Eum et aut doloremque quisquam consequatur veniam suscipit. Alias beatae vero assumenda ut. Pariatur ducimus quo doloremque aspernatur aliquam eaque numquam. Rerum rerum voluptate soluta est illo ut. Et aut atque et sunt omnis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (99, 'HN-517289', 10, '2022-08-20 14:49:13.55', '2022-08-20 15:19:13.55', 'Et a aliquid eum velit sapiente blanditiis voluptas. Odio perferendis qui voluptatem et dignissimos alias reiciendis. Earum officiis et modi fugiat sint. Id ducimus est et et ad nemo iste. Nesciunt incidunt asperiores error et deserunt voluptas eaque nostrum.', '2023-02-22 05:42:17.211', 'COMPLETED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (40, 'HN-803959', 6, '2022-09-06 16:56:09.01', '2022-09-06 17:26:09.01', 'Non voluptatem ut molestiae vel officiis sequi odit. Hic incidunt distinctio et. Repellendus sed exercitationem ea deserunt sed molestias incidunt aspernatur. Praesentium consequuntur repellat quidem velit quo vero soluta. Magnam commodi illo dolor tenetur animi.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (46, 'HN-347868', 18, '2022-09-07 09:09:31.443', '2022-09-07 09:39:31.443', 'Qui ipsum blanditiis voluptas qui vel unde delectus est exercitationem. Ab labore aut. Dolores ut cum est aliquam ea. Laborum earum labore omnis voluptatem. Et non ut ea amet consectetur optio in possimus.', NULL, 'CANCELLED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (51, 'HN-209464', 15, '2022-09-06 11:04:29.767', '2022-09-06 11:34:29.767', 'Blanditiis delectus qui maxime. Velit non vero. Magni cumque mollitia et quia ex quia. Laborum hic sequi. Nihil sequi ut amet eius necessitatibus quia sit ducimus non.', NULL, 'CANCELLED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (56, 'HN-450439', 23, '2022-09-07 09:27:40.095', '2022-09-07 09:57:40.095', 'Corporis consectetur rerum. Exercitationem deleniti eos sed quod dolor. Et commodi aut corrupti quasi vel itaque est laboriosam ut. Deleniti sint omnis delectus quia ipsam magni et impedit. Quasi expedita odit. Dolore pariatur omnis rerum aut molestias.', NULL, 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (57, 'HN-835237', 19, '2022-09-08 04:40:44.362', '2022-09-08 05:10:44.362', 'Velit hic dolores deleniti doloremque dignissimos totam. Earum eligendi nulla pariatur sed quaerat voluptatem itaque facilis soluta. Ut doloribus aut sed ea mollitia deserunt et veritatis. Neque numquam recusandae dolor autem at. Qui velit non iure. Repudiandae eaque ab qui quia ut assumenda.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (61, 'HN-129512', 9, '2022-04-16 01:47:25.487', '2022-04-16 02:17:25.487', 'Sapiente fugit deleniti est eaque nam odit ut. Nulla incidunt optio in molestiae nemo. Quia nisi earum ea quisquam in amet est et.', NULL, 'CANCELLED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (64, 'HN-221203', 22, '2022-09-07 01:53:41.308', '2022-09-07 02:23:41.308', 'Non excepturi omnis ut. Minima est et accusantium ea similique voluptatibus aliquid ea. Modi molestiae sed doloremque qui mollitia amet consequatur officiis.', '2023-06-18 11:45:42.049', 'COMPLETED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (1, 'HN-693045', 24, '2023-08-09 14:09:30.449', '2023-08-09 14:39:30.449', 'Assumenda quia et aspernatur sit quidem maxime qui. Perferendis aut nihil eveniet. Quo accusamus sint totam dolorem. Modi sed minima eius autem occaecati exercitationem voluptatum. Impedit assumenda sit ut quia. Tempora ut error ex vero dicta voluptatem.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.95');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (2, 'HN-414878', 23, '2022-04-09 04:24:38.009', '2022-04-09 04:54:38.009', 'Officia totam rerum et. Dolorum reiciendis veniam et et sit qui tenetur. Deleniti voluptas consectetur ut natus officia odio debitis sapiente soluta. Placeat et iure. Corporis dolor fugiat animi.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (3, 'HN-126977', 27, '2022-09-08 03:19:48.698', '2022-09-08 03:49:48.698', 'Molestiae voluptatum aut. Autem reprehenderit ab dignissimos ipsum vitae deleniti vel quis. Odio quasi molestiae.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (4, 'HN-796550', 30, '2021-10-15 08:57:21.519', '2021-10-15 09:27:21.519', 'Quos quas dolorem provident quia aut. Voluptas numquam accusantium quia rerum ad non magni aut aliquam. Qui vel explicabo accusantium velit quos voluptas voluptatem officiis quia.', '2023-07-26 02:29:29.449', 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (5, 'HN-874621', 12, '2022-09-07 19:23:43.144', '2022-09-07 19:53:43.144', 'Magnam laboriosam quia sit ullam nobis corrupti repudiandae voluptatem. Incidunt quos excepturi error ipsam vero. Aut tempore cupiditate quia. Quibusdam debitis animi aut repellendus molestias voluptas et perferendis. Omnis perferendis sit est qui iure qui dolorem rerum aperiam. Tempora tenetur excepturi.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (6, 'HN-634304', 20, '2022-03-31 04:23:17.078', '2022-03-31 04:53:17.078', 'Quae et sint similique temporibus. Officia assumenda animi laborum sequi quia. Illum cumque ab. Velit ipsam facere qui provident enim sunt sit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (7, 'HN-835237', 10, '2023-02-25 00:48:02.597', '2023-02-25 01:18:02.597', 'Magnam odio odit enim dolorem. Voluptatem aperiam quis laboriosam quam eos quod culpa nihil consequatur. Fuga dolore nesciunt eveniet.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (8, 'HN-414878', 3, '2022-09-06 02:45:24.798', '2022-09-06 03:15:24.798', 'Et rerum sed eaque deleniti et eveniet rerum voluptatibus est. Ratione quos qui id itaque reiciendis. Aut commodi rerum dolorum est vel ipsum. Vel impedit error nobis dicta sit.', NULL, 'CANCELLED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (9, 'HN-190919', 29, '2021-12-07 15:12:03.825', '2021-12-07 15:42:03.825', 'Amet illum sit aut rem qui aut deleniti ullam magni. Eum est nesciunt aliquid consectetur reiciendis rerum. Id deserunt molestiae. Iure possimus libero iste quibusdam delectus voluptas odio. Est fuga velit.', NULL, 'COMPLETED', '2022-09-07 10:52:46.95', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (10, 'HN-162951', 28, '2022-09-08 08:06:46.307', '2022-09-08 08:36:46.307', 'Excepturi delectus similique ea laudantium incidunt repudiandae eum. Pariatur similique optio alias eius quis. Dolorem perspiciatis quis fugit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.951', '2022-09-07 10:52:46.951');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (65, 'HN-853857', 18, '2022-09-08 00:03:37.478', '2022-09-08 00:33:37.478', 'Molestiae velit aut nam voluptatem aut voluptatem. Vitae omnis non tempora praesentium aut autem veritatis maiores aliquam. Ipsum tempora blanditiis debitis veritatis ea ut repellendus similique.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (48, 'HN-873016', 11, '2023-07-18 06:26:45.882', '2023-07-18 06:56:45.882', 'Et ab tempore nemo sunt qui. Rem eum sed eum sint autem et distinctio illo sunt. Perspiciatis itaque at consequatur praesentium et et blanditiis. Numquam sed alias quia eaque.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.952', '2022-09-07 10:52:46.952');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (74, 'HN-725244', 4, '2022-09-06 23:40:12.482', '2022-09-07 00:10:12.482', 'Perferendis ipsa minus illum consequuntur tenetur blanditiis consectetur. Veritatis soluta aut molestiae sit quia aut saepe repudiandae quia. Non enim voluptatibus aperiam ullam adipisci. Ad temporibus cum consectetur.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (79, 'HN-993787', 3, '2022-09-07 21:29:14.744', '2022-09-07 21:59:14.744', 'Accusamus iste odit fugiat autem odit omnis aut quae. Aut deserunt tenetur aut. Est ipsum voluptatum blanditiis eius velit est illo a voluptas. Minus voluptas itaque. Et ullam fugiat praesentium quas.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (80, 'HN-297559', 1, '2023-08-28 12:37:40.244', '2023-08-28 13:07:40.244', 'In aut qui nostrum. Sed id aliquam aut quas rerum voluptatem. Cum nobis reprehenderit cumque provident tempora eligendi. Optio dolorem est odit.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (85, 'HN-209464', 9, '2022-09-07 06:41:54.9', '2022-09-07 07:11:54.9', 'Et magnam beatae quibusdam quia. Mollitia voluptatem eius omnis voluptatem quis. Distinctio fugit consequatur.', '2022-10-14 08:58:42.13', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (87, 'HN-159601', 9, '2022-09-07 04:00:57.836', '2022-09-07 04:30:57.836', 'Placeat autem ducimus ea tempore quibusdam. Autem ipsum nesciunt debitis voluptatibus unde et doloremque. Delectus et laudantium laudantium incidunt ipsa molestiae. Aut quia provident quibusdam nostrum omnis.', NULL, 'CANCELLED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (89, 'HN-262701', 24, '2022-02-07 08:49:46.417', '2022-02-07 09:19:46.417', 'Explicabo molestias ex deleniti molestias. Placeat aut architecto culpa praesentium. Voluptatum maxime sed est magnam mollitia assumenda. Nihil aut vero. Est aperiam est molestiae dolorem rerum illo nihil voluptatum praesentium. Ex dolores tempore omnis sunt.', NULL, 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (95, 'HN-951062', 27, '2022-09-08 05:05:51.765', '2022-09-08 05:35:51.765', 'Temporibus mollitia quis. Assumenda quis atque deserunt dolore ut. Repellendus ratione deserunt accusamus nemo similique cumque dolore. Sed unde aut saepe enim voluptas et. Temporibus impedit libero earum assumenda. Accusantium facere quidem aliquam maxime.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (96, 'HN-163878', 11, '2021-09-10 15:22:03.598', '2021-09-10 15:52:03.598', 'Ut ullam laudantium sit expedita et. Possimus nihil nihil. Veritatis et eos quidem omnis itaque ut a libero corporis. Et sed non vel molestiae natus facilis aspernatur libero.', NULL, 'COMPLETED', '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.955');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (97, 'HN-846103', 1, '2022-09-07 09:38:25.587', '2022-09-07 10:08:25.587', 'Similique eaque cumque doloremque fuga blanditiis placeat. Qui nesciunt aut consequatur. Minus id magni repellendus. Quis officiis optio dicta sed.', '2022-09-07 19:00:11.081', 'COMPLETED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+INSERT INTO public."Appointment" (id, "patientId", "doctorId", "startDateTime", "endDateTime", detail, "nextAppointment", status, "createdAt", "updatedAt") VALUES (100, 'HN-162462', 9, '2022-09-07 16:35:10.023', '2022-09-07 17:05:10.023', 'Minima quidem nostrum quo mollitia. Qui ad qui quo. Placeat ut similique. Commodi occaecati temporibus deserunt aut ipsa. Corporis culpa rerum dolore quia.', NULL, 'SCHEDULED', '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.954');
 
 
 --
@@ -551,6 +615,13 @@ INSERT INTO public."Invoice" (id, "appointmentId", paid, total, "createdAt", "up
 INSERT INTO public."Invoice" (id, "appointmentId", paid, total, "createdAt", "updatedAt") VALUES (28, 99, false, 1666940, '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.954');
 INSERT INTO public."Invoice" (id, "appointmentId", paid, total, "createdAt", "updatedAt") VALUES (27, 96, true, 3436462, '2022-09-07 10:52:46.954', '2022-09-07 10:52:46.955');
 INSERT INTO public."Invoice" (id, "appointmentId", paid, total, "createdAt", "updatedAt") VALUES (29, 97, true, 1061326, '2022-09-07 10:52:46.953', '2022-09-07 10:52:46.953');
+
+
+--
+-- Data for Name: InvoiceDiscount; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public."InvoiceDiscount" (id, name, amount, "invoiceId", "createdAt", "updatedAt") VALUES (1, 'Social Security', 50000, 2, '2022-09-27 08:50:21.102', '2022-09-27 08:50:21.102');
 
 
 --
@@ -1005,45 +1076,60 @@ INSERT INTO public."Prescription" (id, "medicineId", "appointmentId", amount, "c
 
 
 --
+-- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) VALUES ('df490715-f51c-48cb-abf9-5febd686d8be', '75a8aec5f84334978dc6e95b0a6fbb930a9eb0448d04da25fb4b584167831024', '2022-09-27 08:39:42.163213+00', '20220927075430_init', NULL, NULL, '2022-09-27 08:39:42.124804+00', 1);
+INSERT INTO public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) VALUES ('889f14d5-e5a5-4cfa-af1f-cee4407605a3', '3879844f0c9d9235ce2512bba45dc322e4e7bb254826f4293106aa05f80f05a4', '2022-09-27 08:39:49.25402+00', '20220927083949_invoice_discount', NULL, NULL, '2022-09-27 08:39:49.243081+00', 1);
+
+
+--
 -- Name: Appointment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Appointment_id_seq"', 100, true);
+SELECT pg_catalog.setval('public."Appointment_id_seq"', 1, false);
 
 
 --
 -- Name: Doctor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Doctor_id_seq"', 30, true);
+SELECT pg_catalog.setval('public."Doctor_id_seq"', 1, false);
+
+
+--
+-- Name: InvoiceDiscount_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."InvoiceDiscount_id_seq"', 1, true);
 
 
 --
 -- Name: InvoiceItem_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."InvoiceItem_id_seq"', 158, true);
+SELECT pg_catalog.setval('public."InvoiceItem_id_seq"', 1, false);
 
 
 --
 -- Name: Invoice_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Invoice_id_seq"', 29, true);
+SELECT pg_catalog.setval('public."Invoice_id_seq"', 1, false);
 
 
 --
 -- Name: Medicine_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Medicine_id_seq"', 10, true);
+SELECT pg_catalog.setval('public."Medicine_id_seq"', 1, false);
 
 
 --
 -- Name: Prescription_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Prescription_id_seq"', 159, true);
+SELECT pg_catalog.setval('public."Prescription_id_seq"', 1, false);
 
 
 --
@@ -1060,6 +1146,14 @@ ALTER TABLE ONLY public."Appointment"
 
 ALTER TABLE ONLY public."Doctor"
     ADD CONSTRAINT "Doctor_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: InvoiceDiscount InvoiceDiscount_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."InvoiceDiscount"
+    ADD CONSTRAINT "InvoiceDiscount_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1103,6 +1197,14 @@ ALTER TABLE ONLY public."Prescription"
 
 
 --
+-- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public._prisma_migrations
+    ADD CONSTRAINT _prisma_migrations_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: Doctor_username_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1130,6 +1232,14 @@ ALTER TABLE ONLY public."Appointment"
 
 ALTER TABLE ONLY public."Appointment"
     ADD CONSTRAINT "Appointment_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES public."Patient"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: InvoiceDiscount InvoiceDiscount_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."InvoiceDiscount"
+    ADD CONSTRAINT "InvoiceDiscount_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES public."Invoice"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

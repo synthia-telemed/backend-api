@@ -284,17 +284,20 @@ const docTemplate = `{
         "hospital.AppointmentOverview": {
             "type": "object",
             "properties": {
-                "date_time": {
-                    "type": "string"
-                },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "end_date_time": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
                 "patient": {
                     "$ref": "#/definitions/hospital.PatientOverview"
+                },
+                "start_date_time": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
