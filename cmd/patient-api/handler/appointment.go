@@ -113,6 +113,16 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 		Appointment: appointment,
 		Payment:     nil,
 	}
+	if appointment.Status == hospital.AppointmentStatusCompleted {
+		compAppData, err := h.appointmentDataStore.FindByRefID(appointment.Id)
+		if err != nil {
+			h.InternalServerError(c, err, "h.appointmentDataStore.FindByRefID error")
+			return
+		}
+		h.logger.Info(compAppData)
+		res.Duration = &compAppData.Duration
+
+	}
 	if appointment.Invoice != nil && appointment.Invoice.Paid {
 		payment, err := h.paymentDataStore.FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus)
 		if err != nil {
@@ -120,15 +130,6 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 			return
 		}
 		res.Payment = payment
-	}
-	if appointment.Status == hospital.AppointmentStatusCompleted {
-		compAppData, err := h.appointmentDataStore.FindByRefID(appointment.Id)
-		if err != nil {
-			h.InternalServerError(c, err, "h.appointmentDataStore.FindByRefID error")
-			return
-		}
-		res.Duration = &compAppData.Duration
-
 	}
 	c.JSON(http.StatusOK, res)
 }
