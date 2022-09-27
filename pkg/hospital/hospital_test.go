@@ -171,7 +171,7 @@ var _ = Describe("Hospital Client", func() {
 				Expect(appointment.Invoice).To(BeNil())
 			})
 		})
-		When("appointment has invoice and prescriptions", func() {
+		When("appointment has invoice without discount and prescriptions", func() {
 			It("should return appointment with invoice and non zero length prescriptions", func() {
 				appointment, err := graphQLClient.FindAppointmentByID(ctx, 2)
 				Expect(err).To(BeNil())
@@ -179,6 +179,19 @@ var _ = Describe("Hospital Client", func() {
 				Expect(appointment.Prescriptions).To(HaveLen(4))
 				Expect(appointment.Invoice).ToNot(BeNil())
 				Expect(appointment.Invoice.InvoiceItems).To(HaveLen(10))
+			})
+		})
+		When("appointment has invoice with discount and prescriptions", func() {
+			It("should return appointment with invoice, discount and non zero length prescriptions", func() {
+				appointment, err := graphQLClient.FindAppointmentByID(ctx, 4)
+				Expect(err).To(BeNil())
+				Expect(appointment).ToNot(BeNil())
+				Expect(appointment.Prescriptions).To(HaveLen(1))
+				Expect(appointment.Invoice).ToNot(BeNil())
+				Expect(appointment.Invoice.InvoiceItems).To(HaveLen(9))
+				Expect(appointment.Invoice.InvoiceDiscounts).To(HaveLen(1))
+				Expect(appointment.Invoice.InvoiceDiscounts[0].Name).To(Equal("Social Security"))
+				Expect(appointment.Invoice.InvoiceDiscounts[0].Amount).To(BeEquivalentTo(50000))
 			})
 		})
 	})

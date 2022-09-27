@@ -89,11 +89,12 @@ type InvoiceOverview struct {
 }
 
 type AppointmentOverview struct {
-	Id       string            `json:"id"`
-	DateTime time.Time         `json:"date_time"`
-	Status   AppointmentStatus `json:"status"`
-	Doctor   DoctorOverview    `json:"doctor"`
-	Patient  PatientOverview   `json:"patient"`
+	Id            string            `json:"id"`
+	StartDateTime time.Time         `json:"start_date_time"`
+	EndDateTime   time.Time         `json:"end_date_time"`
+	Status        AppointmentStatus `json:"status"`
+	Doctor        DoctorOverview    `json:"doctor"`
+	Patient       PatientOverview   `json:"patient"`
 }
 type DoctorOverview struct {
 	ID            string `json:"id"`
@@ -109,7 +110,8 @@ type PatientOverview struct {
 type Appointment struct {
 	Id              string            `json:"id"`
 	PatientID       string            `json:"patient_id"`
-	DateTime        time.Time         `json:"date_time"`
+	StartDateTime   time.Time         `json:"start_date_time"`
+	EndDateTime     time.Time         `json:"end_date_time"`
 	NextAppointment *time.Time        `json:"next_appointment"`
 	Detail          string            `json:"detail"`
 	Status          AppointmentStatus `json:"status"`
@@ -118,15 +120,20 @@ type Appointment struct {
 	Prescriptions   []*Prescription   `json:"prescriptions"`
 }
 type Invoice struct {
-	InvoiceItems []*InvoiceItem `json:"invoice_items"`
-	Id           int            `json:"id"`
-	Total        float64        `json:"total"`
-	Paid         bool           `json:"paid"`
+	InvoiceItems     []*InvoiceItem     `json:"invoice_items"`
+	InvoiceDiscounts []*InvoiceDiscount `json:"invoice_discounts"`
+	Id               int                `json:"id"`
+	Total            float64            `json:"total"`
+	Paid             bool               `json:"paid"`
 }
 type InvoiceItem struct {
 	Name     string  `json:"name"`
 	Price    float64 `json:"price"`
 	Quantity int     `json:"quantity"`
+}
+type InvoiceDiscount struct {
+	Name   string  `json:"name"`
+	Amount float64 `json:"amount"`
 }
 type Prescription struct {
 	Name        string `json:"name"`
@@ -217,10 +224,10 @@ func (c GraphQLClient) PaidInvoice(ctx context.Context, id int) error {
 func (c GraphQLClient) ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error) {
 	desc := SortOrderDesc
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
-		PatientId: &StringFilter{Equals: &patientID},
-		DateTime:  &DateTimeFilter{Gte: &since},
+		PatientId:     &StringFilter{Equals: &patientID},
+		StartDateTime: &DateTimeFilter{Gte: &since},
 	}, []*AppointmentOrderByWithRelationInput{
-		{DateTime: &desc},
+		{StartDateTime: &desc},
 	})
 	if err != nil {
 		return nil, err
@@ -240,10 +247,10 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 	doctorIDInt := int(doctorIDInt64)
 
 	resp, err := getAppointments(ctx, c.client, &AppointmentWhereInput{
-		DoctorId: &IntFilter{Equals: &doctorIDInt},
-		DateTime: &DateTimeFilter{Gte: &startTime, Lt: &endTime},
+		DoctorId:      &IntFilter{Equals: &doctorIDInt},
+		StartDateTime: &DateTimeFilter{Gte: &startTime, Lt: &endTime},
 	}, []*AppointmentOrderByWithRelationInput{
-		{DateTime: &desc},
+		{StartDateTime: &desc},
 	})
 	if err != nil {
 		return nil, err
@@ -255,9 +262,10 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 	appointments := make([]*AppointmentOverview, len(hosApps))
 	for i, a := range hosApps {
 		appointments[i] = &AppointmentOverview{
-			Id:       a.Id,
-			DateTime: a.DateTime,
-			Status:   a.Status,
+			Id:            a.Id,
+			StartDateTime: a.StartDateTime,
+			EndDateTime:   a.EndDateTime,
+			Status:        a.Status,
 			Doctor: DoctorOverview{
 				ID:            a.Doctor.Id,
 				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
@@ -283,7 +291,8 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	appointment := &Appointment{
 		Id:              resp.Appointment.GetId(),
 		PatientID:       resp.Appointment.GetPatientId(),
-		DateTime:        resp.Appointment.GetDateTime(),
+		StartDateTime:   resp.Appointment.GetStartDateTime(),
+		EndDateTime:     resp.Appointment.GetEndDateTime(),
 		NextAppointment: resp.Appointment.GetNextAppointment(),
 		Detail:          resp.Appointment.GetDetail(),
 		Status:          resp.Appointment.GetStatus(),
@@ -300,16 +309,23 @@ func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID in
 	if in != nil {
 		id, _ := strconv.ParseInt(in.GetId(), 10, 32)
 		appointment.Invoice = &Invoice{
-			Id:           int(id),
-			Total:        in.GetTotal(),
-			Paid:         in.GetPaid(),
-			InvoiceItems: make([]*InvoiceItem, len(in.GetInvoiceItems())),
+			Id:               int(id),
+			Total:            in.GetTotal(),
+			Paid:             in.GetPaid(),
+			InvoiceItems:     make([]*InvoiceItem, len(in.GetInvoiceItems())),
+			InvoiceDiscounts: make([]*InvoiceDiscount, len(in.GetInvoiceDiscount())),
 		}
 		for i, it := range in.InvoiceItems {
 			appointment.Invoice.InvoiceItems[i] = &InvoiceItem{
 				Name:     it.GetName(),
 				Price:    it.GetPrice(),
 				Quantity: it.GetQuantity(),
+			}
+		}
+		for i, dis := range in.InvoiceDiscount {
+			appointment.Invoice.InvoiceDiscounts[i] = &InvoiceDiscount{
+				Name:   dis.Name,
+				Amount: dis.Amount,
 			}
 		}
 	}
