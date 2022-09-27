@@ -790,6 +790,9 @@ const docTemplate = `{
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
                 },
+                "duration": {
+                    "type": "number"
+                },
                 "end_date_time": {
                     "type": "string"
                 },
