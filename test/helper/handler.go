@@ -138,9 +138,9 @@ func GenerateAppointmentOverviews(status hospital.AppointmentStatus, n int) []*h
 
 func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.AppointmentOverview {
 	return &hospital.AppointmentOverview{
-		Id:       uuid.New().String(),
-		DateTime: time.Now(),
-		Status:   status,
+		Id:            uuid.New().String(),
+		StartDateTime: time.Now(),
+		Status:        status,
 		Doctor: hospital.DoctorOverview{
 			FullName:      uuid.New().String(),
 			Position:      uuid.New().String(),
@@ -157,17 +157,19 @@ func GenerateAppointment(patientID string, doctorID string, status hospital.Appo
 	var invoice *hospital.Invoice
 	if status == hospital.AppointmentStatusCompleted {
 		invoice = &hospital.Invoice{
-			Id:           int(rand.Int31()),
-			Total:        rand.Float64() * 10000,
-			Paid:         isPaid,
-			InvoiceItems: nil,
+			Id:               int(rand.Int31()),
+			Total:            rand.Float64() * 10000,
+			Paid:             isPaid,
+			InvoiceItems:     nil,
+			InvoiceDiscounts: nil,
 		}
 	}
 	id := rand.Int31()
 	return &hospital.Appointment{
 		Id:              fmt.Sprintf("%d", id),
 		PatientID:       patientID,
-		DateTime:        time.Now(),
+		StartDateTime:   time.Now(),
+		EndDateTime:     time.Now().Add(time.Hour),
 		NextAppointment: nil,
 		Detail:          uuid.New().String(),
 		Status:          status,
@@ -190,14 +192,14 @@ const (
 )
 
 func AssertListOfAppointments(apps []*hospital.AppointmentOverview, status hospital.AppointmentStatus, order Ordering) {
-	prevTime := apps[0].DateTime
+	prevTime := apps[0].StartDateTime
 	for i := 1; i < len(apps); i++ {
 		a := apps[i]
 		Expect(a.Status).To(Equal(status))
 		if order == DESC {
-			Expect(a.DateTime.After(prevTime)).To(BeTrue())
+			Expect(a.StartDateTime.After(prevTime)).To(BeTrue())
 		} else {
-			Expect(a.DateTime.Before(prevTime)).To(BeTrue())
+			Expect(a.StartDateTime.Before(prevTime)).To(BeTrue())
 		}
 	}
 }

@@ -123,12 +123,12 @@ definitions:
     type: object
   handler.GetAppointmentResponse:
     properties:
-      date_time:
-        type: string
       detail:
         type: string
       doctor:
         $ref: '#/definitions/hospital.DoctorOverview'
+      end_date_time:
+        type: string
       id:
         type: string
       invoice:
@@ -143,6 +143,8 @@ definitions:
         items:
           $ref: '#/definitions/hospital.Prescription'
         type: array
+      start_date_time:
+        type: string
       status:
         type: string
     type: object
@@ -217,14 +219,16 @@ definitions:
     type: object
   hospital.AppointmentOverview:
     properties:
-      date_time:
-        type: string
       doctor:
         $ref: '#/definitions/hospital.DoctorOverview'
+      end_date_time:
+        type: string
       id:
         type: string
       patient:
         $ref: '#/definitions/hospital.PatientOverview'
+      start_date_time:
+        type: string
       status:
         type: string
     type: object
@@ -258,6 +262,10 @@ definitions:
     properties:
       id:
         type: integer
+      invoice_discounts:
+        items:
+          $ref: '#/definitions/hospital.InvoiceDiscount'
+        type: array
       invoice_items:
         items:
           $ref: '#/definitions/hospital.InvoiceItem'
@@ -266,6 +274,13 @@ definitions:
         type: boolean
       total:
         type: number
+    type: object
+  hospital.InvoiceDiscount:
+    properties:
+      amount:
+        type: number
+      name:
+        type: string
     type: object
   hospital.InvoiceItem:
     properties:
