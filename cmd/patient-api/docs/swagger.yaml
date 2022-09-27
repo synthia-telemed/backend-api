@@ -308,6 +308,8 @@ definitions:
         type: string
       name:
         type: string
+      picture_url:
+        type: string
     type: object
   server.ErrorResponse:
     properties:

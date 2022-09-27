@@ -1067,6 +1067,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "picture_url": {
+                    "type": "string"
                 }
             }
         },
