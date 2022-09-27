@@ -784,14 +784,14 @@ const docTemplate = `{
         "handler.GetAppointmentResponse": {
             "type": "object",
             "properties": {
-                "date_time": {
-                    "type": "string"
-                },
                 "detail": {
                     "type": "string"
                 },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "end_date_time": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -813,6 +813,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/hospital.Prescription"
                     }
+                },
+                "start_date_time": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -928,17 +931,20 @@ const docTemplate = `{
         "hospital.AppointmentOverview": {
             "type": "object",
             "properties": {
-                "date_time": {
-                    "type": "string"
-                },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
+                },
+                "end_date_time": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
                 "patient": {
                     "$ref": "#/definitions/hospital.PatientOverview"
+                },
+                "start_date_time": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -991,6 +997,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "invoice_discounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.InvoiceDiscount"
+                    }
+                },
                 "invoice_items": {
                     "type": "array",
                     "items": {
@@ -1002,6 +1014,17 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "number"
+                }
+            }
+        },
+        "hospital.InvoiceDiscount": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
