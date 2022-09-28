@@ -27,6 +27,7 @@ COPY ./cmd/doctor-api ./cmd/doctor-api
 RUN go build -o doctor-api cmd/doctor-api/main.go
 
 FROM alpine:3
+RUN apk --no-cache add tzdata
 WORKDIR /app
 COPY ./ ./
 COPY --from=patient-api-builder /app/patient-api ./bin/patient-api
