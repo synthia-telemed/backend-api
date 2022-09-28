@@ -49,10 +49,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Return the duration in minutes",
-                        "schema": {
-                            "$ref": "#/definitions/handler.CompleteAppointmentResponse"
-                        }
+                        "description": "Appointment status is set"
                     },
                     "400": {
                         "description": "Doctor isn't currently in any room",
@@ -239,14 +236,6 @@ const docTemplate = `{
                         "CANCELLED",
                         "COMPLETED"
                     ]
-                }
-            }
-        },
-        "handler.CompleteAppointmentResponse": {
-            "type": "object",
-            "properties": {
-                "duration": {
-                    "type": "number"
                 }
             }
         },
