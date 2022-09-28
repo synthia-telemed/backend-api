@@ -468,13 +468,24 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
+		When("get duration from cache error", func() {
+			BeforeEach(func() {
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return(startedTime.Format(time.RFC3339), nil).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "Duration").Return("0", testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
 		Context("doctor set status as completed and getting information and parse from cache success", func() {
 			var dbAppointment *datastore.Appointment
 			BeforeEach(func() {
 				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
 				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
 				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "StartedAt").Return(startedTime.Format(time.RFC3339), nil).Times(1)
-				mockClock.EXPECT().Now().Return(now).Times(1)
+				mockCacheClient.EXPECT().HashGet(gomock.Any(), getRoomInfoKey, "Duration").Return(fmt.Sprintf("%v", duration.Seconds()), nil).Times(1)
 				dbAppointment = &datastore.Appointment{
 					RefID:       appointment.Id,
 					Duration:    duration.Seconds(),
