@@ -433,6 +433,21 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
+		When("doctor set the status as cancelled", func() {
+			BeforeEach(func() {
+				req = &handler.CompleteAppointmentRequest{Status: hospital.SettableAppointmentStatusCancelled}
+				body, err := json.Marshal(req)
+				Expect(err).To(BeNil())
+				c.Request = httptest.NewRequest("post", "/", bytes.NewReader(body))
+				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
+				mockCacheClient.EXPECT().Get(gomock.Any(), getRoomIDKey, false).Return(roomID, nil).Times(1)
+				mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
+				mockHospitalSysClient.EXPECT().SetAppointmentStatus(gomock.Any(), appointmentID, req.Status).Return(nil).Times(1)
+			})
+			It("should delete cache keys, set appointment status to cancelled, and return 201", func() {
+				Expect(rec.Code).To(Equal(http.StatusCreated))
+			})
+		})
 		When("get started time from cache error", func() {
 			BeforeEach(func() {
 				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
@@ -453,7 +468,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
-		Context("getting information and parse from cache success", func() {
+		Context("doctor set status as completed and getting information and parse from cache success", func() {
 			var dbAppointment *datastore.Appointment
 			BeforeEach(func() {
 				mockCacheClient.EXPECT().Get(gomock.Any(), getCurrentAppointmentKey, false).Return(appointment.Id, nil).Times(1)
@@ -499,11 +514,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					mockCacheClient.EXPECT().Delete(gomock.Any(), gomock.InAnyOrder([]string{getRoomInfoKey, getRoomIDKey, getCurrentAppointmentKey})).Return(nil).Times(1)
 					mockHospitalSysClient.EXPECT().SetAppointmentStatus(gomock.Any(), appointmentID, req.Status).Return(nil).Times(1)
 				})
-				It("should return 200 with duration", func() {
-					Expect(rec.Code).To(Equal(http.StatusOK))
-					var res handler.CompleteAppointmentResponse
-					Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
-					Expect(res).To(Equal(handler.CompleteAppointmentResponse{Duration: duration.Seconds()}))
+				It("should return 201", func() {
+					Expect(rec.Code).To(Equal(http.StatusCreated))
 				})
 			})
 		})
