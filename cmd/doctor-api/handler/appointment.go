@@ -184,15 +184,12 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 type CompleteAppointmentRequest struct {
 	Status hospital.SettableAppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED"`
 }
-type CompleteAppointmentResponse struct {
-	Duration float64 `json:"duration"`
-}
 
 // CompleteAppointment godoc
 // @Summary      Finish the appointment and close the room
 // @Tags         Appointment
 // @Param 	  	 CompleteAppointmentRequest body CompleteAppointmentRequest true "Status of the appointment"
-// @Success      201  {object}  CompleteAppointmentResponse  "Return the duration in minutes"
+// @Success      201  ""
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
 // @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor isn't currently in any room"
@@ -225,27 +222,28 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "h.cacheClient.Get error")
 		return
 	}
-	startedTimeStr, err := h.cacheClient.HashGet(ctx, cache.RoomInfoKey(roomID), "StartedAt")
-	if err != nil {
-		h.InternalServerError(c, err, "h.cacheClient.Get error")
-		return
-	}
-	startedTime, err := time.Parse(time.RFC3339, startedTimeStr)
-	if err != nil {
-		h.InternalServerError(c, err, "time.Parse error")
-		return
-	}
-	duration := h.clock.Now().Sub(startedTime).Round(time.Second)
-	// Save duration to DB
 	appIDInt, _ := strconv.ParseInt(appointmentID, 10, 32)
-	appointment := datastore.Appointment{
-		RefID:       appointmentID,
-		Duration:    duration.Seconds(),
-		StartedTime: startedTime.UTC(),
-	}
-	if err := h.appointmentDataStore.Create(&appointment); err != nil {
-		h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
-		return
+	if req.Status == hospital.SettableAppointmentStatusCompleted {
+		startedTimeStr, err := h.cacheClient.HashGet(ctx, cache.RoomInfoKey(roomID), "StartedAt")
+		if err != nil {
+			h.InternalServerError(c, err, "h.cacheClient.Get error")
+			return
+		}
+		startedTime, err := time.Parse(time.RFC3339, startedTimeStr)
+		if err != nil {
+			h.InternalServerError(c, err, "time.Parse error")
+			return
+		}
+		duration := h.clock.Now().Sub(startedTime).Round(time.Second)
+		appointment := datastore.Appointment{
+			RefID:       appointmentID,
+			Duration:    duration.Seconds(),
+			StartedTime: startedTime.UTC(),
+		}
+		if err := h.appointmentDataStore.Create(&appointment); err != nil {
+			h.InternalServerError(c, err, "h.appointmentDataStore.Create error")
+			return
+		}
 	}
 	if err := h.cacheClient.Delete(ctx, cache.CurrentDoctorAppointmentIDKey(doctor.ID), cache.AppointmentRoomIDKey(appointmentID), cache.RoomInfoKey(roomID)); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.Delete error")
@@ -255,7 +253,7 @@ func (h AppointmentHandler) CompleteAppointment(c *gin.Context) {
 		h.InternalServerError(c, err, "h.hospitalClient.CompleteAppointment error")
 		return
 	}
-	c.JSON(http.StatusOK, &CompleteAppointmentResponse{Duration: appointment.Duration})
+	c.AbortWithStatus(http.StatusCreated)
 }
 
 func (h AppointmentHandler) ParseDoctor(c *gin.Context) {
