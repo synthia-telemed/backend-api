@@ -638,7 +638,7 @@ paths:
       - Payment
     patch:
       parameters:
-      - description: ID of the credit card to delete
+      - description: ID of the credit card to set isDefault
         in: path
         name: cardID
         required: true

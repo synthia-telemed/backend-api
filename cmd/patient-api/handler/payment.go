@@ -154,7 +154,7 @@ type SetCreditCardIsDefaultRequest struct {
 // SetCreditCardIsDefault godoc
 // @Summary      Set isDefault status of credit card
 // @Tags         Payment
-// @Param  		 cardID 	path	 integer 	true "ID of the credit card to delete"
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to set isDefault"
 // @Success      200
 // @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID"
 // @Failure      401  {object}  server.ErrorResponse "Unauthorized"

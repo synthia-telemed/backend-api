@@ -544,7 +544,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the credit card to delete",
+                        "description": "ID of the credit card to set isDefault",
                         "name": "cardID",
                         "in": "path",
                         "required": true
