@@ -60,7 +60,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
-	g.GET("/today", middleware.ParseUserID, h.ParseDoctor, h.TodayAppointment)
+	g.GET("", middleware.ParseUserID, h.ParseDoctor, h.ListAppointments)
 	g.POST("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
@@ -69,26 +69,32 @@ type InitAppointmentRoomResponse struct {
 	RoomID string `json:"room_id"`
 }
 
-// TodayAppointment godoc
-// @Summary      Get list of today appointment
+// ListAppointments godoc
+// @Summary      Get list of the appointments with filter
 // @Tags         Appointment
-// @Success      200  {object}	hospital.CategorizedAppointment "List of appointment group by status"
+// @Success      200  {array}	hospital.AppointmentOverview "List of appointment overview details"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
-// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse   "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
-// @Router       /appointment/today [get]
-func (h AppointmentHandler) TodayAppointment(c *gin.Context) {
+// @Router       /appointment [get]
+func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
-	loc, _ := time.LoadLocation("Asia/Bangkok")
-	appointments, err := h.hospitalClient.ListAppointmentsByDoctorID(context.Background(), doctor.RefID, h.clock.Now().In(loc))
+	var filter hospital.ListAppointmentsFilters
+	if err := c.ShouldBindJSON(&filter); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
+	filter.DoctorID = &doctor.RefID
+
+	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &filter)
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByDoctorID error")
 		return
 	}
-	c.JSON(http.StatusOK, h.hospitalClient.CategorizeAppointmentByStatus(appointments))
+	c.JSON(http.StatusOK, appointments)
 }
 
 // InitAppointmentRoom godoc
