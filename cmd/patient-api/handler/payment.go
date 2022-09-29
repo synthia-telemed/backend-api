@@ -151,6 +151,19 @@ type SetCreditCardIsDefaultRequest struct {
 	IsDefault bool `json:"is_default"`
 }
 
+// SetCreditCardIsDefault godoc
+// @Summary      Set isDefault status of credit card
+// @Tags         Payment
+// @Param  		 cardID 	path	 integer 	true "ID of the credit card to delete"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse "Patient doesn't own the specified credit card"
+// @Failure      404  {object}  server.ErrorResponse "Credit card not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /payment/credit-card/{cardID} [patch]
 func (h PaymentHandler) SetCreditCardIsDefault(c *gin.Context) {
 	var req SetCreditCardIsDefaultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
