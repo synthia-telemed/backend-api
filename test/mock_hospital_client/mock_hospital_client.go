@@ -141,9 +141,12 @@ func (mr *MockSystemClientMockRecorder) ListAppointmentsByDoctorID(ctx, doctorID
 }
 
 // ListAppointmentsByDoctorIDWithFilters mocks base method.
-func (m *MockSystemClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *hospital.ListAppointmentsByDoctorIDFilters) {
+func (m *MockSystemClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *hospital.ListAppointmentsByDoctorIDFilters) ([]*hospital.AppointmentOverview, error) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ListAppointmentsByDoctorIDWithFilters", ctx, doctorID, filters)
+	ret := m.ctrl.Call(m, "ListAppointmentsByDoctorIDWithFilters", ctx, doctorID, filters)
+	ret0, _ := ret[0].([]*hospital.AppointmentOverview)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // ListAppointmentsByDoctorIDWithFilters indicates an expected call of ListAppointmentsByDoctorIDWithFilters.
