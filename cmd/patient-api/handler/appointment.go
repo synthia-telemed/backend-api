@@ -51,8 +51,44 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datas
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.GET("", middleware.ParseUserID, h.ParsePatient, h.ListAppointments)
+	g.GET("/next", middleware.ParseUserID, h.ParsePatient, h.GetNextScheduledAppointment)
 	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointment)
 	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
+}
+
+// GetNextScheduledAppointment godoc
+// @Summary      Get next scheduled appointment
+// @Tags         Appointment
+// @Success      200  {object}	hospital.AppointmentOverview "Overview of the appointment detail. If there is no scheduled appointment, empty body is returned"
+// @Failure      400  {object}  server.ErrorResponse "Patient not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/next [get]
+func (h AppointmentHandler) GetNextScheduledAppointment(c *gin.Context) {
+	rawPatient, exist := c.Get("Patient")
+	if !exist {
+		h.InternalServerError(c, errors.New("c.Get Patient not exist"), "c.Get Patient not exist")
+		return
+	}
+	patient, ok := rawPatient.(*datastore.Patient)
+	if !ok {
+		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
+		return
+	}
+	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &hospital.ListAppointmentsByDoctorIDFilters{
+		PatientID: &patient.RefID,
+		Status:    hospital.AppointmentStatusScheduled,
+	})
+	if err != nil {
+		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsWithFilters error")
+		return
+	}
+	if len(appointments) == 0 {
+		c.AbortWithStatus(http.StatusOK)
+		return
+	}
+	c.JSON(http.StatusOK, appointments[0])
 }
 
 // ListAppointments godoc
