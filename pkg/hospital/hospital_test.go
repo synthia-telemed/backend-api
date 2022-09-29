@@ -245,26 +245,34 @@ var _ = Describe("Hospital Client", func() {
 
 	Context("ListAppointmentsByDoctorIDWithFilters", func() {
 		var (
-			doctorID = "12"
-			filters  *hospital.ListAppointmentsByDoctorIDFilters
+			doctorID     = "12"
+			filters      *hospital.ListAppointmentsByDoctorIDFilters
+			appointments []*hospital.AppointmentOverview
+			err          error
 		)
 		BeforeEach(func() {
 			filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted}
 		})
+		JustBeforeEach(func() {
+			appointments, err = graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
+			Expect(err).To(BeNil())
+		})
 
-		When("there is no text or date filters", func() {
-			It("should return list of scheduled appointment in ascending order", func() {
-				filters.Status = hospital.AppointmentStatusScheduled
-				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
-				Expect(err).To(BeNil())
-				Expect(appointments).To(HaveLen(2))
-				testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusScheduled, testhelper.ASC)
+		Context("there is no text or date filters", func() {
+			When("target status is scheduled", func() {
+				BeforeEach(func() {
+					filters.Status = hospital.AppointmentStatusScheduled
+				})
+				It("should return list of scheduled appointment in ascending order", func() {
+					Expect(appointments).To(HaveLen(2))
+					testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusScheduled, testhelper.ASC)
+				})
 			})
-			It("should return list of completed appointment in ascending order", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
-				Expect(err).To(BeNil())
-				Expect(appointments).To(HaveLen(2))
-				testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusCompleted, testhelper.DESC)
+			When("target status is completed", func() {
+				It("should return list of completed appointment in ascending order", func() {
+					Expect(appointments).To(HaveLen(2))
+					testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusCompleted, testhelper.DESC)
+				})
 			})
 		})
 		When("there is text filters", func() {
@@ -273,8 +281,6 @@ var _ = Describe("Hospital Client", func() {
 				filters.Text = &text
 			})
 			It("should return appointment that patient name has 'lar'", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
-				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(2))
 				Expect(appointments[0].Id).To(Equal("38"))
 				Expect(appointments[1].Id).To(Equal("37"))
@@ -286,8 +292,6 @@ var _ = Describe("Hospital Client", func() {
 				filters.Date = &date
 			})
 			It("should return appointment on 2022-09-07 UTC", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
-				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(2))
 				Expect(appointments[0].Id).To(Equal("38"))
 				Expect(appointments[1].Id).To(Equal("37"))
@@ -301,8 +305,6 @@ var _ = Describe("Hospital Client", func() {
 				filters.Date = &date
 			})
 			It("should return appointment on 2022-09-07 UTC with patient number that contain 562380", func() {
-				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
-				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(1))
 				Expect(appointments[0].Id).To(Equal("37"))
 			})
