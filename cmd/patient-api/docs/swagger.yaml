@@ -599,7 +599,7 @@ paths:
       summary: Add new credit card
       tags:
       - Payment
-  /payment/credit-card/{userID}:
+  /payment/credit-card/{cardID}:
     delete:
       parameters:
       - description: ID of the credit card to delete
@@ -634,6 +634,42 @@ paths:
       - UserID: []
       - JWSToken: []
       summary: Delete saved credit card
+      tags:
+      - Payment
+    patch:
+      parameters:
+      - description: ID of the credit card to set isDefault
+        in: path
+        name: cardID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid credit card ID
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Patient doesn't own the specified credit card
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Credit card not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Set isDefault status of credit card
       tags:
       - Payment
   /payment/pay/{invoiceID}/credit-card/{cardID}:

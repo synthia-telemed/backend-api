@@ -469,7 +469,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment/credit-card/{userID}": {
+        "/payment/credit-card/{cardID}": {
             "delete": {
                 "security": [
                     {
@@ -487,6 +487,64 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID of the credit card to delete",
+                        "name": "cardID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid credit card ID",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the specified credit card",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Credit card not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Set isDefault status of credit card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the credit card to set isDefault",
                         "name": "cardID",
                         "in": "path",
                         "required": true
