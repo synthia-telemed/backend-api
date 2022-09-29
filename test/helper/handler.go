@@ -140,6 +140,7 @@ func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 	return &hospital.AppointmentOverview{
 		Id:            uuid.New().String(),
 		StartDateTime: time.Now(),
+		EndDateTime:   time.Now().Add(30 * time.Minute),
 		Status:        status,
 		Doctor: hospital.DoctorOverview{
 			FullName:      uuid.New().String(),

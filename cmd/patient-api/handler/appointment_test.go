@@ -392,4 +392,65 @@ var _ = Describe("Appointment Handler", func() {
 		})
 	})
 
+	Context("GetNextScheduledAppointment", func() {
+		var (
+			appointment *hospital.AppointmentOverview
+			where       *hospital.ListAppointmentsByDoctorIDFilters
+		)
+		BeforeEach(func() {
+			handlerFunc = h.GetNextScheduledAppointment
+			appointment = testhelper.GenerateAppointmentOverview(hospital.AppointmentStatusScheduled)
+			where = &hospital.ListAppointmentsByDoctorIDFilters{
+				PatientID: &patient.RefID,
+				Status:    hospital.AppointmentStatusScheduled,
+			}
+		})
+
+		When("Patient struct is not set", func() {
+			BeforeEach(func() {
+				c.Set("Patient", nil)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("Patient struct parsing error", func() {
+			BeforeEach(func() {
+				c.Set("Patient", testhelper.GenerateCreditCard())
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("List appointment with filter query error", func() {
+			BeforeEach(func() {
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return(nil, testhelper.MockError)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("Patient has no scheduled appointment", func() {
+			BeforeEach(func() {
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return([]*hospital.AppointmentOverview{}, nil)
+			})
+			It("should return empty body with status of 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				Expect(rec.Body.String()).To(BeEmpty())
+			})
+		})
+		When("Patient has at one or more scheduled appointment", func() {
+			BeforeEach(func() {
+				anotherAppointment := testhelper.GenerateAppointmentOverview(hospital.AppointmentStatusScheduled)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return([]*hospital.AppointmentOverview{appointment, anotherAppointment}, nil)
+			})
+			It("should return empty body with status of 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+				var res hospital.AppointmentOverview
+				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+				Expect(res.Id).To(Equal(appointment.Id))
+			})
+		})
+	})
+
 })
