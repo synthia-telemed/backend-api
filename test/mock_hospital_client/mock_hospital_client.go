@@ -141,18 +141,15 @@ func (mr *MockSystemClientMockRecorder) ListAppointmentsByDoctorID(ctx, doctorID
 }
 
 // ListAppointmentsByDoctorIDWithFilters mocks base method.
-func (m *MockSystemClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, filters *hospital.ListAppointmentsByDoctorIDFilters) ([]*hospital.AppointmentOverview, error) {
+func (m *MockSystemClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *hospital.ListAppointmentsByDoctorIDFilters) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAppointmentsByDoctorIDWithFilters", ctx, filters)
-	ret0, _ := ret[0].([]*hospital.AppointmentOverview)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	m.ctrl.Call(m, "ListAppointmentsByDoctorIDWithFilters", ctx, doctorID, filters)
 }
 
 // ListAppointmentsByDoctorIDWithFilters indicates an expected call of ListAppointmentsByDoctorIDWithFilters.
-func (mr *MockSystemClientMockRecorder) ListAppointmentsByDoctorIDWithFilters(ctx, filters interface{}) *gomock.Call {
+func (mr *MockSystemClientMockRecorder) ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAppointmentsByDoctorIDWithFilters", reflect.TypeOf((*MockSystemClient)(nil).ListAppointmentsByDoctorIDWithFilters), ctx, filters)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAppointmentsByDoctorIDWithFilters", reflect.TypeOf((*MockSystemClient)(nil).ListAppointmentsByDoctorIDWithFilters), ctx, doctorID, filters)
 }
 
 // ListAppointmentsByPatientID mocks base method.

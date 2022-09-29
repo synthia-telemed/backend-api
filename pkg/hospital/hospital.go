@@ -17,7 +17,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
-	ListAppointmentsByDoctorIDWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error)
+	ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *ListAppointmentsByDoctorIDFilters)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
