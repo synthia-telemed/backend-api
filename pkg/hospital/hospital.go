@@ -17,6 +17,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
+	ListAppointmentsByDoctorIDWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
@@ -90,6 +91,7 @@ type InvoiceOverview struct {
 
 type AppointmentOverview struct {
 	Id            string            `json:"id"`
+	Detail        string            `json:"detail"`
 	StartDateTime time.Time         `json:"start_date_time"`
 	EndDateTime   time.Time         `json:"end_date_time"`
 	Status        AppointmentStatus `json:"status"`
@@ -259,6 +261,33 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
+type ListAppointmentsByDoctorIDFilters struct {
+	Text   *string           `json:"text"`
+	Date   *time.Time        `json:"date"`
+	Status AppointmentStatus `json:"status" binding:"required"`
+}
+
+func (c GraphQLClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
+	order := SortOrderDesc
+	if filters.Status == AppointmentStatusScheduled {
+		order = SortOrderAsc
+	}
+	where := &AppointmentWhereInput{}
+	if filters.Text != nil {
+		where.PatientId = &StringFilter{Contains: filters.Text}
+	}
+	if filters.Date != nil {
+		startDateTime := time.Date(filters.Date.Year(), filters.Date.Month(), filters.Date.Day(), 0, 0, 0, 0, filters.Date.Location())
+		endDateTime := startDateTime.Add(24 * time.Hour)
+		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
+	}
+	resp, err := getAppointments(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}})
+	if err != nil {
+		return nil, err
+	}
+	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+}
+
 func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
 	appointments := make([]*AppointmentOverview, len(hosApps))
 	for i, a := range hosApps {
@@ -267,6 +296,7 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 			StartDateTime: a.StartDateTime,
 			EndDateTime:   a.EndDateTime,
 			Status:        a.Status,
+			Detail:        a.Detail,
 			Doctor: DoctorOverview{
 				ID:            a.Doctor.Id,
 				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
