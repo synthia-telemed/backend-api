@@ -267,7 +267,7 @@ type ListAppointmentsFilters struct {
 	Date      *time.Time `json:"date"`
 	DoctorID  *string
 	PatientID *string
-	Status    AppointmentStatus `json:"status" binding:"required"`
+	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
 }
 
 func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error) {
@@ -460,4 +460,13 @@ func ReverseSlice[T comparable](s []T) {
 	sort.SliceStable(s, func(i, j int) bool {
 		return i > j
 	})
+}
+
+func (s AppointmentStatus) IsValid() bool {
+	switch s {
+	case AppointmentStatusCancelled, AppointmentStatusScheduled, AppointmentStatusCompleted:
+		return true
+	default:
+		return false
+	}
 }
