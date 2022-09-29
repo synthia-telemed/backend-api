@@ -395,12 +395,12 @@ var _ = Describe("Appointment Handler", func() {
 	Context("GetNextScheduledAppointment", func() {
 		var (
 			appointment *hospital.AppointmentOverview
-			where       *hospital.ListAppointmentsByDoctorIDFilters
+			where       *hospital.ListAppointmentsFilters
 		)
 		BeforeEach(func() {
 			handlerFunc = h.GetNextScheduledAppointment
 			appointment = testhelper.GenerateAppointmentOverview(hospital.AppointmentStatusScheduled)
-			where = &hospital.ListAppointmentsByDoctorIDFilters{
+			where = &hospital.ListAppointmentsFilters{
 				PatientID: &patient.RefID,
 				Status:    hospital.AppointmentStatusScheduled,
 			}

@@ -18,7 +18,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
-	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error)
+	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
@@ -262,15 +262,15 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
-type ListAppointmentsByDoctorIDFilters struct {
+type ListAppointmentsFilters struct {
 	Text      *string    `json:"text"`
 	Date      *time.Time `json:"date"`
 	DoctorID  *string
 	PatientID *string
-	Status    AppointmentStatus `json:"status" binding:"required"`
+	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
 }
 
-func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error) {
 	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.PatientID != nil {
 		where.PatientId = &StringFilter{Equals: filters.PatientID}
@@ -460,4 +460,13 @@ func ReverseSlice[T comparable](s []T) {
 	sort.SliceStable(s, func(i, j int) bool {
 		return i > j
 	})
+}
+
+func (s AppointmentStatus) IsValid() bool {
+	switch s {
+	case AppointmentStatusCancelled, AppointmentStatusScheduled, AppointmentStatusCompleted:
+		return true
+	default:
+		return false
+	}
 }
