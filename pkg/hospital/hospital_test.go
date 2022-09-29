@@ -246,12 +246,12 @@ var _ = Describe("Hospital Client", func() {
 	Context("ListAppointmentsByDoctorIDWithFilters", func() {
 		var (
 			doctorID     = "12"
-			filters      *hospital.ListAppointmentsByDoctorIDFilters
+			filters      *hospital.ListAppointmentsFilters
 			appointments []*hospital.AppointmentOverview
 			err          error
 		)
 		BeforeEach(func() {
-			filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted, DoctorID: &doctorID}
+			filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCompleted, DoctorID: &doctorID}
 		})
 		JustBeforeEach(func() {
 			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters)
@@ -260,7 +260,7 @@ var _ = Describe("Hospital Client", func() {
 		Context("target patient or doctor", func() {
 			When("PatientID and DoctorID are not set in filters", func() {
 				BeforeEach(func() {
-					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted}
+					filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCompleted}
 				})
 				It("should return error", func() {
 					Expect(err).ToNot(BeNil())
@@ -270,7 +270,7 @@ var _ = Describe("Hospital Client", func() {
 			When("Only PatientID is set", func() {
 				var patientID = "HN-285237"
 				BeforeEach(func() {
-					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted, PatientID: &patientID}
+					filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCompleted, PatientID: &patientID}
 				})
 				It("should return the appointments of that patient", func() {
 					Expect(err).To(BeNil())
@@ -291,7 +291,7 @@ var _ = Describe("Hospital Client", func() {
 				BeforeEach(func() {
 					patientID := "HN-314696"
 					doctorID := "29"
-					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCancelled, PatientID: &patientID, DoctorID: &doctorID}
+					filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCancelled, PatientID: &patientID, DoctorID: &doctorID}
 				})
 				It("should find the appointment that belong to them", func() {
 					Expect(err).To(BeNil())

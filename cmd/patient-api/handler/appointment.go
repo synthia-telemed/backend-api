@@ -76,7 +76,7 @@ func (h AppointmentHandler) GetNextScheduledAppointment(c *gin.Context) {
 		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
 		return
 	}
-	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &hospital.ListAppointmentsByDoctorIDFilters{
+	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &hospital.ListAppointmentsFilters{
 		PatientID: &patient.RefID,
 		Status:    hospital.AppointmentStatusScheduled,
 	})
