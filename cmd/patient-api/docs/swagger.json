@@ -56,6 +56,42 @@
                 }
             }
         },
+        "/appointment/next": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get next scheduled appointment",
+                "responses": {
+                    "200": {
+                        "description": "Overview of the appointment detail. If there is no scheduled appointment, empty body is returned",
+                        "schema": {
+                            "$ref": "#/definitions/hospital.AppointmentOverview"
+                        }
+                    },
+                    "400": {
+                        "description": "Patient not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/appointment/{appointmentID}": {
             "get": {
                 "security": [
@@ -984,6 +1020,9 @@
         "hospital.AppointmentOverview": {
             "type": "object",
             "properties": {
+                "detail": {
+                    "type": "string"
+                },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
                 },

@@ -2,6 +2,7 @@ package hospital
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Khan/genqlient/graphql"
 	"sort"
@@ -17,6 +18,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
+	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
@@ -90,6 +92,7 @@ type InvoiceOverview struct {
 
 type AppointmentOverview struct {
 	Id            string            `json:"id"`
+	Detail        string            `json:"detail"`
 	StartDateTime time.Time         `json:"start_date_time"`
 	EndDateTime   time.Time         `json:"end_date_time"`
 	Status        AppointmentStatus `json:"status"`
@@ -259,6 +262,56 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
 }
 
+type ListAppointmentsFilters struct {
+	Text      *string    `json:"text"`
+	Date      *time.Time `json:"date"`
+	DoctorID  *string
+	PatientID *string
+	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
+}
+
+func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error) {
+	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
+	if filters.PatientID != nil {
+		where.PatientId = &StringFilter{Equals: filters.PatientID}
+	} else if filters.DoctorID != nil {
+		doctorIDInt64, err := strconv.ParseInt(*filters.DoctorID, 10, 32)
+		if err != nil {
+			return nil, err
+		}
+		doctorIDInt := int(doctorIDInt64)
+		where.DoctorId = &IntFilter{Equals: &doctorIDInt}
+	} else {
+		return nil, errors.New("neither PatientID nor DoctorID is supplied")
+	}
+	if filters.Text != nil {
+		where.OR = []*AppointmentWhereInput{
+			{PatientId: &StringFilter{Contains: filters.Text}},
+			{Patient: &PatientRelationFilter{Is: &PatientWhereInput{
+				OR: []*PatientWhereInput{
+					{Firstname_en: &StringFilter{Contains: filters.Text}},
+					{Lastname_en: &StringFilter{Contains: filters.Text}},
+				},
+			}}},
+		}
+	}
+	if filters.Date != nil {
+		startDateTime := time.Date(filters.Date.Year(), filters.Date.Month(), filters.Date.Day(), 0, 0, 0, 0, filters.Date.Location())
+		endDateTime := startDateTime.Add(24 * time.Hour)
+		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
+	}
+
+	order := SortOrderDesc
+	if filters.Status == AppointmentStatusScheduled {
+		order = SortOrderAsc
+	}
+	resp, err := getAppointments(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}})
+	if err != nil {
+		return nil, err
+	}
+	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+}
+
 func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
 	appointments := make([]*AppointmentOverview, len(hosApps))
 	for i, a := range hosApps {
@@ -267,6 +320,7 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 			StartDateTime: a.StartDateTime,
 			EndDateTime:   a.EndDateTime,
 			Status:        a.Status,
+			Detail:        a.Detail,
 			Doctor: DoctorOverview{
 				ID:            a.Doctor.Id,
 				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
@@ -406,4 +460,13 @@ func ReverseSlice[T comparable](s []T) {
 	sort.SliceStable(s, func(i, j int) bool {
 		return i > j
 	})
+}
+
+func (s AppointmentStatus) IsValid() bool {
+	switch s {
+	case AppointmentStatusCancelled, AppointmentStatusScheduled, AppointmentStatusCompleted:
+		return true
+	default:
+		return false
+	}
 }

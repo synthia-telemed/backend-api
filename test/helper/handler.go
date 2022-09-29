@@ -140,6 +140,7 @@ func GenerateAppointmentOverview(status hospital.AppointmentStatus) *hospital.Ap
 	return &hospital.AppointmentOverview{
 		Id:            uuid.New().String(),
 		StartDateTime: time.Now(),
+		EndDateTime:   time.Now().Add(30 * time.Minute),
 		Status:        status,
 		Doctor: hospital.DoctorOverview{
 			FullName:      uuid.New().String(),
@@ -206,10 +207,11 @@ func AssertListOfAppointments(apps []*hospital.AppointmentOverview, status hospi
 		a := apps[i]
 		Expect(a.Status).To(Equal(status))
 		if order == DESC {
-			Expect(a.StartDateTime.After(prevTime)).To(BeTrue())
+			Expect(prevTime.After(a.StartDateTime)).To(BeTrue())
 		} else {
-			Expect(a.StartDateTime.Before(prevTime)).To(BeTrue())
+			Expect(prevTime.Before(a.StartDateTime)).To(BeTrue())
 		}
+		prevTime = a.StartDateTime
 	}
 }
 

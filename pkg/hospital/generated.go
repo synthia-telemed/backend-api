@@ -1749,10 +1749,11 @@ func (v *getAppointmentResponse) GetAppointment() *getAppointmentAppointment { r
 type getAppointmentsAppointmentsAppointment struct {
 	StartDateTime time.Time                                      `json:"startDateTime"`
 	EndDateTime   time.Time                                      `json:"endDateTime"`
-	Doctor        *getAppointmentsAppointmentsAppointmentDoctor  `json:"doctor"`
 	Patient       *getAppointmentsAppointmentsAppointmentPatient `json:"patient"`
-	Id            string                                         `json:"id"`
+	Doctor        *getAppointmentsAppointmentsAppointmentDoctor  `json:"doctor"`
 	Status        AppointmentStatus                              `json:"status"`
+	Detail        string                                         `json:"detail"`
+	Id            string                                         `json:"id"`
 }
 
 // GetId returns getAppointmentsAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
@@ -1766,6 +1767,9 @@ func (v *getAppointmentsAppointmentsAppointment) GetEndDateTime() time.Time { re
 
 // GetStatus returns getAppointmentsAppointmentsAppointment.Status, and is useful for accessing the field via an interface.
 func (v *getAppointmentsAppointmentsAppointment) GetStatus() AppointmentStatus { return v.Status }
+
+// GetDetail returns getAppointmentsAppointmentsAppointment.Detail, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointment) GetDetail() string { return v.Detail }
 
 // GetDoctor returns getAppointmentsAppointmentsAppointment.Doctor, and is useful for accessing the field via an interface.
 func (v *getAppointmentsAppointmentsAppointment) GetDoctor() *getAppointmentsAppointmentsAppointmentDoctor {
@@ -2193,6 +2197,7 @@ query getAppointments ($where: AppointmentWhereInput, $orderBy: [AppointmentOrde
 		startDateTime
 		endDateTime
 		status
+		detail
 		doctor {
 			id
 			initial_en

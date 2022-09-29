@@ -22,6 +22,62 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/appointment": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get list of the appointments with filter",
+                "parameters": [
+                    {
+                        "description": "Filter for querying (Status is required, others is optional)",
+                        "name": "hospital.ListAppointmentsFilters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hospital.ListAppointmentsFilters"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of appointment overview details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/hospital.AppointmentOverview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Doctor not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/appointment/complete": {
             "post": {
                 "security": [
@@ -53,48 +109,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Doctor isn't currently in any room",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/appointment/today": {
-            "get": {
-                "security": [
-                    {
-                        "UserID": []
-                    },
-                    {
-                        "JWSToken": []
-                    }
-                ],
-                "tags": [
-                    "Appointment"
-                ],
-                "summary": "Get list of today appointment",
-                "responses": {
-                    "200": {
-                        "description": "List of appointment group by status",
-                        "schema": {
-                            "$ref": "#/definitions/hospital.CategorizedAppointment"
-                        }
-                    },
-                    "400": {
-                        "description": "Doctor not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -273,6 +287,9 @@ const docTemplate = `{
         "hospital.AppointmentOverview": {
             "type": "object",
             "properties": {
+                "detail": {
+                    "type": "string"
+                },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
                 },
@@ -293,29 +310,6 @@ const docTemplate = `{
                 }
             }
         },
-        "hospital.CategorizedAppointment": {
-            "type": "object",
-            "properties": {
-                "cancelled": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                },
-                "completed": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                },
-                "scheduled": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/hospital.AppointmentOverview"
-                    }
-                }
-            }
-        },
         "hospital.DoctorOverview": {
             "type": "object",
             "properties": {
@@ -329,6 +323,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profile_pic_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.ListAppointmentsFilters": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "doctorID": {
+                    "type": "string"
+                },
+                "patientID": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "CANCELLED",
+                        "COMPLETED",
+                        "SCHEDULED"
+                    ]
+                },
+                "text": {
                     "type": "string"
                 }
             }
