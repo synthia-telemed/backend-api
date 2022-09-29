@@ -49,21 +49,6 @@ definitions:
       status:
         type: string
     type: object
-  hospital.CategorizedAppointment:
-    properties:
-      cancelled:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-      completed:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-      scheduled:
-        items:
-          $ref: '#/definitions/hospital.AppointmentOverview'
-        type: array
-    type: object
   hospital.DoctorOverview:
     properties:
       full_name:
@@ -74,6 +59,25 @@ definitions:
         type: string
       profile_pic_url:
         type: string
+    type: object
+  hospital.ListAppointmentsFilters:
+    properties:
+      date:
+        type: string
+      doctorID:
+        type: string
+      patientID:
+        type: string
+      status:
+        enum:
+        - CANCELLED
+        - COMPLETED
+        - SCHEDULED
+        type: string
+      text:
+        type: string
+    required:
+    - status
     type: object
   hospital.PatientOverview:
     properties:
@@ -93,6 +97,40 @@ info:
   title: Synthia Doctor Backend API
   version: 1.0.0
 paths:
+  /appointment:
+    get:
+      parameters:
+      - description: Filter for querying (Status is required, others is optional)
+        in: body
+        name: hospital.ListAppointmentsFilters
+        required: true
+        schema:
+          $ref: '#/definitions/hospital.ListAppointmentsFilters'
+      responses:
+        "200":
+          description: List of appointment overview details
+          schema:
+            items:
+              $ref: '#/definitions/hospital.AppointmentOverview'
+            type: array
+        "400":
+          description: Doctor not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get list of the appointments with filter
+      tags:
+      - Appointment
   /appointment/{appointmentID}:
     post:
       parameters:
@@ -161,31 +199,6 @@ paths:
       - UserID: []
       - JWSToken: []
       summary: Finish the appointment and close the room
-      tags:
-      - Appointment
-  /appointment/today:
-    get:
-      responses:
-        "200":
-          description: List of appointment group by status
-          schema:
-            $ref: '#/definitions/hospital.CategorizedAppointment'
-        "400":
-          description: Doctor not found
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-      security:
-      - UserID: []
-      - JWSToken: []
-      summary: Get list of today appointment
       tags:
       - Appointment
   /auth/signin:
