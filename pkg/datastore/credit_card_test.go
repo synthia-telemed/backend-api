@@ -154,4 +154,15 @@ var _ = Describe("Credit Card Datastore", Ordered, func() {
 			}
 		})
 	})
+
+	DescribeTable("SetIsDefault", func(initialIsDefault bool) {
+		card := generateCreditCard(patient.ID, initialIsDefault)
+		Expect(db.Create(card).Error).To(BeNil())
+		Expect(creditCardDataStore.SetIsDefault(card.ID, !initialIsDefault)).To(Succeed())
+		var retrievedCard datastore.CreditCard
+		Expect(db.Where(card.ID).First(&retrievedCard).Error).To(BeNil())
+		Expect(retrievedCard.IsDefault).To(Equal(!initialIsDefault))
+	},
+		Entry("Set to false from true", true),
+		Entry("Set to true from false", false))
 })
