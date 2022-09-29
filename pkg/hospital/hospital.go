@@ -267,19 +267,33 @@ type ListAppointmentsByDoctorIDFilters struct {
 	Status AppointmentStatus `json:"status" binding:"required"`
 }
 
-func (c GraphQLClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
-	order := SortOrderDesc
-	if filters.Status == AppointmentStatusScheduled {
-		order = SortOrderAsc
+func (c GraphQLClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
+	doctorIDInt64, err := strconv.ParseInt(doctorID, 10, 32)
+	if err != nil {
+		return nil, err
 	}
-	where := &AppointmentWhereInput{}
+	doctorIDInt := int(doctorIDInt64)
+	where := &AppointmentWhereInput{DoctorId: &IntFilter{Equals: &doctorIDInt}, Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.Text != nil {
-		where.PatientId = &StringFilter{Contains: filters.Text}
+		where.OR = []*AppointmentWhereInput{
+			{PatientId: &StringFilter{Contains: filters.Text}},
+			{Patient: &PatientRelationFilter{Is: &PatientWhereInput{
+				OR: []*PatientWhereInput{
+					{Firstname_en: &StringFilter{Contains: filters.Text}},
+					{Lastname_en: &StringFilter{Contains: filters.Text}},
+				},
+			}}},
+		}
 	}
 	if filters.Date != nil {
 		startDateTime := time.Date(filters.Date.Year(), filters.Date.Month(), filters.Date.Day(), 0, 0, 0, 0, filters.Date.Location())
 		endDateTime := startDateTime.Add(24 * time.Hour)
 		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
+	}
+
+	order := SortOrderDesc
+	if filters.Status == AppointmentStatusScheduled {
+		order = SortOrderAsc
 	}
 	resp, err := getAppointments(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}})
 	if err != nil {
