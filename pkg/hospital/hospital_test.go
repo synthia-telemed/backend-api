@@ -268,9 +268,8 @@ var _ = Describe("Hospital Client", func() {
 			})
 		})
 		When("there is text filters", func() {
-			var text string
 			BeforeEach(func() {
-				text = "lar"
+				text := "lar"
 				filters.Text = &text
 			})
 			It("should return appointment that patient name has 'lar'", func() {
@@ -279,6 +278,33 @@ var _ = Describe("Hospital Client", func() {
 				Expect(appointments).To(HaveLen(2))
 				Expect(appointments[0].Id).To(Equal("38"))
 				Expect(appointments[1].Id).To(Equal("37"))
+			})
+		})
+		When("there is date filter", func() {
+			BeforeEach(func() {
+				date := time.Date(2022, 9, 7, 10, 0, 0, 0, time.UTC)
+				filters.Date = &date
+			})
+			It("should return appointment on 2022-09-07 UTC", func() {
+				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(2))
+				Expect(appointments[0].Id).To(Equal("38"))
+				Expect(appointments[1].Id).To(Equal("37"))
+			})
+		})
+		When("there are date and text filter", func() {
+			BeforeEach(func() {
+				date := time.Date(2022, 9, 7, 10, 0, 0, 0, time.UTC)
+				text := "562380"
+				filters.Text = &text
+				filters.Date = &date
+			})
+			It("should return appointment on 2022-09-07 UTC with patient number that contain 562380", func() {
+				appointments, err := graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(1))
+				Expect(appointments[0].Id).To(Equal("37"))
 			})
 		})
 	})
