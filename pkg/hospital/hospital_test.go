@@ -255,7 +255,50 @@ var _ = Describe("Hospital Client", func() {
 		})
 		JustBeforeEach(func() {
 			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters)
-			Expect(err).To(BeNil())
+		})
+
+		Context("target patient or doctor", func() {
+			When("PatientID and DoctorID are not set in filters", func() {
+				BeforeEach(func() {
+					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted}
+				})
+				It("should return error", func() {
+					Expect(err).ToNot(BeNil())
+					Expect(err.Error()).To(Equal("neither PatientID nor DoctorID is supplied"))
+				})
+			})
+			When("Only PatientID is set", func() {
+				var patientID = "HN-285237"
+				BeforeEach(func() {
+					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted, PatientID: &patientID}
+				})
+				It("should return the appointments of that patient", func() {
+					Expect(err).To(BeNil())
+					Expect(appointments).To(HaveLen(2))
+					Expect(appointments[0].Id).To(Equal("50"))
+					Expect(appointments[1].Id).To(Equal("98"))
+				})
+			})
+			When("Only DoctorID is set", func() {
+				It("should return the appointments of that patient", func() {
+					Expect(err).To(BeNil())
+					Expect(appointments).To(HaveLen(2))
+					Expect(appointments[0].Id).To(Equal("38"))
+					Expect(appointments[1].Id).To(Equal("37"))
+				})
+			})
+			When("Both PatientID and DoctorID are set", func() {
+				BeforeEach(func() {
+					patientID := "HN-314696"
+					doctorID := "29"
+					filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCancelled, PatientID: &patientID, DoctorID: &doctorID}
+				})
+				It("should find the appointment that belong to them", func() {
+					Expect(err).To(BeNil())
+					Expect(appointments).To(HaveLen(1))
+					Expect(appointments[0].Id).To(Equal("25"))
+				})
+			})
 		})
 
 		Context("there is no text or date filters", func() {
@@ -264,12 +307,14 @@ var _ = Describe("Hospital Client", func() {
 					filters.Status = hospital.AppointmentStatusScheduled
 				})
 				It("should return list of scheduled appointment in ascending order", func() {
+					Expect(err).To(BeNil())
 					Expect(appointments).To(HaveLen(2))
 					testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusScheduled, testhelper.ASC)
 				})
 			})
 			When("target status is completed", func() {
 				It("should return list of completed appointment in ascending order", func() {
+					Expect(err).To(BeNil())
 					Expect(appointments).To(HaveLen(2))
 					testhelper.AssertListOfAppointments(appointments, hospital.AppointmentStatusCompleted, testhelper.DESC)
 				})
@@ -281,6 +326,7 @@ var _ = Describe("Hospital Client", func() {
 				filters.Text = &text
 			})
 			It("should return appointment that patient name has 'lar'", func() {
+				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(2))
 				Expect(appointments[0].Id).To(Equal("38"))
 				Expect(appointments[1].Id).To(Equal("37"))
@@ -292,6 +338,7 @@ var _ = Describe("Hospital Client", func() {
 				filters.Date = &date
 			})
 			It("should return appointment on 2022-09-07 UTC", func() {
+				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(2))
 				Expect(appointments[0].Id).To(Equal("38"))
 				Expect(appointments[1].Id).To(Equal("37"))
@@ -305,6 +352,7 @@ var _ = Describe("Hospital Client", func() {
 				filters.Date = &date
 			})
 			It("should return appointment on 2022-09-07 UTC with patient number that contain 562380", func() {
+				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(1))
 				Expect(appointments[0].Id).To(Equal("37"))
 			})
