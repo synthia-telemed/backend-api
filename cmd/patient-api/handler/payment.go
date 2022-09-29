@@ -56,6 +56,7 @@ func (h PaymentHandler) Register(r *gin.RouterGroup) {
 	paymentGroup := r.Group("/payment", middleware.ParseUserID)
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
+	paymentGroup.PATCH("/credit-card/:cardID", h.VerifyCreditCardOwnership, h.SetCreditCardIsDefault)
 	paymentGroup.DELETE("/credit-card/:cardID", h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.DeleteCreditCard)
 	paymentGroup.POST("/pay/:invoiceID/credit-card/:cardID", h.ParseAndVerifyUnpaidInvoiceOwnership, h.CreateOrParseCustomer, h.VerifyCreditCardOwnership, h.PayInvoiceWithCreditCard)
 }
@@ -144,6 +145,41 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, cards)
+}
+
+type SetCreditCardIsDefaultRequest struct {
+	IsDefault bool `json:"is_default"`
+}
+
+func (h PaymentHandler) SetCreditCardIsDefault(c *gin.Context) {
+	var req SetCreditCardIsDefaultRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
+
+	rawCard, ok := c.Get("CreditCard")
+	if !ok {
+		h.InternalServerError(c, errors.New("CreditCard not found"), "c.Get(\"CreditCard\") error")
+		return
+	}
+	creditCard, ok := rawCard.(*datastore.CreditCard)
+	if !ok {
+		h.InternalServerError(c, errors.New("CreditCard type casting error"), "rawCard.(*datastore.CreditCard)")
+		return
+	}
+
+	if req.IsDefault {
+		if err := h.creditCardDataStore.SetAllToNonDefault(creditCard.PatientID); err != nil {
+			h.InternalServerError(c, err, "h.creditCardDataStore.SetAllToNonDefault error")
+			return
+		}
+	}
+	if err := h.creditCardDataStore.SetIsDefault(creditCard.ID, req.IsDefault); err != nil {
+		h.InternalServerError(c, err, "h.creditCardDataStore.SetIsDefault error")
+		return
+	}
+	c.AbortWithStatus(http.StatusOK)
 }
 
 // DeleteCreditCard godoc

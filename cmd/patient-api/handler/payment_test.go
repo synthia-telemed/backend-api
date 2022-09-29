@@ -330,6 +330,78 @@ var _ = Describe("Payment Handler", func() {
 		})
 	})
 
+	Context("SetCreditCardIsDefault", func() {
+		var (
+			card *datastore.CreditCard
+			req  *handler.SetCreditCardIsDefaultRequest
+		)
+
+		BeforeEach(func() {
+			handlerFunc = h.SetCreditCardIsDefault
+			card = testhelper.GenerateCreditCard()
+			req = &handler.SetCreditCardIsDefaultRequest{IsDefault: true}
+			body, err := json.Marshal(req)
+			Expect(err).To(BeNil())
+			c.Request = httptest.NewRequest("PATCH", "/", bytes.NewReader(body))
+		})
+
+		When("credit card is not set", func() {
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("credit card parsing is failed", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", "just-string")
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("set default to false", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				req.IsDefault = false
+				body, err := json.Marshal(req)
+				Expect(err).To(BeNil())
+				c.Request = httptest.NewRequest("PATCH", "/", bytes.NewReader(body))
+				mockCreditCardDataStore.EXPECT().SetIsDefault(card.ID, req.IsDefault).Return(nil).Times(1)
+			})
+			It("should set credit card default to false and return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("set all card to non-default error", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockCreditCardDataStore.EXPECT().SetAllToNonDefault(card.PatientID).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("set is default status error", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockCreditCardDataStore.EXPECT().SetAllToNonDefault(card.PatientID).Return(nil).Times(1)
+				mockCreditCardDataStore.EXPECT().SetIsDefault(card.ID, req.IsDefault).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("set is default to true with no error", func() {
+			BeforeEach(func() {
+				c.Set("CreditCard", card)
+				mockCreditCardDataStore.EXPECT().SetAllToNonDefault(card.PatientID).Return(nil).Times(1)
+				mockCreditCardDataStore.EXPECT().SetIsDefault(card.ID, req.IsDefault).Return(nil).Times(1)
+			})
+			It("should set all other cards to non-default, set specific card to true, and return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
+
 	Context("DeleteCreditCard", func() {
 		var (
 			card *datastore.CreditCard
