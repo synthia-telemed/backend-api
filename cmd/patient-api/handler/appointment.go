@@ -56,6 +56,15 @@ func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
 }
 
+// GetNextScheduledAppointment godoc
+// @Summary      Get next scheduled appointment
+// @Tags         Appointment
+// @Success      200  {object}	hospital.AppointmentOverview "Overview of the appointment detail"
+// @Failure      400  {object}  server.ErrorResponse "Patient not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/next [get]
 func (h AppointmentHandler) GetNextScheduledAppointment(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {

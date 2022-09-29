@@ -427,6 +427,27 @@ paths:
       summary: Get room ID of the appointment
       tags:
       - Appointment
+  /appointment/next:
+    get:
+      responses:
+        "200":
+          description: Overview of the appointment detail
+          schema:
+            $ref: '#/definitions/hospital.AppointmentOverview'
+        "400":
+          description: Patient not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get next scheduled appointment
+      tags:
+      - Appointment
   /auth/signin:
     post:
       description: Initiate auth process with government credential which will sent
