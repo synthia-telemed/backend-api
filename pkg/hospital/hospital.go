@@ -2,6 +2,7 @@ package hospital
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Khan/genqlient/graphql"
 	"sort"
@@ -17,7 +18,7 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
-	ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error)
+	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
@@ -262,18 +263,27 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 }
 
 type ListAppointmentsByDoctorIDFilters struct {
-	Text   *string           `json:"text"`
-	Date   *time.Time        `json:"date"`
-	Status AppointmentStatus `json:"status" binding:"required"`
+	Text      *string    `json:"text"`
+	Date      *time.Time `json:"date"`
+	DoctorID  *string
+	PatientID *string
+	Status    AppointmentStatus `json:"status" binding:"required"`
 }
 
-func (c GraphQLClient) ListAppointmentsByDoctorIDWithFilters(ctx context.Context, doctorID string, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
-	doctorIDInt64, err := strconv.ParseInt(doctorID, 10, 32)
-	if err != nil {
-		return nil, err
+func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsByDoctorIDFilters) ([]*AppointmentOverview, error) {
+	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
+	if filters.PatientID != nil {
+		where.PatientId = &StringFilter{Equals: filters.PatientID}
+	} else if filters.DoctorID != nil {
+		doctorIDInt64, err := strconv.ParseInt(*filters.DoctorID, 10, 32)
+		if err != nil {
+			return nil, err
+		}
+		doctorIDInt := int(doctorIDInt64)
+		where.DoctorId = &IntFilter{Equals: &doctorIDInt}
+	} else {
+		return nil, errors.New("neither PatientID nor DoctorID is supplied")
 	}
-	doctorIDInt := int(doctorIDInt64)
-	where := &AppointmentWhereInput{DoctorId: &IntFilter{Equals: &doctorIDInt}, Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.Text != nil {
 		where.OR = []*AppointmentWhereInput{
 			{PatientId: &StringFilter{Contains: filters.Text}},

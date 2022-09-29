@@ -251,10 +251,10 @@ var _ = Describe("Hospital Client", func() {
 			err          error
 		)
 		BeforeEach(func() {
-			filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted}
+			filters = &hospital.ListAppointmentsByDoctorIDFilters{Status: hospital.AppointmentStatusCompleted, DoctorID: &doctorID}
 		})
 		JustBeforeEach(func() {
-			appointments, err = graphQLClient.ListAppointmentsByDoctorIDWithFilters(ctx, doctorID, filters)
+			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters)
 			Expect(err).To(BeNil())
 		})
 
