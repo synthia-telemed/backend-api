@@ -221,6 +221,8 @@ definitions:
     type: object
   hospital.AppointmentOverview:
     properties:
+      detail:
+        type: string
       doctor:
         $ref: '#/definitions/hospital.DoctorOverview'
       end_date_time:

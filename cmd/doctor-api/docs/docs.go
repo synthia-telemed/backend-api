@@ -273,6 +273,9 @@ const docTemplate = `{
         "hospital.AppointmentOverview": {
             "type": "object",
             "properties": {
+                "detail": {
+                    "type": "string"
+                },
                 "doctor": {
                     "$ref": "#/definitions/hospital.DoctorOverview"
                 },
