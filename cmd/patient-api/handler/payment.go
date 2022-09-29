@@ -158,7 +158,7 @@ func (h PaymentHandler) GetCreditCards(c *gin.Context) {
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
 // @Security     JWSToken
-// @Router       /payment/credit-card/{userID} [delete]
+// @Router       /payment/credit-card/{cardID} [delete]
 func (h PaymentHandler) DeleteCreditCard(c *gin.Context) {
 	customerID := h.GetCustomerID(c)
 	rawCard, ok := c.Get("CreditCard")

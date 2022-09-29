@@ -469,7 +469,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment/credit-card/{userID}": {
+        "/payment/credit-card/{cardID}": {
             "delete": {
                 "security": [
                     {

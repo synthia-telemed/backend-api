@@ -599,7 +599,7 @@ paths:
       summary: Add new credit card
       tags:
       - Payment
-  /payment/credit-card/{userID}:
+  /payment/credit-card/{cardID}:
     delete:
       parameters:
       - description: ID of the credit card to delete
