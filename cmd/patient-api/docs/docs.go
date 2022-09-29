@@ -80,7 +80,7 @@ const docTemplate = `{
                 "summary": "Get next scheduled appointment",
                 "responses": {
                     "200": {
-                        "description": "Overview of the appointment detail",
+                        "description": "Overview of the appointment detail. If there is no scheduled appointment, empty body is returned",
                         "schema": {
                             "$ref": "#/definitions/hospital.AppointmentOverview"
                         }

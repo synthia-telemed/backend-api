@@ -59,7 +59,7 @@ func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 // GetNextScheduledAppointment godoc
 // @Summary      Get next scheduled appointment
 // @Tags         Appointment
-// @Success      200  {object}	hospital.AppointmentOverview "Overview of the appointment detail"
+// @Success      200  {object}	hospital.AppointmentOverview "Overview of the appointment detail. If there is no scheduled appointment, empty body is returned"
 // @Failure      400  {object}  server.ErrorResponse "Patient not found"
 // @Failure      500  {object}  server.ErrorResponse "Internal server error"
 // @Security     UserID
