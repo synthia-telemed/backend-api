@@ -584,6 +584,15 @@ const docTemplate = `{
                         "name": "cardID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "IsDefault status of the credit card",
+                        "name": "SetCreditCardIsDefaultRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SetCreditCardIsDefaultRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -981,6 +990,14 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.SetCreditCardIsDefaultRequest": {
+            "type": "object",
+            "properties": {
+                "is_default": {
+                    "type": "boolean"
                 }
             }
         },
