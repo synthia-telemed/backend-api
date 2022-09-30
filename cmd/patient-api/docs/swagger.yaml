@@ -193,6 +193,11 @@ definitions:
       updated_at:
         type: string
     type: object
+  handler.SetCreditCardIsDefaultRequest:
+    properties:
+      is_default:
+        type: boolean
+    type: object
   handler.SigninRequest:
     properties:
       credential:
@@ -667,6 +672,12 @@ paths:
         name: cardID
         required: true
         type: integer
+      - description: IsDefault status of the credit card
+        in: body
+        name: SetCreditCardIsDefaultRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetCreditCardIsDefaultRequest'
       responses:
         "200":
           description: OK

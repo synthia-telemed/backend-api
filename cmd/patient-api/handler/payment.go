@@ -155,6 +155,7 @@ type SetCreditCardIsDefaultRequest struct {
 // @Summary      Set isDefault status of credit card
 // @Tags         Payment
 // @Param  		 cardID 	path	 integer 	true "ID of the credit card to set isDefault"
+// @Param 	  	 SetCreditCardIsDefaultRequest body SetCreditCardIsDefaultRequest true "IsDefault status of the credit card"
 // @Success      200
 // @Failure      400  {object}  server.ErrorResponse "Invalid credit card ID"
 // @Failure      401  {object}  server.ErrorResponse "Unauthorized"
