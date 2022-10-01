@@ -177,7 +177,6 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		"PatientID":     fmt.Sprintf("%d", patient.ID),
 		"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 		"AppointmentID": appointment.Id,
-		"StartedAt":     now.Format(time.RFC3339),
 	}
 	if err := h.cacheClient.HashSet(ctx, cache.RoomInfoKey(roomID), info); err != nil {
 		h.InternalServerError(c, err, "h.cacheClient.HashSet error")
