@@ -337,7 +337,6 @@ var _ = Describe("Doctor Appointment Handler", func() {
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 								"AppointmentID": appointment.Id,
-								"StartedAt":     clockTime.Format(time.RFC3339),
 							}
 							mockCacheClient.EXPECT().HashSet(gomock.Any(), cache.RoomInfoKey(roomID), info).Return(testhelper.MockError).Times(1)
 						})
@@ -353,7 +352,6 @@ var _ = Describe("Doctor Appointment Handler", func() {
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
 								"AppointmentID": appointment.Id,
-								"StartedAt":     clockTime.Format(time.RFC3339),
 							}
 							mockCacheClient.EXPECT().HashSet(gomock.Any(), cache.RoomInfoKey(roomID), info).Return(nil).Times(1)
 						})
