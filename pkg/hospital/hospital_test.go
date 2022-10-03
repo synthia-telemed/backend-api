@@ -105,12 +105,19 @@ var _ = Describe("Hospital Client", func() {
 			})
 		})
 		When("invoice is found", func() {
-			It("should invoice with no error", func() {
+			It("should return invoice with no error", func() {
 				invoice, err := graphQLClient.FindInvoiceByID(ctx, 1)
 				Expect(err).To(BeNil())
 				Expect(invoice.Id).To(Equal(1))
 				Expect(invoice.AppointmentID).To(Equal("2"))
 				Expect(invoice.PatientID).To(Equal("HN-414878"))
+				Expect(invoice.Total).To(BeEquivalentTo(3922590))
+			})
+			It("should return invoice with discount", func() {
+				invoice, err := graphQLClient.FindInvoiceByID(ctx, 2)
+				Expect(err).To(BeNil())
+				Expect(invoice.Id).To(Equal(2))
+				Expect(invoice.Total).To(BeEquivalentTo(2748108 - 50000))
 			})
 		})
 	})
