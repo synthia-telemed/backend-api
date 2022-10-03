@@ -210,11 +210,15 @@ func (c GraphQLClient) FindInvoiceByID(ctx context.Context, id int) (*InvoiceOve
 	if err != nil {
 		return nil, err
 	}
+	var discount float64
+	for _, dis := range resp.Invoice.InvoiceDiscount {
+		discount += dis.GetAmount()
+	}
 	return &InvoiceOverview{
 		CreatedAt:     resp.Invoice.CreatedAt,
 		Id:            int(invoiceID),
 		Paid:          resp.Invoice.Paid,
-		Total:         resp.Invoice.Total,
+		Total:         resp.Invoice.Total - discount,
 		AppointmentID: resp.Invoice.Appointment.Id,
 		PatientID:     resp.Invoice.Appointment.PatientId,
 	}, nil
