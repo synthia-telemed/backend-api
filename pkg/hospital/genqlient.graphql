@@ -51,6 +51,10 @@ query getInvoice($where: InvoiceWhereInput!) {
             id
             patientId
         }
+        InvoiceDiscount {
+            name
+            amount
+        }
     }
 }
 
