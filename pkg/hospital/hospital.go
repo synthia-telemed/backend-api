@@ -268,7 +268,8 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 
 type ListAppointmentsFilters struct {
 	Text      *string    `json:"text"`
-	Date      *time.Time `json:"date"`
+	StartDate *time.Time `json:"start_date"`
+	EndDate   *time.Time `json:"end_date"`
 	DoctorID  *string
 	PatientID *string
 	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
@@ -299,9 +300,11 @@ func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters 
 			}}},
 		}
 	}
-	if filters.Date != nil {
-		startDateTime := time.Date(filters.Date.Year(), filters.Date.Month(), filters.Date.Day(), 0, 0, 0, 0, filters.Date.Location())
-		endDateTime := startDateTime.Add(24 * time.Hour)
+	if filters.StartDate != nil && filters.EndDate != nil {
+		st := filters.StartDate
+		et := filters.EndDate
+		startDateTime := time.Date(st.Year(), st.Month(), st.Day(), 0, 0, 0, 0, st.Location())
+		endDateTime := time.Date(et.Year(), et.Month(), et.Day(), 23, 59, 59, 0, et.Location())
 		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
 	}
 

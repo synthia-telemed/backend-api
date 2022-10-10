@@ -333,13 +333,16 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
-                "date": {
-                    "type": "string"
-                },
                 "doctorID": {
                     "type": "string"
                 },
+                "end_date": {
+                    "type": "string"
+                },
                 "patientID": {
+                    "type": "string"
+                },
+                "start_date": {
                     "type": "string"
                 },
                 "status": {

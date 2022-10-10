@@ -339,24 +339,30 @@ var _ = Describe("Hospital Client", func() {
 				Expect(appointments[1].Id).To(Equal("37"))
 			})
 		})
-		When("there is date filter", func() {
+		When("there is date range filter", func() {
 			BeforeEach(func() {
-				date := time.Date(2022, 9, 7, 10, 0, 0, 0, time.UTC)
-				filters.Date = &date
+				dID := "11"
+				filters.DoctorID = &dID
+				st := time.Date(2022, 4, 27, 0, 0, 0, 0, time.UTC)
+				et := time.Date(2022, 9, 7, 0, 0, 0, 0, time.UTC)
+				filters.StartDate = &st
+				filters.EndDate = &et
 			})
 			It("should return appointment on 2022-09-07 UTC", func() {
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(2))
-				Expect(appointments[0].Id).To(Equal("38"))
-				Expect(appointments[1].Id).To(Equal("37"))
+				Expect(appointments[0].Id).To(Equal("53"))
+				Expect(appointments[1].Id).To(Equal("50"))
 			})
 		})
 		When("there are date and text filter", func() {
 			BeforeEach(func() {
-				date := time.Date(2022, 9, 7, 10, 0, 0, 0, time.UTC)
+				st := time.Date(2022, 9, 7, 10, 0, 0, 0, time.UTC)
+				dt := st.Add(time.Hour * 24)
 				text := "562380"
 				filters.Text = &text
-				filters.Date = &date
+				filters.StartDate = &st
+				filters.EndDate = &dt
 			})
 			It("should return appointment on 2022-09-07 UTC with patient number that contain 562380", func() {
 				Expect(err).To(BeNil())
