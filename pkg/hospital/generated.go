@@ -1511,6 +1511,28 @@ func (v *__getAppointmentsInput) GetOrderBy() []*AppointmentOrderByWithRelationI
 	return v.OrderBy
 }
 
+// __getAppointmentsWithPaginationInput is used internally by genqlient
+type __getAppointmentsWithPaginationInput struct {
+	Where   *AppointmentWhereInput                 `json:"where,omitempty"`
+	Take    *int                                   `json:"take"`
+	Skip    *int                                   `json:"skip"`
+	OrderBy []*AppointmentOrderByWithRelationInput `json:"orderBy,omitempty"`
+}
+
+// GetWhere returns __getAppointmentsWithPaginationInput.Where, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsWithPaginationInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
+// GetOrderBy returns __getAppointmentsWithPaginationInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsWithPaginationInput) GetOrderBy() []*AppointmentOrderByWithRelationInput {
+	return v.OrderBy
+}
+
+// GetTake returns __getAppointmentsWithPaginationInput.Take, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsWithPaginationInput) GetTake() *int { return v.Take }
+
+// GetSkip returns __getAppointmentsWithPaginationInput.Skip, and is useful for accessing the field via an interface.
+func (v *__getAppointmentsWithPaginationInput) GetSkip() *int { return v.Skip }
+
 // __getDoctorInput is used internally by genqlient
 type __getDoctorInput struct {
 	Where *DoctorWhereInput `json:"where,omitempty"`
@@ -1842,6 +1864,122 @@ type getAppointmentsResponse struct {
 
 // GetAppointments returns getAppointmentsResponse.Appointments, and is useful for accessing the field via an interface.
 func (v *getAppointmentsResponse) GetAppointments() []*getAppointmentsAppointmentsAppointment {
+	return v.Appointments
+}
+
+// getAppointmentsWithPaginationAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
+type getAppointmentsWithPaginationAppointmentsAppointment struct {
+	StartDateTime time.Time                                                    `json:"startDateTime"`
+	EndDateTime   time.Time                                                    `json:"endDateTime"`
+	Patient       *getAppointmentsWithPaginationAppointmentsAppointmentPatient `json:"patient"`
+	Doctor        *getAppointmentsWithPaginationAppointmentsAppointmentDoctor  `json:"doctor"`
+	Status        AppointmentStatus                                            `json:"status"`
+	Detail        string                                                       `json:"detail"`
+	Id            string                                                       `json:"id"`
+}
+
+// GetId returns getAppointmentsWithPaginationAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetId() string { return v.Id }
+
+// GetStartDateTime returns getAppointmentsWithPaginationAppointmentsAppointment.StartDateTime, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetStartDateTime() time.Time {
+	return v.StartDateTime
+}
+
+// GetEndDateTime returns getAppointmentsWithPaginationAppointmentsAppointment.EndDateTime, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetEndDateTime() time.Time {
+	return v.EndDateTime
+}
+
+// GetStatus returns getAppointmentsWithPaginationAppointmentsAppointment.Status, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetStatus() AppointmentStatus {
+	return v.Status
+}
+
+// GetDetail returns getAppointmentsWithPaginationAppointmentsAppointment.Detail, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetDetail() string { return v.Detail }
+
+// GetDoctor returns getAppointmentsWithPaginationAppointmentsAppointment.Doctor, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetDoctor() *getAppointmentsWithPaginationAppointmentsAppointmentDoctor {
+	return v.Doctor
+}
+
+// GetPatient returns getAppointmentsWithPaginationAppointmentsAppointment.Patient, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointment) GetPatient() *getAppointmentsWithPaginationAppointmentsAppointmentPatient {
+	return v.Patient
+}
+
+// getAppointmentsWithPaginationAppointmentsAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
+type getAppointmentsWithPaginationAppointmentsAppointmentDoctor struct {
+	Id            string `json:"id"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
+}
+
+// GetId returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetId() string { return v.Id }
+
+// GetInitial_en returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetInitial_en() string {
+	return v.Initial_en
+}
+
+// GetFirstname_en returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetFirstname_en() string {
+	return v.Firstname_en
+}
+
+// GetLastname_en returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetLastname_en() string {
+	return v.Lastname_en
+}
+
+// GetPosition returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetPosition() string {
+	return v.Position
+}
+
+// GetProfilePicURL returns getAppointmentsWithPaginationAppointmentsAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetProfilePicURL() string {
+	return v.ProfilePicURL
+}
+
+// getAppointmentsWithPaginationAppointmentsAppointmentPatient includes the requested fields of the GraphQL type Patient.
+type getAppointmentsWithPaginationAppointmentsAppointmentPatient struct {
+	Id           string `json:"id"`
+	Initial_en   string `json:"initial_en"`
+	Firstname_en string `json:"firstname_en"`
+	Lastname_en  string `json:"lastname_en"`
+}
+
+// GetId returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetId() string { return v.Id }
+
+// GetInitial_en returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Initial_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetInitial_en() string {
+	return v.Initial_en
+}
+
+// GetFirstname_en returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetFirstname_en() string {
+	return v.Firstname_en
+}
+
+// GetLastname_en returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetLastname_en() string {
+	return v.Lastname_en
+}
+
+// getAppointmentsWithPaginationResponse is returned by getAppointmentsWithPagination on success.
+type getAppointmentsWithPaginationResponse struct {
+	Appointments []*getAppointmentsWithPaginationAppointmentsAppointment `json:"appointments"`
+}
+
+// GetAppointments returns getAppointmentsWithPaginationResponse.Appointments, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationResponse) GetAppointments() []*getAppointmentsWithPaginationAppointmentsAppointment {
 	return v.Appointments
 }
 
@@ -2241,6 +2379,62 @@ query getAppointments ($where: AppointmentWhereInput, $orderBy: [AppointmentOrde
 	var err error
 
 	var data getAppointmentsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getAppointmentsWithPagination(
+	ctx context.Context,
+	client graphql.Client,
+	where *AppointmentWhereInput,
+	orderBy []*AppointmentOrderByWithRelationInput,
+	take *int,
+	skip *int,
+) (*getAppointmentsWithPaginationResponse, error) {
+	req := &graphql.Request{
+		OpName: "getAppointmentsWithPagination",
+		Query: `
+query getAppointmentsWithPagination ($where: AppointmentWhereInput, $orderBy: [AppointmentOrderByWithRelationInput!], $take: Int, $skip: Int) {
+	appointments(where: $where, orderBy: $orderBy, take: $take, skip: $skip) {
+		id
+		startDateTime
+		endDateTime
+		status
+		detail
+		doctor {
+			id
+			initial_en
+			firstname_en
+			lastname_en
+			position
+			profilePicURL
+		}
+		patient {
+			id
+			initial_en
+			firstname_en
+			lastname_en
+		}
+	}
+}
+`,
+		Variables: &__getAppointmentsWithPaginationInput{
+			Where:   where,
+			OrderBy: orderBy,
+			Take:    take,
+			Skip:    skip,
+		},
+	}
+	var err error
+
+	var data getAppointmentsWithPaginationResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

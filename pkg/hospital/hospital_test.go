@@ -256,12 +256,27 @@ var _ = Describe("Hospital Client", func() {
 			filters      *hospital.ListAppointmentsFilters
 			appointments []*hospital.AppointmentOverview
 			err          error
+			take, skip   int
 		)
 		BeforeEach(func() {
+			take = 10
+			skip = 0
 			filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCompleted, DoctorID: &doctorID}
 		})
 		JustBeforeEach(func() {
-			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters)
+			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters, take, skip)
+		})
+
+		When("take and skip is set", func() {
+			BeforeEach(func() {
+				take = 1
+				skip = 1
+			})
+			It("should return one appointment with the first one skipped", func() {
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(1))
+				Expect(appointments[0].Id).To(Equal("37"))
+			})
 		})
 
 		Context("target patient or doctor", func() {

@@ -275,7 +275,7 @@ type ListAppointmentsFilters struct {
 	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
 }
 
-func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error) {
 	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.PatientID != nil {
 		where.PatientId = &StringFilter{Equals: filters.PatientID}
@@ -312,11 +312,35 @@ func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters 
 	if filters.Status == AppointmentStatusScheduled {
 		order = SortOrderAsc
 	}
-	resp, err := getAppointments(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}})
+	resp, err := getAppointmentsWithPagination(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}}, &take, &skip)
 	if err != nil {
 		return nil, err
 	}
-	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+	return c.parseHospitalAppointmentWithPaginationToAppointmentOverview(resp.Appointments), nil
+}
+
+func (c GraphQLClient) parseHospitalAppointmentWithPaginationToAppointmentOverview(hosApps []*getAppointmentsWithPaginationAppointmentsAppointment) []*AppointmentOverview {
+	appointments := make([]*AppointmentOverview, len(hosApps))
+	for i, a := range hosApps {
+		appointments[i] = &AppointmentOverview{
+			Id:            a.Id,
+			StartDateTime: a.StartDateTime,
+			EndDateTime:   a.EndDateTime,
+			Status:        a.Status,
+			Detail:        a.Detail,
+			Doctor: DoctorOverview{
+				ID:            a.Doctor.Id,
+				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
+				Position:      a.Doctor.Position,
+				ProfilePicURL: a.Doctor.ProfilePicURL,
+			},
+			Patient: PatientOverview{
+				ID:       a.Patient.Id,
+				FullName: parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+			},
+		}
+	}
+	return appointments
 }
 
 func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {

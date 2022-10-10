@@ -91,6 +91,30 @@ query getAppointments($where: AppointmentWhereInput, $orderBy: [AppointmentOrder
     }
 }
 
+query getAppointmentsWithPagination($where: AppointmentWhereInput, $orderBy: [AppointmentOrderByWithRelationInput!], $take: Int, $skip: Int) {
+    appointments(where: $where, orderBy: $orderBy, take: $take, skip: $skip) {
+        id
+        startDateTime
+        endDateTime
+        status
+        detail
+        doctor {
+            id
+            initial_en
+            firstname_en
+            lastname_en
+            position
+            profilePicURL
+        }
+        patient {
+            id
+            initial_en
+            firstname_en
+            lastname_en
+        }
+    }
+}
+
 query getAppointment($where: AppointmentWhereInput!) {
     appointment(where: $where) {
         id
