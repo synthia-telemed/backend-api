@@ -1489,6 +1489,14 @@ func (v *__assertDoctorCredentialInput) GetPassword() string { return v.Password
 // GetUsername returns __assertDoctorCredentialInput.Username, and is useful for accessing the field via an interface.
 func (v *__assertDoctorCredentialInput) GetUsername() string { return v.Username }
 
+// __getAppointmentIdsInput is used internally by genqlient
+type __getAppointmentIdsInput struct {
+	Where *AppointmentWhereInput `json:"where,omitempty"`
+}
+
+// GetWhere returns __getAppointmentIdsInput.Where, and is useful for accessing the field via an interface.
+func (v *__getAppointmentIdsInput) GetWhere() *AppointmentWhereInput { return v.Where }
+
 // __getAppointmentInput is used internally by genqlient
 type __getAppointmentInput struct {
 	Where *AppointmentWhereInput `json:"where,omitempty"`
@@ -1757,6 +1765,24 @@ func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetDescript
 // GetPictureURL returns getAppointmentAppointmentPrescriptionsPrescriptionMedicine.PictureURL, and is useful for accessing the field via an interface.
 func (v *getAppointmentAppointmentPrescriptionsPrescriptionMedicine) GetPictureURL() string {
 	return v.PictureURL
+}
+
+// getAppointmentIdsAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
+type getAppointmentIdsAppointmentsAppointment struct {
+	Id string `json:"id"`
+}
+
+// GetId returns getAppointmentIdsAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
+func (v *getAppointmentIdsAppointmentsAppointment) GetId() string { return v.Id }
+
+// getAppointmentIdsResponse is returned by getAppointmentIds on success.
+type getAppointmentIdsResponse struct {
+	Appointments []*getAppointmentIdsAppointmentsAppointment `json:"appointments"`
+}
+
+// GetAppointments returns getAppointmentIdsResponse.Appointments, and is useful for accessing the field via an interface.
+func (v *getAppointmentIdsResponse) GetAppointments() []*getAppointmentIdsAppointmentsAppointment {
+	return v.Appointments
 }
 
 // getAppointmentResponse is returned by getAppointment on success.
@@ -2327,6 +2353,38 @@ query getAppointment ($where: AppointmentWhereInput!) {
 	var err error
 
 	var data getAppointmentResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getAppointmentIds(
+	ctx context.Context,
+	client graphql.Client,
+	where *AppointmentWhereInput,
+) (*getAppointmentIdsResponse, error) {
+	req := &graphql.Request{
+		OpName: "getAppointmentIds",
+		Query: `
+query getAppointmentIds ($where: AppointmentWhereInput) {
+	appointments(where: $where) {
+		id
+	}
+}
+`,
+		Variables: &__getAppointmentIdsInput{
+			Where: where,
+		},
+	}
+	var err error
+
+	var data getAppointmentIdsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

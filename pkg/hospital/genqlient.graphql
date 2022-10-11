@@ -164,3 +164,9 @@ mutation setAppointmentStatus($setAppointmentStatusId: Float!, $status: Appointm
         status
     }
 }
+
+query getAppointmentIds($where: AppointmentWhereInput) {
+    appointments(where: $where) {
+        id
+    }
+}

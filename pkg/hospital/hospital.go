@@ -19,11 +19,11 @@ type SystemClient interface {
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error)
+	CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
 }
-
 type Config struct {
 	HospitalSysEndpoint string `env:"HOSPITAL_SYS_ENDPOINT,required"`
 }
@@ -276,6 +276,34 @@ type ListAppointmentsFilters struct {
 }
 
 func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error) {
+	where, err := c.parseListAppointmentsFiltersToAppointmentWhereInput(filters)
+	if err != nil {
+		return nil, err
+	}
+	order := SortOrderDesc
+	if filters.Status == AppointmentStatusScheduled {
+		order = SortOrderAsc
+	}
+	resp, err := getAppointmentsWithPagination(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}}, &take, &skip)
+	if err != nil {
+		return nil, err
+	}
+	return c.parseHospitalAppointmentWithPaginationToAppointmentOverview(resp.Appointments), nil
+}
+
+func (c GraphQLClient) CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error) {
+	where, err := c.parseListAppointmentsFiltersToAppointmentWhereInput(filters)
+	if err != nil {
+		return 0, err
+	}
+	resp, err := getAppointments(ctx, c.client, where, nil)
+	if err != nil {
+		return 0, err
+	}
+	return len(resp.Appointments), nil
+}
+
+func (c GraphQLClient) parseListAppointmentsFiltersToAppointmentWhereInput(filters *ListAppointmentsFilters) (*AppointmentWhereInput, error) {
 	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.PatientID != nil {
 		where.PatientId = &StringFilter{Equals: filters.PatientID}
@@ -307,16 +335,7 @@ func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters 
 		endDateTime := time.Date(et.Year(), et.Month(), et.Day(), 23, 59, 59, 0, et.Location())
 		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
 	}
-
-	order := SortOrderDesc
-	if filters.Status == AppointmentStatusScheduled {
-		order = SortOrderAsc
-	}
-	resp, err := getAppointmentsWithPagination(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}}, &take, &skip)
-	if err != nil {
-		return nil, err
-	}
-	return c.parseHospitalAppointmentWithPaginationToAppointmentOverview(resp.Appointments), nil
+	return where, nil
 }
 
 func (c GraphQLClient) parseHospitalAppointmentWithPaginationToAppointmentOverview(hosApps []*getAppointmentsWithPaginationAppointmentsAppointment) []*AppointmentOverview {
@@ -366,6 +385,10 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 	}
 	return appointments
 }
+
+//func (c GraphQLClient) CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error) {
+//
+//}
 
 func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error) {
 	resp, err := getAppointment(ctx, c.client, &AppointmentWhereInput{
