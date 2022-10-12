@@ -250,6 +250,36 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
+	Context("CountAppointmentsWithFilters", func() {
+		var (
+			filters *hospital.ListAppointmentsFilters
+			count   int
+			err     error
+		)
+		BeforeEach(func() {
+			dID := "12"
+			filters = &hospital.ListAppointmentsFilters{DoctorID: &dID, Status: hospital.AppointmentStatusCompleted}
+		})
+		JustBeforeEach(func() {
+			count, err = graphQLClient.CountAppointmentsWithFilters(ctx, filters)
+		})
+		When("doctor has one or more appointments that matched the filter", func() {
+			It("should return 2", func() {
+				Expect(err).To(BeNil())
+				Expect(count).To(Equal(2))
+			})
+		})
+		When("doctor no appointment that matched the filter", func() {
+			BeforeEach(func() {
+				filters.Status = hospital.AppointmentStatusCancelled
+			})
+			It("should return 2", func() {
+				Expect(err).To(BeNil())
+				Expect(count).To(Equal(0))
+			})
+		})
+	})
+
 	Context("ListAppointmentsByDoctorIDWithFilters", func() {
 		var (
 			doctorID     = "12"
