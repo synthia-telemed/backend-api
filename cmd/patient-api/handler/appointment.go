@@ -79,7 +79,7 @@ func (h AppointmentHandler) GetNextScheduledAppointment(c *gin.Context) {
 	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &hospital.ListAppointmentsFilters{
 		PatientID: &patient.RefID,
 		Status:    hospital.AppointmentStatusScheduled,
-	})
+	}, 1, 0)
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsWithFilters error")
 		return
