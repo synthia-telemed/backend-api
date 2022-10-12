@@ -160,11 +160,11 @@ func (c GraphQLClient) ListAppointmentsByDoctorID(ctx context.Context, doctorID 
 }
 
 type ListAppointmentsFilters struct {
-	Text      *string    `json:"text" form:"text"`
-	StartDate *time.Time `json:"start_date" form:"start_date"`
-	EndDate   *time.Time `json:"end_date" form:"end_date"`
-	DoctorID  *string
-	PatientID *string
+	Text      *string           `json:"text" form:"text"`
+	StartDate *time.Time        `json:"start_date" form:"start_date"`
+	EndDate   *time.Time        `json:"end_date" form:"end_date"`
+	DoctorID  *string           `swaggerignore:"true"`
+	PatientID *string           `swaggerignore:"true"`
 	Status    AppointmentStatus `json:"status" form:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
 }
 
