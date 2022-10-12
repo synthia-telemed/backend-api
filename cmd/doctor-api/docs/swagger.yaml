@@ -17,33 +17,6 @@ definitions:
       room_id:
         type: string
     type: object
-  handler.ListAppointmentsRequest:
-    properties:
-      doctorID:
-        type: string
-      end_date:
-        type: string
-      page_number:
-        type: integer
-      patientID:
-        type: string
-      per_page:
-        type: integer
-      start_date:
-        type: string
-      status:
-        enum:
-        - CANCELLED
-        - COMPLETED
-        - SCHEDULED
-        type: string
-      text:
-        type: string
-    required:
-    - page_number
-    - per_page
-    - status
-    type: object
   handler.ListAppointmentsResponse:
     properties:
       appointments:
@@ -123,12 +96,31 @@ paths:
   /appointment:
     get:
       parameters:
-      - description: Filter with pagination options for querying
-        in: body
-        name: ListAppointmentsRequest
+      - in: query
+        name: end_date
+        type: string
+      - in: query
+        name: page_number
         required: true
-        schema:
-          $ref: '#/definitions/handler.ListAppointmentsRequest'
+        type: integer
+      - in: query
+        name: per_page
+        required: true
+        type: integer
+      - in: query
+        name: start_date
+        type: string
+      - enum:
+        - CANCELLED
+        - COMPLETED
+        - SCHEDULED
+        in: query
+        name: status
+        required: true
+        type: string
+      - in: query
+        name: text
+        type: string
       responses:
         "200":
           description: List of appointment overview details with pagination information

@@ -22,6 +22,7 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -532,7 +533,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 
 	Context("ListAppointments", func() {
 		var (
-			req *handler.ListAppointmentsRequest
+			req   *handler.ListAppointmentsRequest
+			query url.Values
 		)
 
 		BeforeEach(func() {
@@ -545,14 +547,19 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				PageNumber: 1,
 				PerPage:    5,
 			}
-			body, err := json.Marshal(req)
-			Expect(err).To(BeNil())
-			c.Request = httptest.NewRequest("GET", "/", bytes.NewReader(body))
+			query = url.Values{}
+			query.Add("page_number", fmt.Sprintf("%d", req.PageNumber))
+			query.Add("per_page", fmt.Sprintf("%d", req.PerPage))
+			query.Add("status", string(req.Status))
+			c.Request = httptest.NewRequest("GET", "/", nil)
+			c.Request.URL.RawQuery = query.Encode()
 		})
 
-		When("status in req body is not set", func() {
+		When("status in req query is not set", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"stay":"COM", "page_number": 1, "per_page": 10}`))
+				query.Del("status")
+				query.Set("stay", string(req.Status))
+				c.Request.URL.RawQuery = query.Encode()
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -561,7 +568,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("status in req body not a valid enum", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMCANLLED", "page_number": 1, "per_page": 10}`))
+				query.Set("status", "COMCANLLED")
+				c.Request.URL.RawQuery = query.Encode()
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -570,16 +578,18 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("page_number in req body is missing", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMPLETED", "per_page": 10}`))
+				query.Del("page_number")
+				c.Request.URL.RawQuery = query.Encode()
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
 				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
 			})
 		})
-		When("page_number in req body is missing", func() {
+		When("per_page in req body is missing", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMPLETED", "page_number": 10}`))
+				query.Del("per_page")
+				c.Request.URL.RawQuery = query.Encode()
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
