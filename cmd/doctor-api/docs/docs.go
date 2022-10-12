@@ -38,22 +38,22 @@ const docTemplate = `{
                 "summary": "Get list of the appointments with filter",
                 "parameters": [
                     {
-                        "description": "Filter for querying (Status is required, others is optional)",
-                        "name": "hospital.ListAppointmentsFilters",
+                        "description": "Filter with pagination options for querying",
+                        "name": "ListAppointmentsRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/hospital.ListAppointmentsFilters"
+                            "$ref": "#/definitions/handler.ListAppointmentsRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of appointment overview details",
+                        "description": "List of appointment overview details with pagination information",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/hospital.AppointmentOverview"
+                                "$ref": "#/definitions/handler.ListAppointmentsResponse"
                             }
                         }
                     },
@@ -261,6 +261,68 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ListAppointmentsRequest": {
+            "type": "object",
+            "required": [
+                "page_number",
+                "per_page",
+                "status"
+            ],
+            "properties": {
+                "doctorID": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "page_number": {
+                    "type": "integer"
+                },
+                "patientID": {
+                    "type": "string"
+                },
+                "per_page": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "CANCELLED",
+                        "COMPLETED",
+                        "SCHEDULED"
+                    ]
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ListAppointmentsResponse": {
+            "type": "object",
+            "properties": {
+                "appointments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hospital.AppointmentOverview"
+                    }
+                },
+                "page_number": {
+                    "type": "integer"
+                },
+                "per_page": {
+                    "type": "integer"
+                },
+                "total_item": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.SigninRequest": {
             "type": "object",
             "required": [
@@ -323,37 +385,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profile_pic_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "hospital.ListAppointmentsFilters": {
-            "type": "object",
-            "required": [
-                "status"
-            ],
-            "properties": {
-                "doctorID": {
-                    "type": "string"
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "patientID": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "CANCELLED",
-                        "COMPLETED",
-                        "SCHEDULED"
-                    ]
-                },
-                "text": {
                     "type": "string"
                 }
             }

@@ -87,8 +87,8 @@ type ListAppointmentsResponse struct {
 // ListAppointments godoc
 // @Summary      Get list of the appointments with filter
 // @Tags         Appointment
-// @Param 	  	 hospital.ListAppointmentsFilters body hospital.ListAppointmentsFilters true "Filter for querying (Status is required, others is optional)"
-// @Success      200  {array}	hospital.AppointmentOverview "List of appointment overview details"
+// @Param 	  	 ListAppointmentsRequest body ListAppointmentsRequest true "Filter with pagination options for querying"
+// @Success      200  {array}	ListAppointmentsResponse "List of appointment overview details with pagination information"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
 // @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
 // @Failure      500  {object}  server.ErrorResponse   "Internal server error"

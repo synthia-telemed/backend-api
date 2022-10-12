@@ -17,6 +17,48 @@ definitions:
       room_id:
         type: string
     type: object
+  handler.ListAppointmentsRequest:
+    properties:
+      doctorID:
+        type: string
+      end_date:
+        type: string
+      page_number:
+        type: integer
+      patientID:
+        type: string
+      per_page:
+        type: integer
+      start_date:
+        type: string
+      status:
+        enum:
+        - CANCELLED
+        - COMPLETED
+        - SCHEDULED
+        type: string
+      text:
+        type: string
+    required:
+    - page_number
+    - per_page
+    - status
+    type: object
+  handler.ListAppointmentsResponse:
+    properties:
+      appointments:
+        items:
+          $ref: '#/definitions/hospital.AppointmentOverview'
+        type: array
+      page_number:
+        type: integer
+      per_page:
+        type: integer
+      total_item:
+        type: integer
+      total_page:
+        type: integer
+    type: object
   handler.SigninRequest:
     properties:
       password:
@@ -60,27 +102,6 @@ definitions:
       profile_pic_url:
         type: string
     type: object
-  hospital.ListAppointmentsFilters:
-    properties:
-      doctorID:
-        type: string
-      end_date:
-        type: string
-      patientID:
-        type: string
-      start_date:
-        type: string
-      status:
-        enum:
-        - CANCELLED
-        - COMPLETED
-        - SCHEDULED
-        type: string
-      text:
-        type: string
-    required:
-    - status
-    type: object
   hospital.PatientOverview:
     properties:
       full_name:
@@ -102,18 +123,18 @@ paths:
   /appointment:
     get:
       parameters:
-      - description: Filter for querying (Status is required, others is optional)
+      - description: Filter with pagination options for querying
         in: body
-        name: hospital.ListAppointmentsFilters
+        name: ListAppointmentsRequest
         required: true
         schema:
-          $ref: '#/definitions/hospital.ListAppointmentsFilters'
+          $ref: '#/definitions/handler.ListAppointmentsRequest'
       responses:
         "200":
-          description: List of appointment overview details
+          description: List of appointment overview details with pagination information
           schema:
             items:
-              $ref: '#/definitions/hospital.AppointmentOverview'
+              $ref: '#/definitions/handler.ListAppointmentsResponse'
             type: array
         "400":
           description: Doctor not found
