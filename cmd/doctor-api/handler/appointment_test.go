@@ -532,21 +532,27 @@ var _ = Describe("Doctor Appointment Handler", func() {
 
 	Context("ListAppointments", func() {
 		var (
-			filter *hospital.ListAppointmentsFilters
+			req *handler.ListAppointmentsRequest
 		)
 
 		BeforeEach(func() {
 			handlerFunc = h.ListAppointments
 			c.Set("Doctor", doctor)
-			filter = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCancelled}
-			body, err := json.Marshal(filter)
+			req = &handler.ListAppointmentsRequest{
+				ListAppointmentsFilters: hospital.ListAppointmentsFilters{
+					Status: hospital.AppointmentStatusCompleted,
+				},
+				PageNumber: 1,
+				PerPage:    5,
+			}
+			body, err := json.Marshal(req)
 			Expect(err).To(BeNil())
 			c.Request = httptest.NewRequest("GET", "/", bytes.NewReader(body))
 		})
 
 		When("status in req body is not set", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"stay":"COM"}`))
+				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"stay":"COM", "page_number": 1, "per_page": 10}`))
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
@@ -555,17 +561,47 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("status in req body not a valid enum", func() {
 			BeforeEach(func() {
-				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMCANLLED"}`))
+				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMCANLLED", "page_number": 1, "per_page": 10}`))
 			})
 			It("should return 400 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusBadRequest))
 				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
 			})
 		})
+		When("page_number in req body is missing", func() {
+			BeforeEach(func() {
+				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMPLETED", "per_page": 10}`))
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
+			})
+		})
+		When("page_number in req body is missing", func() {
+			BeforeEach(func() {
+				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"status":"COMPLETED", "page_number": 10}`))
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
+			})
+		})
+
 		When("list appointments with filter graphQL error", func() {
 			BeforeEach(func() {
-				filter.DoctorID = &doctor.RefID
-				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), filter).Return(nil, testhelper.MockError).Times(1)
+				req.DoctorID = &doctor.RefID
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), &req.ListAppointmentsFilters, req.PerPage, 0).Return(nil, testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("count appointments with filter graphQL error", func() {
+			BeforeEach(func() {
+				req.DoctorID = &doctor.RefID
+				appointments := testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCompleted, 2)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), &req.ListAppointmentsFilters, req.PerPage, 0).Return(appointments, nil).Times(1)
+				mockHospitalSysClient.EXPECT().CountAppointmentsWithFilters(gomock.Any(), &req.ListAppointmentsFilters).Return(0, testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -574,17 +610,22 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		When("no error occurred", func() {
 			var appointments []*hospital.AppointmentOverview
 			BeforeEach(func() {
-				filter.DoctorID = &doctor.RefID
+				req.DoctorID = &doctor.RefID
 				appointments = testhelper.GenerateAppointmentOverviews(hospital.AppointmentStatusCompleted, 2)
-				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), filter).Return(appointments, nil).Times(1)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), &req.ListAppointmentsFilters, req.PerPage, 0).Return(appointments, nil).Times(1)
+				mockHospitalSysClient.EXPECT().CountAppointmentsWithFilters(gomock.Any(), &req.ListAppointmentsFilters).Return(13, nil).Times(1)
 			})
 			It("should return list of appointment overview", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
-				var res []*hospital.AppointmentOverview
+				var res *handler.ListAppointmentsResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
-				Expect(res).To(HaveLen(2))
-				Expect(res[0].Id).To(Equal(appointments[0].Id))
-				Expect(res[1].Id).To(Equal(appointments[1].Id))
+				Expect(res.PageNumber).To(Equal(req.PageNumber))
+				Expect(res.PerPage).To(Equal(req.PerPage))
+				Expect(res.TotalItem).To(Equal(13))
+				Expect(res.TotalPage).To(Equal(3))
+				Expect(res.Appointments).To(HaveLen(2))
+				Expect(res.Appointments[0].Id).To(Equal(appointments[0].Id))
+				Expect(res.Appointments[1].Id).To(Equal(appointments[1].Id))
 			})
 		})
 	})

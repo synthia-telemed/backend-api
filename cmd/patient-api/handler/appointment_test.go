@@ -424,7 +424,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("List appointment with filter query error", func() {
 			BeforeEach(func() {
-				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return(nil, testhelper.MockError)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where, 1, 0).Return(nil, testhelper.MockError)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -432,7 +432,7 @@ var _ = Describe("Appointment Handler", func() {
 		})
 		When("Patient has no scheduled appointment", func() {
 			BeforeEach(func() {
-				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return([]*hospital.AppointmentOverview{}, nil)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where, 1, 0).Return([]*hospital.AppointmentOverview{}, nil)
 			})
 			It("should return empty body with status of 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
@@ -442,7 +442,7 @@ var _ = Describe("Appointment Handler", func() {
 		When("Patient has at one or more scheduled appointment", func() {
 			BeforeEach(func() {
 				anotherAppointment := testhelper.GenerateAppointmentOverview(hospital.AppointmentStatusScheduled)
-				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where).Return([]*hospital.AppointmentOverview{appointment, anotherAppointment}, nil)
+				mockHospitalSysClient.EXPECT().ListAppointmentsWithFilters(gomock.Any(), where, 1, 0).Return([]*hospital.AppointmentOverview{appointment, anotherAppointment}, nil)
 			})
 			It("should return empty body with status of 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
