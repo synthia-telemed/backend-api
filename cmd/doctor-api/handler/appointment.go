@@ -13,6 +13,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -69,6 +70,20 @@ type InitAppointmentRoomResponse struct {
 	RoomID string `json:"room_id"`
 }
 
+type ListAppointmentsRequest struct {
+	hospital.ListAppointmentsFilters
+	PageNumber int `json:"page_number" binding:"required"`
+	PerPage    int `json:"per_page" binding:"required"`
+}
+
+type ListAppointmentsResponse struct {
+	PageNumber   int                             `json:"page_number"`
+	PerPage      int                             `json:"per_page"`
+	TotalPage    int                             `json:"total_page"`
+	TotalItem    int                             `json:"total_item"`
+	Appointments []*hospital.AppointmentOverview `json:"appointments"`
+}
+
 // ListAppointments godoc
 // @Summary      Get list of the appointments with filter
 // @Tags         Appointment
@@ -83,19 +98,31 @@ type InitAppointmentRoomResponse struct {
 func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
-	var filter hospital.ListAppointmentsFilters
-	if err := c.ShouldBindJSON(&filter); err != nil {
+	var req ListAppointmentsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
-	filter.DoctorID = &doctor.RefID
-
-	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &filter)
+	req.DoctorID = &doctor.RefID
+	skip := (req.PageNumber - 1) * req.PerPage
+	appointments, err := h.hospitalClient.ListAppointmentsWithFilters(context.Background(), &req.ListAppointmentsFilters, req.PerPage, skip)
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.ListAppointmentsByDoctorID error")
 		return
 	}
-	c.JSON(http.StatusOK, appointments)
+	count, err := h.hospitalClient.CountAppointmentsWithFilters(context.Background(), &req.ListAppointmentsFilters)
+	if err != nil {
+		h.InternalServerError(c, err, "h.hospitalClient.CountAppointmentsWithFilters error")
+		return
+	}
+	res := &ListAppointmentsResponse{
+		PageNumber:   req.PageNumber,
+		PerPage:      req.PerPage,
+		TotalPage:    int(math.Ceil(float64(count) / float64(req.PerPage))),
+		TotalItem:    count,
+		Appointments: appointments,
+	}
+	c.JSON(http.StatusOK, res)
 }
 
 // InitAppointmentRoom godoc

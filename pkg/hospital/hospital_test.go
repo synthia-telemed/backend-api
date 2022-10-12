@@ -280,6 +280,10 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
+	Context("parseListAppointmentsFiltersToAppointmentWhereInput", func() {
+
+	})
+
 	Context("ListAppointmentsByDoctorIDWithFilters", func() {
 		var (
 			doctorID     = "12"
