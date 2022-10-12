@@ -18,12 +18,12 @@ type SystemClient interface {
 	PaidInvoice(ctx context.Context, id int) error
 	ListAppointmentsByPatientID(ctx context.Context, patientID string, since time.Time) ([]*AppointmentOverview, error)
 	ListAppointmentsByDoctorID(ctx context.Context, doctorID string, date time.Time) ([]*AppointmentOverview, error)
-	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error)
+	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error)
+	CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
 }
-
 type Config struct {
 	HospitalSysEndpoint string `env:"HOSPITAL_SYS_ENDPOINT,required"`
 }
@@ -36,113 +36,6 @@ func NewGraphQLClient(config *Config) *GraphQLClient {
 	return &GraphQLClient{
 		client: graphql.NewClient(config.HospitalSysEndpoint, nil),
 	}
-}
-
-type Name struct {
-	FullName  string
-	Initial   string
-	Firstname string
-	Lastname  string
-}
-
-func NewName(init, first, last string) *Name {
-	return &Name{
-		FullName:  parseFullName(init, first, last),
-		Initial:   init,
-		Firstname: first,
-		Lastname:  last,
-	}
-}
-
-type Patient struct {
-	BirthDate   time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	PassportId  *string
-	NameEN      *Name
-	NameTH      *Name
-	NationalId  *string
-	Id          string
-	Nationality string
-	PhoneNumber string
-	BloodType   BloodType
-	Height      float64
-	Weight      float64
-}
-
-type Doctor struct {
-	Id            string
-	NameEN        *Name
-	NameTH        *Name
-	Position      string
-	ProfilePicURL string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	Username      string
-}
-
-type InvoiceOverview struct {
-	CreatedAt     time.Time
-	AppointmentID string
-	PatientID     string
-	Id            int
-	Total         float64
-	Paid          bool
-}
-
-type AppointmentOverview struct {
-	Id            string            `json:"id"`
-	Detail        string            `json:"detail"`
-	StartDateTime time.Time         `json:"start_date_time"`
-	EndDateTime   time.Time         `json:"end_date_time"`
-	Status        AppointmentStatus `json:"status"`
-	Doctor        DoctorOverview    `json:"doctor"`
-	Patient       PatientOverview   `json:"patient"`
-}
-type DoctorOverview struct {
-	ID            string `json:"id"`
-	FullName      string `json:"full_name"`
-	Position      string `json:"position"`
-	ProfilePicURL string `json:"profile_pic_url"`
-}
-type PatientOverview struct {
-	ID       string `json:"id"`
-	FullName string `json:"full_name"`
-}
-
-type Appointment struct {
-	Id              string            `json:"id"`
-	PatientID       string            `json:"patient_id"`
-	StartDateTime   time.Time         `json:"start_date_time"`
-	EndDateTime     time.Time         `json:"end_date_time"`
-	NextAppointment *time.Time        `json:"next_appointment"`
-	Detail          string            `json:"detail"`
-	Status          AppointmentStatus `json:"status"`
-	Doctor          DoctorOverview    `json:"doctor"`
-	Invoice         *Invoice          `json:"invoice"`
-	Prescriptions   []*Prescription   `json:"prescriptions"`
-}
-type Invoice struct {
-	InvoiceItems     []*InvoiceItem     `json:"invoice_items"`
-	InvoiceDiscounts []*InvoiceDiscount `json:"invoice_discounts"`
-	Id               int                `json:"id"`
-	Total            float64            `json:"total"`
-	Paid             bool               `json:"paid"`
-}
-type InvoiceItem struct {
-	Name     string  `json:"name"`
-	Price    float64 `json:"price"`
-	Quantity int     `json:"quantity"`
-}
-type InvoiceDiscount struct {
-	Name   string  `json:"name"`
-	Amount float64 `json:"amount"`
-}
-type Prescription struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	PictureURL  string `json:"picture_url"`
-	Amount      int    `json:"amount"`
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
@@ -275,7 +168,35 @@ type ListAppointmentsFilters struct {
 	Status    AppointmentStatus `json:"status" binding:"required,enum" enums:"CANCELLED,COMPLETED,SCHEDULED"`
 }
 
-func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) ([]*AppointmentOverview, error) {
+func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error) {
+	where, err := c.parseListAppointmentsFiltersToAppointmentWhereInput(filters)
+	if err != nil {
+		return nil, err
+	}
+	order := SortOrderDesc
+	if filters.Status == AppointmentStatusScheduled {
+		order = SortOrderAsc
+	}
+	resp, err := getAppointmentsWithPagination(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}}, &take, &skip)
+	if err != nil {
+		return nil, err
+	}
+	return c.parseHospitalAppointmentWithPaginationToAppointmentOverview(resp.Appointments), nil
+}
+
+func (c GraphQLClient) CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error) {
+	where, err := c.parseListAppointmentsFiltersToAppointmentWhereInput(filters)
+	if err != nil {
+		return 0, err
+	}
+	resp, err := getAppointments(ctx, c.client, where, nil)
+	if err != nil {
+		return 0, err
+	}
+	return len(resp.Appointments), nil
+}
+
+func (c GraphQLClient) parseListAppointmentsFiltersToAppointmentWhereInput(filters *ListAppointmentsFilters) (*AppointmentWhereInput, error) {
 	where := &AppointmentWhereInput{Status: &EnumAppointmentStatusFilter{Equals: &filters.Status}}
 	if filters.PatientID != nil {
 		where.PatientId = &StringFilter{Equals: filters.PatientID}
@@ -307,16 +228,31 @@ func (c GraphQLClient) ListAppointmentsWithFilters(ctx context.Context, filters 
 		endDateTime := time.Date(et.Year(), et.Month(), et.Day(), 23, 59, 59, 0, et.Location())
 		where.StartDateTime = &DateTimeFilter{Gte: &startDateTime, Lt: &endDateTime}
 	}
+	return where, nil
+}
 
-	order := SortOrderDesc
-	if filters.Status == AppointmentStatusScheduled {
-		order = SortOrderAsc
+func (c GraphQLClient) parseHospitalAppointmentWithPaginationToAppointmentOverview(hosApps []*getAppointmentsWithPaginationAppointmentsAppointment) []*AppointmentOverview {
+	appointments := make([]*AppointmentOverview, len(hosApps))
+	for i, a := range hosApps {
+		appointments[i] = &AppointmentOverview{
+			Id:            a.Id,
+			StartDateTime: a.StartDateTime,
+			EndDateTime:   a.EndDateTime,
+			Status:        a.Status,
+			Detail:        a.Detail,
+			Doctor: DoctorOverview{
+				ID:            a.Doctor.Id,
+				FullName:      parseFullName(a.Doctor.Initial_en, a.Doctor.Firstname_en, a.Doctor.Lastname_en),
+				Position:      a.Doctor.Position,
+				ProfilePicURL: a.Doctor.ProfilePicURL,
+			},
+			Patient: PatientOverview{
+				ID:       a.Patient.Id,
+				FullName: parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+			},
+		}
 	}
-	resp, err := getAppointments(ctx, c.client, where, []*AppointmentOrderByWithRelationInput{{StartDateTime: &order}})
-	if err != nil {
-		return nil, err
-	}
-	return c.parseHospitalAppointmentToAppointmentOverview(resp.Appointments), nil
+	return appointments
 }
 
 func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*getAppointmentsAppointmentsAppointment) []*AppointmentOverview {
@@ -342,6 +278,10 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 	}
 	return appointments
 }
+
+//func (c GraphQLClient) CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error) {
+//
+//}
 
 func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error) {
 	resp, err := getAppointment(ctx, c.client, &AppointmentWhereInput{

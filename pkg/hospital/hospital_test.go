@@ -250,18 +250,67 @@ var _ = Describe("Hospital Client", func() {
 		})
 	})
 
+	Context("CountAppointmentsWithFilters", func() {
+		var (
+			filters *hospital.ListAppointmentsFilters
+			count   int
+			err     error
+		)
+		BeforeEach(func() {
+			dID := "12"
+			filters = &hospital.ListAppointmentsFilters{DoctorID: &dID, Status: hospital.AppointmentStatusCompleted}
+		})
+		JustBeforeEach(func() {
+			count, err = graphQLClient.CountAppointmentsWithFilters(ctx, filters)
+		})
+		When("doctor has one or more appointments that matched the filter", func() {
+			It("should return 2", func() {
+				Expect(err).To(BeNil())
+				Expect(count).To(Equal(2))
+			})
+		})
+		When("doctor no appointment that matched the filter", func() {
+			BeforeEach(func() {
+				filters.Status = hospital.AppointmentStatusCancelled
+			})
+			It("should return 2", func() {
+				Expect(err).To(BeNil())
+				Expect(count).To(Equal(0))
+			})
+		})
+	})
+
+	Context("parseListAppointmentsFiltersToAppointmentWhereInput", func() {
+
+	})
+
 	Context("ListAppointmentsByDoctorIDWithFilters", func() {
 		var (
 			doctorID     = "12"
 			filters      *hospital.ListAppointmentsFilters
 			appointments []*hospital.AppointmentOverview
 			err          error
+			take, skip   int
 		)
 		BeforeEach(func() {
+			take = 10
+			skip = 0
 			filters = &hospital.ListAppointmentsFilters{Status: hospital.AppointmentStatusCompleted, DoctorID: &doctorID}
 		})
 		JustBeforeEach(func() {
-			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters)
+			appointments, err = graphQLClient.ListAppointmentsWithFilters(ctx, filters, take, skip)
+		})
+
+		When("take and skip is set", func() {
+			BeforeEach(func() {
+				take = 1
+				skip = 1
+			})
+			It("should return one appointment with the first one skipped", func() {
+				Expect(err).To(BeNil())
+				Expect(appointments).To(HaveLen(1))
+				Expect(appointments[0].Id).To(Equal("37"))
+			})
 		})
 
 		Context("target patient or doctor", func() {
