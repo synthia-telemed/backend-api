@@ -72,8 +72,8 @@ type InitAppointmentRoomResponse struct {
 
 type ListAppointmentsRequest struct {
 	hospital.ListAppointmentsFilters
-	PageNumber int `json:"page_number" binding:"required"`
-	PerPage    int `json:"per_page" binding:"required"`
+	PageNumber int `json:"page_number" form:"page_number" binding:"required"`
+	PerPage    int `json:"per_page" form:"per_page" binding:"required"`
 }
 
 type ListAppointmentsResponse struct {
@@ -99,7 +99,7 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
 	var req ListAppointmentsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
