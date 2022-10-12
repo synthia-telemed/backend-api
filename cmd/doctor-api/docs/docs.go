@@ -38,13 +38,42 @@ const docTemplate = `{
                 "summary": "Get list of the appointments with filter",
                 "parameters": [
                     {
-                        "description": "Filter with pagination options for querying",
-                        "name": "ListAppointmentsRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.ListAppointmentsRequest"
-                        }
+                        "type": "string",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page_number",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "per_page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "CANCELLED",
+                            "COMPLETED",
+                            "SCHEDULED"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "text",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -257,45 +286,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "room_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ListAppointmentsRequest": {
-            "type": "object",
-            "required": [
-                "page_number",
-                "per_page",
-                "status"
-            ],
-            "properties": {
-                "doctorID": {
-                    "type": "string"
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "page_number": {
-                    "type": "integer"
-                },
-                "patientID": {
-                    "type": "string"
-                },
-                "per_page": {
-                    "type": "integer"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "CANCELLED",
-                        "COMPLETED",
-                        "SCHEDULED"
-                    ]
-                },
-                "text": {
                     "type": "string"
                 }
             }

@@ -72,8 +72,8 @@ type InitAppointmentRoomResponse struct {
 
 type ListAppointmentsRequest struct {
 	hospital.ListAppointmentsFilters
-	PageNumber int `json:"page_number" binding:"required"`
-	PerPage    int `json:"per_page" binding:"required"`
+	PageNumber int `json:"page_number" form:"page_number" binding:"required"`
+	PerPage    int `json:"per_page" form:"per_page" binding:"required"`
 }
 
 type ListAppointmentsResponse struct {
@@ -87,7 +87,7 @@ type ListAppointmentsResponse struct {
 // ListAppointments godoc
 // @Summary      Get list of the appointments with filter
 // @Tags         Appointment
-// @Param 	  	 ListAppointmentsRequest body ListAppointmentsRequest true "Filter with pagination options for querying"
+// @Param 	  	 ListAppointmentsRequest query ListAppointmentsRequest true "Filter with pagination options for querying"
 // @Success      200  {array}	ListAppointmentsResponse "List of appointment overview details with pagination information"
 // @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
 // @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
@@ -99,7 +99,7 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)
 	var req ListAppointmentsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
 		return
 	}
