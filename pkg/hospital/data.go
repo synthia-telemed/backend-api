@@ -74,6 +74,25 @@ type PatientOverview struct {
 	FullName string `json:"full_name"`
 }
 
+type DoctorAppointment struct {
+	Id              string                   `json:"id"`
+	Patient         DoctorAppointmentPatient `json:"patient"`
+	Detail          string                   `json:"detail"`
+	StartDateTime   time.Time                `json:"start_date_time"`
+	EndDateTime     time.Time                `json:"end_date_time"`
+	NextAppointment *time.Time               `json:"next_appointment"`
+	Status          AppointmentStatus        `json:"status"`
+}
+type DoctorAppointmentPatient struct {
+	ID        string    `json:"id"`
+	FullName  string    `json:"full_name"`
+	RefID     string    `json:"ref_id"`
+	Weight    float64   `json:"weight"`
+	Height    float64   `json:"height"`
+	BirthDate time.Time `json:"birth_date"`
+	BloodType BloodType `json:"blood_type"`
+}
+
 type Appointment struct {
 	Id              string            `json:"id"`
 	PatientID       string            `json:"patient_id"`
