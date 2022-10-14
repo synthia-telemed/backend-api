@@ -2,6 +2,7 @@ package hospital_test
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -417,6 +418,36 @@ var _ = Describe("Hospital Client", func() {
 				Expect(err).To(BeNil())
 				Expect(appointments).To(HaveLen(1))
 				Expect(appointments[0].Id).To(Equal("37"))
+			})
+		})
+	})
+
+	Context("FindDoctorAppointmentByID", func() {
+		var (
+			appointmentID int
+			appointment   *hospital.DoctorAppointment
+		)
+		JustBeforeEach(func() {
+			var err error
+			appointment, err = graphQLClient.FindDoctorAppointmentByID(ctx, appointmentID)
+			Expect(err).To(BeNil())
+		})
+
+		When("appointment is not found", func() {
+			BeforeEach(func() {
+				appointmentID = 1283923472
+			})
+			It("should return nil with no error", func() {
+				Expect(appointment).To(BeNil())
+			})
+		})
+		When("appointment is found", func() {
+			BeforeEach(func() {
+				appointmentID = 26
+			})
+			It("should return appointment with data", func() {
+				Expect(appointment).ToNot(BeNil())
+				Expect(appointment.Id).To(Equal(fmt.Sprintf("%d", appointmentID)))
 			})
 		})
 	})

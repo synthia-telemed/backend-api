@@ -170,3 +170,25 @@ query getAppointmentIds($where: AppointmentWhereInput) {
         id
     }
 }
+
+query getDoctorAppointment($where: AppointmentWhereInput!) {
+    appointment(where: $where) {
+        id
+        detail
+        startDateTime
+        endDateTime
+        nextAppointment
+        status
+        doctorId
+        patient {
+            id
+            initial_en
+            firstname_en
+            lastname_en
+            birthDate
+            bloodType
+            height
+            weight
+        }
+    }
+}
