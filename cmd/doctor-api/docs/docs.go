@@ -158,6 +158,67 @@ const docTemplate = `{
             }
         },
         "/appointment/{appointmentID}": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get appointment detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the appointment",
+                        "name": "appointmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Appointment detail",
+                        "schema": {
+                            "$ref": "#/definitions/hospital.DoctorAppointment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid appointment ID",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -359,6 +420,58 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "hospital.DoctorAppointment": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string"
+                },
+                "doctor_id": {
+                    "type": "string"
+                },
+                "end_date_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "next_appointment": {
+                    "type": "string"
+                },
+                "patient": {
+                    "$ref": "#/definitions/hospital.DoctorAppointmentPatient"
+                },
+                "start_date_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.DoctorAppointmentPatient": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "blood_type": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },

@@ -64,6 +64,40 @@ definitions:
       status:
         type: string
     type: object
+  hospital.DoctorAppointment:
+    properties:
+      detail:
+        type: string
+      doctor_id:
+        type: string
+      end_date_time:
+        type: string
+      id:
+        type: string
+      next_appointment:
+        type: string
+      patient:
+        $ref: '#/definitions/hospital.DoctorAppointmentPatient'
+      start_date_time:
+        type: string
+      status:
+        type: string
+    type: object
+  hospital.DoctorAppointmentPatient:
+    properties:
+      birth_date:
+        type: string
+      blood_type:
+        type: string
+      full_name:
+        type: string
+      height:
+        type: number
+      id:
+        type: string
+      weight:
+        type: number
+    type: object
   hospital.DoctorOverview:
     properties:
       full_name:
@@ -147,6 +181,44 @@ paths:
       tags:
       - Appointment
   /appointment/{appointmentID}:
+    get:
+      parameters:
+      - description: ID of the appointment
+        in: path
+        name: appointmentID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Appointment detail
+          schema:
+            $ref: '#/definitions/hospital.DoctorAppointment'
+        "400":
+          description: Invalid appointment ID
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Appointment not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Get appointment detail
+      tags:
+      - Appointment
     post:
       parameters:
       - description: ID of the appointment

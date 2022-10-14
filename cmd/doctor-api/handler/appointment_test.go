@@ -43,7 +43,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockClock                *mock_clock.MockClock
 		mockIDGenerator          *mock_id.MockGenerator
 		doctor                   *datastore.Doctor
-		appointment              *hospital.Appointment
+		appointment              *hospital.DoctorAppointment
 		appointmentID            int
 	)
 
@@ -58,7 +58,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockIDGenerator = mock_id.NewMockGenerator(mockCtrl)
 		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
 		doctor = testhelper.GenerateDoctor()
-		appointment, appointmentID = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled, false)
+		appointment, appointmentID = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 	})
 
 	JustBeforeEach(func() {
@@ -107,15 +107,10 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	})
 
 	Context("AuthorizedDoctorToAppointment", func() {
-		var (
-			appointment   *hospital.Appointment
-			appointmentID int
-		)
-
 		BeforeEach(func() {
 			handlerFunc = h.AuthorizedDoctorToAppointment
-			appointment, appointmentID = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled, false)
 		})
+
 		When("appointment ID is not provided", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", "")
@@ -134,19 +129,19 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrAppointmentIDInvalid)
 			})
 		})
-		When("find appointment by ID error", func() {
+		When("find doctor appointment by ID error", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(nil, testhelper.MockError).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 404 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
-		When("appointment is not found", func() {
+		When("doctor appointment is not found", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(nil, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(nil, nil).Times(1)
 			})
 			It("should return 404 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusNotFound))
@@ -156,7 +151,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		When("Doctor is not set in context", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -165,7 +160,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		When("Doctor in the context is not datastore.Doctor", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 				c.Set("Doctor", "anything")
 			})
 			It("should return 500", func() {
@@ -176,8 +171,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
 				c.Set("Doctor", doctor)
-				a, _ := testhelper.GenerateAppointment("", uuid.NewString(), hospital.AppointmentStatusScheduled, false)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(a, nil).Times(1)
+				a, _ := testhelper.GenerateDoctorAppointment("", uuid.NewString(), hospital.AppointmentStatusScheduled)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(a, nil).Times(1)
 			})
 			It("should return 403 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
@@ -188,12 +183,12 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
 				c.Set("Doctor", doctor)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 			})
 			It("should set the appointment to context", func() {
 				rawApp, existed := c.Get("Appointment")
 				Expect(existed).To(BeTrue())
-				app, ok := rawApp.(*hospital.Appointment)
+				app, ok := rawApp.(*hospital.DoctorAppointment)
 				Expect(ok).To(BeTrue())
 				Expect(app).To(Equal(appointment))
 			})
@@ -310,7 +305,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 							cache.AppointmentRoomIDKey(appointment.Id):     roomID,
 						}
 						patient = testhelper.GeneratePatient()
-						appointment.PatientID = patient.RefID
+						appointment.Patient.ID = patient.RefID
 					})
 
 					When("set current appointment of the doctor and room ID of appointment to cache error", func() {
@@ -324,7 +319,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("find patient by ID error", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(nil, testhelper.MockError).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(nil, testhelper.MockError).Times(1)
 						})
 						It("should return 500", func() {
 							Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -333,7 +328,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("set room information to cache error", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(patient, nil).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(patient, nil).Times(1)
 							info := map[string]string{
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
@@ -348,7 +343,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("successfully set room info to cache", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(patient, nil).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(patient, nil).Times(1)
 							info := map[string]string{
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
@@ -637,6 +632,22 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Expect(res.Appointments[0].Id).To(Equal(appointments[0].Id))
 				Expect(res.Appointments[1].Id).To(Equal(appointments[1].Id))
 			})
+		})
+	})
+
+	Context("GetDoctorAppointmentDetail", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetDoctorAppointmentDetail
+			c.Request = httptest.NewRequest("GET", "/", nil)
+			c.Set("Appointment", appointment)
+		})
+		It("should return appointment detail", func() {
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			var res hospital.DoctorAppointment
+			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+			Expect(res.Id).To(Equal(appointment.Id))
+			Expect(res.DoctorID).To(Equal(appointment.DoctorID))
+			Expect(res.Patient.ID).To(Equal(appointment.Patient.ID))
 		})
 	})
 })

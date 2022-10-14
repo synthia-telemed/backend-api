@@ -21,6 +21,7 @@ type SystemClient interface {
 	ListAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters, take, skip int) ([]*AppointmentOverview, error)
 	CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error)
 	FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error)
+	FindDoctorAppointmentByID(ctx context.Context, appointmentID int) (*DoctorAppointment, error)
 	SetAppointmentStatus(ctx context.Context, appointmentID int, status SettableAppointmentStatus) error
 	CategorizeAppointmentByStatus(apps []*AppointmentOverview) *CategorizedAppointment
 }
@@ -279,9 +280,30 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 	return appointments
 }
 
-//func (c GraphQLClient) CountAppointmentsWithFilters(ctx context.Context, filters *ListAppointmentsFilters) (int, error) {
-//
-//}
+func (c GraphQLClient) FindDoctorAppointmentByID(ctx context.Context, appointmentID int) (*DoctorAppointment, error) {
+	resp, err := getDoctorAppointment(ctx, c.client, &AppointmentWhereInput{Id: &IntFilter{Equals: &appointmentID}})
+	app := resp.GetAppointment()
+	if err != nil || app == nil {
+		return nil, err
+	}
+	return &DoctorAppointment{
+		Id: app.GetId(),
+		Patient: DoctorAppointmentPatient{
+			BirthDate: app.Patient.GetBirthDate(),
+			ID:        app.Patient.GetId(),
+			FullName:  parseFullName(app.Patient.GetInitial_en(), app.Patient.GetFirstname_en(), app.Patient.GetLastname_en()),
+			BloodType: app.Patient.GetBloodType(),
+			Weight:    app.Patient.GetWeight(),
+			Height:    app.Patient.GetHeight(),
+		},
+		DoctorID:        fmt.Sprintf("%d", app.GetDoctorId()),
+		Detail:          app.GetDetail(),
+		StartDateTime:   app.GetStartDateTime(),
+		EndDateTime:     app.GetEndDateTime(),
+		NextAppointment: app.GetNextAppointment(),
+		Status:          app.GetStatus(),
+	}, nil
+}
 
 func (c GraphQLClient) FindAppointmentByID(ctx context.Context, appointmentID int) (*Appointment, error) {
 	resp, err := getAppointment(ctx, c.client, &AppointmentWhereInput{

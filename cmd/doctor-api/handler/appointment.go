@@ -62,6 +62,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.GET("", middleware.ParseUserID, h.ParseDoctor, h.ListAppointments)
+	g.GET("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.GetDoctorAppointmentDetail)
 	g.POST("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
@@ -125,6 +126,27 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// GetDoctorAppointmentDetail godoc
+// @Summary      Get appointment detail
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer	true "ID of the appointment"
+// @Success      200  {object}  hospital.DoctorAppointment  "Appointment detail"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      400  {object}  server.ErrorResponse   "Appointment ID is missing"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid appointment ID"
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse   "Forbidden"
+// @Failure      404  {object}  server.ErrorResponse   "Appointment not found"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/{appointmentID} [get]
+func (h AppointmentHandler) GetDoctorAppointmentDetail(c *gin.Context) {
+	rawApp, _ := c.Get("Appointment")
+	appointment := rawApp.(*hospital.DoctorAppointment)
+	c.JSON(http.StatusOK, appointment)
+}
+
 // InitAppointmentRoom godoc
 // @Summary      Init the appointment room
 // @Tags         Appointment
@@ -147,7 +169,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	doctor := rawDoc.(*datastore.Doctor)
 
 	rawApp, _ := c.Get("Appointment")
-	appointment := rawApp.(*hospital.Appointment)
+	appointment := rawApp.(*hospital.DoctorAppointment)
 	if appointment.Status != hospital.AppointmentStatusScheduled {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
 		return
@@ -195,7 +217,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByRefID(appointment.PatientID)
+	patient, err := h.patientDataStore.FindByRefID(appointment.Patient.ID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.patientDataStore.FindByRefID error")
 		return
@@ -319,7 +341,7 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrAppointmentIDInvalid)
 		return
 	}
-	apps, err := h.hospitalClient.FindAppointmentByID(context.Background(), int(appointmentID))
+	apps, err := h.hospitalClient.FindDoctorAppointmentByID(context.Background(), int(appointmentID))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.FindAppointmentByID error")
 		return
@@ -339,7 +361,7 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		h.InternalServerError(c, errors.New("doctor type casting error"), "Doctor type casting error")
 		return
 	}
-	if apps.Doctor.ID != doctor.RefID {
+	if apps.DoctorID != doctor.RefID {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
 		return
 	}
