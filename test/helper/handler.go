@@ -185,6 +185,27 @@ func GenerateAppointment(patientID string, doctorID string, status hospital.Appo
 	}, int(id)
 }
 
+func GenerateDoctorAppointment(patientID string, doctorID string, status hospital.AppointmentStatus) (*hospital.DoctorAppointment, int) {
+	id := rand.Int31()
+	return &hospital.DoctorAppointment{
+		StartDateTime:   time.Now(),
+		EndDateTime:     time.Now().Add(time.Hour),
+		NextAppointment: nil,
+		Status:          status,
+		DoctorID:        doctorID,
+		Detail:          patientID,
+		Id:              fmt.Sprintf("%d", id),
+		Patient: hospital.DoctorAppointmentPatient{
+			BirthDate: time.Now(),
+			ID:        uuid.NewString(),
+			FullName:  uuid.NewString(),
+			BloodType: hospital.BloodTypeO,
+			Weight:    float64(rand.Intn(150)),
+			Height:    float64(rand.Intn(200)),
+		},
+	}, int(id)
+}
+
 func GenerateDataStoreAppointment(appointmentID string) *datastore.Appointment {
 	return &datastore.Appointment{
 		StartedTime: time.Now(),

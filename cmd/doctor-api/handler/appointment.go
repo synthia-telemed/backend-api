@@ -147,7 +147,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	doctor := rawDoc.(*datastore.Doctor)
 
 	rawApp, _ := c.Get("Appointment")
-	appointment := rawApp.(*hospital.Appointment)
+	appointment := rawApp.(*hospital.DoctorAppointment)
 	if appointment.Status != hospital.AppointmentStatusScheduled {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
 		return
@@ -195,7 +195,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByRefID(appointment.PatientID)
+	patient, err := h.patientDataStore.FindByRefID(appointment.Patient.ID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.patientDataStore.FindByRefID error")
 		return
@@ -319,7 +319,7 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrAppointmentIDInvalid)
 		return
 	}
-	apps, err := h.hospitalClient.FindAppointmentByID(context.Background(), int(appointmentID))
+	apps, err := h.hospitalClient.FindDoctorAppointmentByID(context.Background(), int(appointmentID))
 	if err != nil {
 		h.InternalServerError(c, err, "h.hospitalClient.FindAppointmentByID error")
 		return
@@ -339,7 +339,7 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		h.InternalServerError(c, errors.New("doctor type casting error"), "Doctor type casting error")
 		return
 	}
-	if apps.Doctor.ID != doctor.RefID {
+	if apps.DoctorID != doctor.RefID {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
 		return
 	}
