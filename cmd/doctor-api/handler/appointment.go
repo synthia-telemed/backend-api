@@ -62,6 +62,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment")
 	g.GET("", middleware.ParseUserID, h.ParseDoctor, h.ListAppointments)
+	g.GET("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.GetDoctorAppointmentDetail)
 	g.POST("/:appointmentID", middleware.ParseUserID, h.ParseDoctor, h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
 	g.POST("/complete", middleware.ParseUserID, h.ParseDoctor, h.CompleteAppointment)
 }
@@ -123,6 +124,27 @@ func (h AppointmentHandler) ListAppointments(c *gin.Context) {
 		Appointments: appointments,
 	}
 	c.JSON(http.StatusOK, res)
+}
+
+// GetDoctorAppointmentDetail godoc
+// @Summary      Get appointment detail
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer	true "ID of the appointment"
+// @Success      200  {object}  hospital.DoctorAppointment  "Appointment detail"
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      400  {object}  server.ErrorResponse   "Appointment ID is missing"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid appointment ID"
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse   "Forbidden"
+// @Failure      404  {object}  server.ErrorResponse   "Appointment not found"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/{appointmentID} [get]
+func (h AppointmentHandler) GetDoctorAppointmentDetail(c *gin.Context) {
+	rawApp, _ := c.Get("Appointment")
+	appointment := rawApp.(*hospital.DoctorAppointment)
+	c.JSON(http.StatusOK, appointment)
 }
 
 // InitAppointmentRoom godoc
