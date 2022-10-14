@@ -75,14 +75,14 @@ type PatientOverview struct {
 }
 
 type DoctorAppointment struct {
-	Id              string                   `json:"id"`
-	Patient         DoctorAppointmentPatient `json:"patient"`
-	DoctorID        string                   `json:"doctor_id"`
-	Detail          string                   `json:"detail"`
 	StartDateTime   time.Time                `json:"start_date_time"`
 	EndDateTime     time.Time                `json:"end_date_time"`
 	NextAppointment *time.Time               `json:"next_appointment"`
 	Status          AppointmentStatus        `json:"status"`
+	DoctorID        string                   `json:"doctor_id"`
+	Detail          string                   `json:"detail"`
+	Id              string                   `json:"id"`
+	Patient         DoctorAppointmentPatient `json:"patient"`
 }
 type DoctorAppointmentPatient struct {
 	BirthDate time.Time `json:"birth_date"`
