@@ -289,7 +289,7 @@ func (c GraphQLClient) FindDoctorAppointmentByID(ctx context.Context, appointmen
 	return &DoctorAppointment{
 		Id: app.GetId(),
 		Patient: DoctorAppointmentPatient{
-			BirthDate: time.Time{},
+			BirthDate: app.Patient.GetBirthDate(),
 			ID:        app.Patient.GetId(),
 			FullName:  parseFullName(app.Patient.GetInitial_en(), app.Patient.GetFirstname_en(), app.Patient.GetLastname_en()),
 			BloodType: app.Patient.GetBloodType(),
