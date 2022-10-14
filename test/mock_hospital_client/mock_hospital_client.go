@@ -95,6 +95,21 @@ func (mr *MockSystemClientMockRecorder) FindAppointmentByID(ctx, appointmentID i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAppointmentByID", reflect.TypeOf((*MockSystemClient)(nil).FindAppointmentByID), ctx, appointmentID)
 }
 
+// FindDoctorAppointmentByID mocks base method.
+func (m *MockSystemClient) FindDoctorAppointmentByID(ctx context.Context, appointmentID int) (*hospital.DoctorAppointment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindDoctorAppointmentByID", ctx, appointmentID)
+	ret0, _ := ret[0].(*hospital.DoctorAppointment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindDoctorAppointmentByID indicates an expected call of FindDoctorAppointmentByID.
+func (mr *MockSystemClientMockRecorder) FindDoctorAppointmentByID(ctx, appointmentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindDoctorAppointmentByID", reflect.TypeOf((*MockSystemClient)(nil).FindDoctorAppointmentByID), ctx, appointmentID)
+}
+
 // FindDoctorByUsername mocks base method.
 func (m *MockSystemClient) FindDoctorByUsername(ctx context.Context, username string) (*hospital.Doctor, error) {
 	m.ctrl.T.Helper()
