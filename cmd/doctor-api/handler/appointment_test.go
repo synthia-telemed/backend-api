@@ -634,4 +634,20 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			})
 		})
 	})
+
+	Context("GetDoctorAppointmentDetail", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetDoctorAppointmentDetail
+			c.Request = httptest.NewRequest("GET", "/", nil)
+			c.Set("Appointment", appointment)
+		})
+		It("should return appointment detail", func() {
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			var res hospital.DoctorAppointment
+			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+			Expect(res.Id).To(Equal(appointment.Id))
+			Expect(res.DoctorID).To(Equal(appointment.DoctorID))
+			Expect(res.Patient.ID).To(Equal(appointment.Patient.ID))
+		})
+	})
 })
