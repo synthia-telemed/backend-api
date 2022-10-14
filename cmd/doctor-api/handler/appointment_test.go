@@ -201,9 +201,11 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	})
 
 	Context("InitAppointmentRoom", func() {
+		var appointment *hospital.DoctorAppointment
 		BeforeEach(func() {
 			handlerFunc = h.InitAppointmentRoom
 			c.Set("Doctor", doctor)
+			appointment = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 			c.Set("Appointment", appointment)
 		})
 
@@ -310,7 +312,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 							cache.AppointmentRoomIDKey(appointment.Id):     roomID,
 						}
 						patient = testhelper.GeneratePatient()
-						appointment.PatientID = patient.RefID
+						appointment.Patient.ID = patient.RefID
 					})
 
 					When("set current appointment of the doctor and room ID of appointment to cache error", func() {
@@ -324,7 +326,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("find patient by ID error", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(nil, testhelper.MockError).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(nil, testhelper.MockError).Times(1)
 						})
 						It("should return 500", func() {
 							Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -333,7 +335,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("set room information to cache error", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(patient, nil).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(patient, nil).Times(1)
 							info := map[string]string{
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),
@@ -348,7 +350,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 					When("successfully set room info to cache", func() {
 						BeforeEach(func() {
 							mockCacheClient.EXPECT().MultipleSet(gomock.Any(), kv).Return(nil).Times(1)
-							mockPatientDataStore.EXPECT().FindByRefID(appointment.PatientID).Return(patient, nil).Times(1)
+							mockPatientDataStore.EXPECT().FindByRefID(appointment.Patient.ID).Return(patient, nil).Times(1)
 							info := map[string]string{
 								"PatientID":     fmt.Sprintf("%d", patient.ID),
 								"DoctorID":      fmt.Sprintf("%d", doctor.ID),

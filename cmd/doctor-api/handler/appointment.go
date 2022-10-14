@@ -147,7 +147,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	doctor := rawDoc.(*datastore.Doctor)
 
 	rawApp, _ := c.Get("Appointment")
-	appointment := rawApp.(*hospital.Appointment)
+	appointment := rawApp.(*hospital.DoctorAppointment)
 	if appointment.Status != hospital.AppointmentStatusScheduled {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
 		return
@@ -195,7 +195,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 
-	patient, err := h.patientDataStore.FindByRefID(appointment.PatientID)
+	patient, err := h.patientDataStore.FindByRefID(appointment.Patient.ID)
 	if err != nil {
 		h.InternalServerError(c, err, "h.patientDataStore.FindByRefID error")
 		return
