@@ -43,7 +43,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockClock                *mock_clock.MockClock
 		mockIDGenerator          *mock_id.MockGenerator
 		doctor                   *datastore.Doctor
-		appointment              *hospital.Appointment
+		appointment              *hospital.DoctorAppointment
 		appointmentID            int
 	)
 
@@ -58,7 +58,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockIDGenerator = mock_id.NewMockGenerator(mockCtrl)
 		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
 		doctor = testhelper.GenerateDoctor()
-		appointment, appointmentID = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled, false)
+		appointment, appointmentID = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 	})
 
 	JustBeforeEach(func() {
@@ -107,15 +107,10 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	})
 
 	Context("AuthorizedDoctorToAppointment", func() {
-		var (
-			appointment   *hospital.Appointment
-			appointmentID int
-		)
-
 		BeforeEach(func() {
 			handlerFunc = h.AuthorizedDoctorToAppointment
-			appointment, appointmentID = testhelper.GenerateAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled, false)
 		})
+
 		When("appointment ID is not provided", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", "")
@@ -134,19 +129,19 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrAppointmentIDInvalid)
 			})
 		})
-		When("find appointment by ID error", func() {
+		When("find doctor appointment by ID error", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(nil, testhelper.MockError).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(nil, testhelper.MockError).Times(1)
 			})
 			It("should return 404 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
-		When("appointment is not found", func() {
+		When("doctor appointment is not found", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(nil, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(nil, nil).Times(1)
 			})
 			It("should return 404 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusNotFound))
@@ -156,7 +151,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		When("Doctor is not set in context", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 			})
 			It("should return 500", func() {
 				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
@@ -165,7 +160,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		When("Doctor in the context is not datastore.Doctor", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 				c.Set("Doctor", "anything")
 			})
 			It("should return 500", func() {
@@ -176,8 +171,8 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
 				c.Set("Doctor", doctor)
-				a, _ := testhelper.GenerateAppointment("", uuid.NewString(), hospital.AppointmentStatusScheduled, false)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(a, nil).Times(1)
+				a, _ := testhelper.GenerateDoctorAppointment("", uuid.NewString(), hospital.AppointmentStatusScheduled)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(a, nil).Times(1)
 			})
 			It("should return 403 with error", func() {
 				Expect(rec.Code).To(Equal(http.StatusForbidden))
@@ -188,12 +183,12 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			BeforeEach(func() {
 				c.AddParam("appointmentID", appointment.Id)
 				c.Set("Doctor", doctor)
-				mockHospitalSysClient.EXPECT().FindAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
+				mockHospitalSysClient.EXPECT().FindDoctorAppointmentByID(gomock.Any(), appointmentID).Return(appointment, nil).Times(1)
 			})
 			It("should set the appointment to context", func() {
 				rawApp, existed := c.Get("Appointment")
 				Expect(existed).To(BeTrue())
-				app, ok := rawApp.(*hospital.Appointment)
+				app, ok := rawApp.(*hospital.DoctorAppointment)
 				Expect(ok).To(BeTrue())
 				Expect(app).To(Equal(appointment))
 			})
@@ -201,11 +196,9 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	})
 
 	Context("InitAppointmentRoom", func() {
-		var appointment *hospital.DoctorAppointment
 		BeforeEach(func() {
 			handlerFunc = h.InitAppointmentRoom
 			c.Set("Doctor", doctor)
-			appointment = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 			c.Set("Appointment", appointment)
 		})
 
