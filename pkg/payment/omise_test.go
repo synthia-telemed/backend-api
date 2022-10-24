@@ -55,7 +55,7 @@ var _ = Describe("Omise Payment Client", func() {
 	Context("Add credit card", func() {
 		var cardToken string
 		BeforeEach(func() {
-			cardToken, _ = createCardToken(client, "4242424242424242")
+			cardToken, _ = createCardToken(client, "3566 1111 1111 1113")
 		})
 
 		It("should add credit card to Omise's customer", func() {
@@ -65,12 +65,30 @@ var _ = Describe("Omise Payment Client", func() {
 			Expect(card.Brand).NotTo(BeEmpty())
 			Expect(card.Last4Digits).NotTo(BeEmpty())
 			Expect(card.Expiry).To(Equal(fmt.Sprintf("12/%d", time.Now().Year())))
+			Expect(card.Last4Digits).To(Equal("1113"))
 
 			customer, getCustomer := &omise.Customer{}, &operations.RetrieveCustomer{CustomerID: testCustomerID}
 			Expect(client.Do(customer, getCustomer)).To(Succeed())
 			Expect(customer.Cards).ToNot(BeNil())
 			Expect(customer.Cards.Total).To(Equal(1))
 		})
+
+		//When("user has existing cards", Ordered, func() {
+		//	BeforeEach(func() {
+		//		testCards := []string{"4242 4242 4242 4242", "4111 1111 1111 1111", "5555 5555 5555 4444"}
+		//		for _, testCard := range testCards {
+		//			token, _ := createCardToken(client, testCard)
+		//			attachCardToCustomer(client, testCustomerID, token)
+		//		}
+		//	})
+		//	It("should add new card with return of correct card information", func() {
+		//		time.Sleep(time.Second)
+		//		card, err := paymentClient.AddCreditCard(testCustomerID, cardToken)
+		//		Expect(err).To(BeNil())
+		//		Expect(card.Last4Digits).To(Equal("1113"))
+		//		Expect(card.Brand).To(Equal("JCB"))
+		//	})
+		//})
 	})
 
 	Context("Remove credit card", func() {
