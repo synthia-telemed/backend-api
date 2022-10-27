@@ -53,19 +53,20 @@ func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred stri
 
 	p := resp.GetPatient()
 	return &Patient{
-		Id:          p.Id,
-		NameEN:      NewName(p.Initial_en, p.Firstname_en, p.Lastname_en),
-		NameTH:      NewName(p.Initial_th, p.Firstname_th, p.Lastname_th),
-		BirthDate:   p.BirthDate,
-		BloodType:   p.BloodType,
-		Height:      p.Height,
-		Weight:      p.Weight,
-		NationalId:  p.NationalId,
-		Nationality: p.Nationality,
-		PassportId:  p.PassportId,
-		PhoneNumber: p.PhoneNumber,
-		CreatedAt:   p.CreatedAt,
-		UpdatedAt:   p.UpdatedAt,
+		Id:            p.Id,
+		NameEN:        NewName(p.Initial_en, p.Firstname_en, p.Lastname_en),
+		NameTH:        NewName(p.Initial_th, p.Firstname_th, p.Lastname_th),
+		ProfilePicURL: p.ProfilePicURL,
+		BirthDate:     p.BirthDate,
+		BloodType:     p.BloodType,
+		Height:        p.Height,
+		Weight:        p.Weight,
+		NationalId:    p.NationalId,
+		Nationality:   p.Nationality,
+		PassportId:    p.PassportId,
+		PhoneNumber:   p.PhoneNumber,
+		CreatedAt:     p.CreatedAt,
+		UpdatedAt:     p.UpdatedAt,
 	}, nil
 }
 
@@ -248,8 +249,9 @@ func (c GraphQLClient) parseHospitalAppointmentWithPaginationToAppointmentOvervi
 				ProfilePicURL: a.Doctor.ProfilePicURL,
 			},
 			Patient: PatientOverview{
-				ID:       a.Patient.Id,
-				FullName: parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+				ID:            a.Patient.Id,
+				FullName:      parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+				ProfilePicURL: a.Patient.ProfilePicURL,
 			},
 		}
 	}
@@ -272,8 +274,9 @@ func (c GraphQLClient) parseHospitalAppointmentToAppointmentOverview(hosApps []*
 				ProfilePicURL: a.Doctor.ProfilePicURL,
 			},
 			Patient: PatientOverview{
-				ID:       a.Patient.Id,
-				FullName: parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+				ID:            a.Patient.Id,
+				FullName:      parseFullName(a.Patient.Initial_en, a.Patient.Firstname_en, a.Patient.Lastname_en),
+				ProfilePicURL: a.Patient.ProfilePicURL,
 			},
 		}
 	}
@@ -289,12 +292,13 @@ func (c GraphQLClient) FindDoctorAppointmentByID(ctx context.Context, appointmen
 	return &DoctorAppointment{
 		Id: app.GetId(),
 		Patient: DoctorAppointmentPatient{
-			BirthDate: app.Patient.GetBirthDate(),
-			ID:        app.Patient.GetId(),
-			FullName:  parseFullName(app.Patient.GetInitial_en(), app.Patient.GetFirstname_en(), app.Patient.GetLastname_en()),
-			BloodType: app.Patient.GetBloodType(),
-			Weight:    app.Patient.GetWeight(),
-			Height:    app.Patient.GetHeight(),
+			BirthDate:     app.Patient.GetBirthDate(),
+			ID:            app.Patient.GetId(),
+			FullName:      parseFullName(app.Patient.GetInitial_en(), app.Patient.GetFirstname_en(), app.Patient.GetLastname_en()),
+			BloodType:     app.Patient.GetBloodType(),
+			Weight:        app.Patient.GetWeight(),
+			Height:        app.Patient.GetHeight(),
+			ProfilePicURL: app.Patient.GetProfilePicURL(),
 		},
 		DoctorID:        fmt.Sprintf("%d", app.GetDoctorId()),
 		Detail:          app.GetDetail(),
