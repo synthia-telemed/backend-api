@@ -9,7 +9,6 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/server"
-	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -47,11 +46,11 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datas
 }
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("/appointment")
-	g.GET("", middleware.ParseUserID, h.ParsePatient, h.ListAppointments)
-	g.GET("/next", middleware.ParseUserID, h.ParsePatient, h.GetNextScheduledAppointment)
-	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointment)
-	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
+	g := r.Group("/appointment", h.ParseUserID, h.ParsePatient)
+	g.GET("", h.ListAppointments)
+	g.GET("/next", h.GetNextScheduledAppointment)
+	g.GET("/:appointmentID", h.AuthorizedPatientToAppointment, h.GetAppointment)
+	g.GET("/:appointmentID/roomID", h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
 }
 
 // GetNextScheduledAppointment godoc
