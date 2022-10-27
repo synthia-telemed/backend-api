@@ -2,27 +2,6 @@ basePath: /patient/api
 consumes:
 - application/json
 definitions:
-  datastore.BloodPressure:
-    properties:
-      created_at:
-        type: string
-      date_time:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      diastolic:
-        type: integer
-      id:
-        type: integer
-      patient_id:
-        type: integer
-      pulse:
-        type: integer
-      systolic:
-        type: integer
-      updated_at:
-        type: string
-    type: object
   datastore.CreditCard:
     properties:
       brand:
@@ -43,25 +22,6 @@ definitions:
         type: integer
       updated_at:
         type: string
-    type: object
-  datastore.Glucose:
-    properties:
-      created_at:
-        type: string
-      date_time:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      is_before_meal:
-        type: boolean
-      patient_id:
-        type: integer
-      updated_at:
-        type: string
-      value:
-        type: integer
     type: object
   datastore.Payment:
     properties:
@@ -86,14 +46,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
-    type: object
   handler.AddCreditCardRequest:
     properties:
       card_token:
@@ -104,22 +56,6 @@ definitions:
         type: string
     required:
     - card_token
-    type: object
-  handler.BloodPressureRequest:
-    properties:
-      date_time:
-        type: string
-      diastolic:
-        type: integer
-      pulse:
-        type: integer
-      systolic:
-        type: integer
-    required:
-    - date_time
-    - diastolic
-    - pulse
-    - systolic
     type: object
   handler.GetAppointmentResponse:
     properties:
@@ -155,18 +91,12 @@ definitions:
       room_id:
         type: string
     type: object
-  handler.GlucoseRequest:
+  handler.GetNameResponse:
     properties:
-      date_time:
-        type: string
-      is_before_meal:
-        type: boolean
-      value:
-        type: integer
-    required:
-    - date_time
-    - is_before_meal
-    - value
+      EN:
+        $ref: '#/definitions/hospital.Name'
+      TH:
+        $ref: '#/definitions/hospital.Name'
     type: object
   handler.PayInvoiceWithCreditCardResponse:
     properties:
@@ -300,11 +230,24 @@ definitions:
       quantity:
         type: integer
     type: object
+  hospital.Name:
+    properties:
+      firstname:
+        type: string
+      full_name:
+        type: string
+      initial:
+        type: string
+      lastname:
+        type: string
+    type: object
   hospital.PatientOverview:
     properties:
       full_name:
         type: string
       id:
+        type: string
+      profile_pic_url:
         type: string
     type: object
   hospital.Prescription:
@@ -512,26 +455,19 @@ paths:
       summary: Verify OTP and get token
       tags:
       - Auth
-  /measurement/blood-pressure:
-    post:
-      parameters:
-      - description: Blood pressure information
-        in: body
-        name: BloodPressureRequest
-        required: true
-        schema:
-          $ref: '#/definitions/handler.BloodPressureRequest'
+  /info/name:
+    get:
       responses:
-        "201":
-          description: Created
+        "200":
+          description: Name of the patient in both Thai and English
           schema:
-            $ref: '#/definitions/datastore.BloodPressure'
-        "400":
-          description: Invalid request body
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
+            $ref: '#/definitions/handler.GetNameResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Patient not found
           schema:
             $ref: '#/definitions/server.ErrorResponse'
         "500":
@@ -541,41 +477,9 @@ paths:
       security:
       - UserID: []
       - JWSToken: []
-      summary: Record blood pressure
+      summary: Get patient name
       tags:
-      - Measurement
-  /measurement/glucose:
-    post:
-      parameters:
-      - description: Glucose level information
-        in: body
-        name: GlucoseRequest
-        required: true
-        schema:
-          $ref: '#/definitions/handler.GlucoseRequest'
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/datastore.Glucose'
-        "400":
-          description: Invalid request body
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-      security:
-      - UserID: []
-      - JWSToken: []
-      summary: Record glucose level
-      tags:
-      - Measurement
+      - Info
   /payment/credit-card:
     get:
       responses:

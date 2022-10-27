@@ -33,6 +33,16 @@ type GetNameResponse struct {
 	TH *hospital.Name `json:"TH"`
 }
 
+// GetName godoc
+// @Summary      Get patient name
+// @Tags         Info
+// @Success      200  {object}	GetNameResponse "Name of the patient in both Thai and English"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      404  {object}  server.ErrorResponse "Patient not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /info/name [get]
 func (h InfoHandler) GetName(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {
