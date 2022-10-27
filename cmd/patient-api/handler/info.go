@@ -24,6 +24,7 @@ func NewInfoHandler(patientDataStore datastore.PatientDataStore, hospitalClient 
 
 func (h InfoHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("info", h.ParseUserID, h.ParsePatient)
+	g.GET("", h.GetPatientInfo)
 	g.GET("/name", h.GetName)
 }
 
@@ -43,6 +44,21 @@ type GetNameResponse struct {
 // @Security     JWSToken
 // @Router       /info/name [get]
 func (h InfoHandler) GetName(c *gin.Context) {
+	rawInfo, _ := c.Get("PatientInfo")
+	patientInfo := rawInfo.(*hospital.Patient)
+	c.JSON(http.StatusOK, &GetNameResponse{
+		EN: patientInfo.NameEN,
+		TH: patientInfo.NameTH,
+	})
+}
+
+func (h InfoHandler) GetPatientInfo(c *gin.Context) {
+	rawInfo, _ := c.Get("PatientInfo")
+	patientInfo := rawInfo.(*hospital.Patient)
+	c.JSON(http.StatusOK, patientInfo)
+}
+
+func (h InfoHandler) ParseHospitalPatientInfo(c *gin.Context) {
 	rawPatient, exist := c.Get("Patient")
 	if !exist {
 		h.InternalServerError(c, errors.New("c.Get Patient not exist"), "c.Get Patient not exist")
@@ -59,11 +75,8 @@ func (h InfoHandler) GetName(c *gin.Context) {
 		return
 	}
 	if patientInfo == nil {
-		c.JSON(http.StatusNotFound, ErrPatientNotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, ErrPatientNotFound)
 		return
 	}
-	c.JSON(http.StatusOK, &GetNameResponse{
-		EN: patientInfo.NameEN,
-		TH: patientInfo.NameTH,
-	})
+	c.Set("PatientInfo", patientInfo)
 }

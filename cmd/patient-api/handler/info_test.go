@@ -19,12 +19,13 @@ import (
 
 var _ = Describe("Info Handler", func() {
 	var (
-		mockCtrl    *gomock.Controller
-		c           *gin.Context
-		rec         *httptest.ResponseRecorder
-		h           *handler.InfoHandler
-		handlerFunc gin.HandlerFunc
-		patient     *datastore.Patient
+		mockCtrl        *gomock.Controller
+		c               *gin.Context
+		rec             *httptest.ResponseRecorder
+		h               *handler.InfoHandler
+		handlerFunc     gin.HandlerFunc
+		patient         *datastore.Patient
+		hospitalPatient *hospital.Patient
 
 		mockPatientDataStore  *mock_datastore.MockPatientDataStore
 		mockhospitalSysClient *mock_hospital_client.MockSystemClient
@@ -33,6 +34,7 @@ var _ = Describe("Info Handler", func() {
 	BeforeEach(func() {
 		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		patient = testhelper.GeneratePatient()
+		hospitalPatient = testhelper.GenerateHospitalPatient()
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockhospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		h = handler.NewInfoHandler(mockPatientDataStore, mockhospitalSysClient, zap.NewNop().Sugar())
@@ -43,9 +45,9 @@ var _ = Describe("Info Handler", func() {
 		handlerFunc(c)
 	})
 
-	Context("GetName", func() {
+	Context("ParseHospitalPatientInfo", func() {
 		BeforeEach(func() {
-			handlerFunc = h.GetName
+			handlerFunc = h.ParseHospitalPatientInfo
 		})
 
 		When("Patient is not set in context", func() {
@@ -82,18 +84,46 @@ var _ = Describe("Info Handler", func() {
 			})
 		})
 		When("patient info is found", func() {
-			var p *hospital.Patient
 			BeforeEach(func() {
-				p = testhelper.GenerateHospitalPatient()
-				mockhospitalSysClient.EXPECT().FindPatientByID(gomock.Any(), patient.RefID).Return(p, nil).Times(1)
+				mockhospitalSysClient.EXPECT().FindPatientByID(gomock.Any(), patient.RefID).Return(hospitalPatient, nil).Times(1)
 			})
 			It("should return 200 with name in EN and TH", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
-				var res *handler.GetNameResponse
-				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
-				Expect(res.EN).To(Equal(p.NameEN))
-				Expect(res.TH).To(Equal(p.NameTH))
+				rawInfo, exist := c.Get("PatientInfo")
+				Expect(exist).To(BeTrue())
+				patientInfo, ok := rawInfo.(*hospital.Patient)
+				Expect(ok).To(BeTrue())
+				Expect(patientInfo).To(Equal(hospitalPatient))
 			})
+		})
+	})
+
+	Context("GetName", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetName
+			c.Set("PatientInfo", hospitalPatient)
+		})
+
+		It("should return 200 with name in EN and TH", func() {
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			var res *handler.GetNameResponse
+			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+			Expect(res.EN).To(Equal(hospitalPatient.NameEN))
+			Expect(res.TH).To(Equal(hospitalPatient.NameTH))
+		})
+	})
+
+	Context("GetPatientInfo", func() {
+		BeforeEach(func() {
+			handlerFunc = h.GetPatientInfo
+			c.Set("PatientInfo", hospitalPatient)
+		})
+
+		It("should return 200 with patient information", func() {
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			var res *hospital.Patient
+			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
+			Expect(res.NationalId).To(Equal(hospitalPatient.NationalId))
 		})
 	})
 })
