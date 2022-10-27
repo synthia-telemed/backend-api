@@ -250,3 +250,22 @@ func AssertErrorResponseBody(body *bytes.Buffer, expectedError *server.ErrorResp
 	Expect(json.Unmarshal(body.Bytes(), &res)).To(Succeed())
 	Expect(&res).To(Equal(expectedError))
 }
+
+func GenerateHospitalPatient() *hospital.Patient {
+	return &hospital.Patient{
+		BirthDate:     time.Now(),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		PassportId:    nil,
+		NameEN:        hospital.NewName(uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		NameTH:        hospital.NewName(uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		NationalId:    nil,
+		Id:            uuid.NewString(),
+		Nationality:   uuid.NewString(),
+		PhoneNumber:   uuid.NewString(),
+		BloodType:     hospital.BloodTypeO,
+		ProfilePicURL: uuid.NewString(),
+		Height:        rand.Float64(),
+		Weight:        rand.Float64(),
+	}
+}

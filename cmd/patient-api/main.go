@@ -83,9 +83,10 @@ func main() {
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, realClock, sugaredLogger)
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
 	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, paymentDataStore, appointmentDataStore, hospitalSysClient, cacheClient, realClock, sugaredLogger)
+	infoHandler := handler.NewInfoHandler(patientDataStore, hospitalSysClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, appointmentHandler)
+	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, appointmentHandler, infoHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }

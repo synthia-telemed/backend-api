@@ -462,6 +462,9 @@
                 "id": {
                     "type": "string"
                 },
+                "profile_pic_url": {
+                    "type": "string"
+                },
                 "weight": {
                     "type": "number"
                 }
@@ -491,6 +494,9 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
                     "type": "string"
                 }
             }

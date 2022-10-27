@@ -3,10 +3,10 @@ package hospital
 import "time"
 
 type Name struct {
-	FullName  string
-	Initial   string
-	Firstname string
-	Lastname  string
+	FullName  string `json:"full_name"`
+	Initial   string `json:"initial"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
 }
 
 func NewName(init, first, last string) *Name {
