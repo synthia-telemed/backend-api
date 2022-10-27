@@ -17,6 +17,7 @@ query getPatient($where: PatientWhereInput!) {
         phoneNumber
         updatedAt
         weight
+        profilePicURL
     }
 }
 
@@ -87,6 +88,7 @@ query getAppointments($where: AppointmentWhereInput, $orderBy: [AppointmentOrder
             initial_en
             firstname_en
             lastname_en
+            profilePicURL
         }
     }
 }
@@ -111,6 +113,7 @@ query getAppointmentsWithPagination($where: AppointmentWhereInput, $orderBy: [Ap
             initial_en
             firstname_en
             lastname_en
+            profilePicURL
         }
     }
 }
@@ -189,6 +192,7 @@ query getDoctorAppointment($where: AppointmentWhereInput!) {
             bloodType
             height
             weight
+            profilePicURL
         }
     }
 }

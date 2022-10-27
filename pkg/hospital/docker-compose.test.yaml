@@ -7,6 +7,8 @@ services:
       POSTGRES_PASSWORD: "unsecurepassword"
     expose:
       - "5432"
+#    ports:
+#      - "5432:5432"
   hospital-sys:
       image: "synthiatelemed.azurecr.io/hospital-it-system-mock:latest"
       pull_policy: always
