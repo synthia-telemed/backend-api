@@ -304,6 +304,48 @@
                 }
             }
         },
+        "/info": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Info"
+                ],
+                "summary": "Get patient information",
+                "responses": {
+                    "200": {
+                        "description": "Patient information",
+                        "schema": {
+                            "$ref": "#/definitions/hospital.Patient"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Patient not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/info/name": {
             "get": {
                 "security": [
@@ -997,6 +1039,44 @@
                 },
                 "lastname": {
                     "type": "string"
+                }
+            }
+        },
+        "hospital.Patient": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "blood_type": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "name_en": {
+                    "$ref": "#/definitions/hospital.Name"
+                },
+                "name_th": {
+                    "$ref": "#/definitions/hospital.Name"
+                },
+                "national_id": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "passport_id": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },

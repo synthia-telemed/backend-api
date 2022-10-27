@@ -19,20 +19,20 @@ func NewName(init, first, last string) *Name {
 }
 
 type Patient struct {
-	BirthDate     time.Time
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	PassportId    *string
-	NameEN        *Name
-	NameTH        *Name
-	NationalId    *string
-	Id            string
-	Nationality   string
-	PhoneNumber   string
-	BloodType     BloodType
-	ProfilePicURL string
-	Height        float64
-	Weight        float64
+	BirthDate     time.Time `json:"birth_date"`
+	CreatedAt     time.Time `json:"-"`
+	UpdatedAt     time.Time `json:"-"`
+	PassportId    *string   `json:"passport_id"`
+	NameEN        *Name     `json:"name_en"`
+	NameTH        *Name     `json:"name_th"`
+	NationalId    *string   `json:"national_id"`
+	Id            string    `json:"-"`
+	Nationality   string    `json:"nationality"`
+	PhoneNumber   string    `json:"phone_number"`
+	BloodType     BloodType `json:"blood_type"`
+	ProfilePicURL string    `json:"profile_pic_url"`
+	Height        float64   `json:"height"`
+	Weight        float64   `json:"weight"`
 }
 
 type Doctor struct {
