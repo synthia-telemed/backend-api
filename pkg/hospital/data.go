@@ -19,19 +19,20 @@ func NewName(init, first, last string) *Name {
 }
 
 type Patient struct {
-	BirthDate   time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	PassportId  *string
-	NameEN      *Name
-	NameTH      *Name
-	NationalId  *string
-	Id          string
-	Nationality string
-	PhoneNumber string
-	BloodType   BloodType
-	Height      float64
-	Weight      float64
+	BirthDate     time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	PassportId    *string
+	NameEN        *Name
+	NameTH        *Name
+	NationalId    *string
+	Id            string
+	Nationality   string
+	PhoneNumber   string
+	BloodType     BloodType
+	ProfilePicURL string
+	Height        float64
+	Weight        float64
 }
 
 type Doctor struct {
@@ -70,8 +71,9 @@ type DoctorOverview struct {
 	ProfilePicURL string `json:"profile_pic_url"`
 }
 type PatientOverview struct {
-	ID       string `json:"id"`
-	FullName string `json:"full_name"`
+	ID            string `json:"id"`
+	FullName      string `json:"full_name"`
+	ProfilePicURL string `json:"profile_pic_url"`
 }
 
 type DoctorAppointment struct {
@@ -85,12 +87,13 @@ type DoctorAppointment struct {
 	Patient         DoctorAppointmentPatient `json:"patient"`
 }
 type DoctorAppointmentPatient struct {
-	BirthDate time.Time `json:"birth_date"`
-	ID        string    `json:"id"`
-	FullName  string    `json:"full_name"`
-	BloodType BloodType `json:"blood_type"`
-	Weight    float64   `json:"weight"`
-	Height    float64   `json:"height"`
+	BirthDate     time.Time `json:"birth_date"`
+	ID            string    `json:"id"`
+	FullName      string    `json:"full_name"`
+	BloodType     BloodType `json:"blood_type"`
+	ProfilePicURL string    `json:"profile_pic_url"`
+	Weight        float64   `json:"weight"`
+	Height        float64   `json:"height"`
 }
 
 type Appointment struct {
