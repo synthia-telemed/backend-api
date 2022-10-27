@@ -9,15 +9,13 @@ import (
 type BloodType string
 
 type Patient struct {
-	CreatedAt         time.Time       `json:"created_at"`
-	UpdatedAt         time.Time       `json:"updated_at"`
-	PaymentCustomerID *string         `gorm:"unique"`
-	DeletedAt         gorm.DeletedAt  `gorm:"index"`
-	RefID             string          `json:"refID" gorm:"unique"`
-	BloodPressure     []BloodPressure `gorm:"foreignKey:PatientID"`
-	Glucose           []Glucose       `gorm:"foreignKey:PatientID"`
-	CreditCards       []CreditCard    `gorm:"foreignKey:PatientID"`
-	ID                uint            `json:"id" gorm:"autoIncrement,primaryKey"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	PaymentCustomerID *string        `gorm:"unique"`
+	DeletedAt         gorm.DeletedAt `gorm:"index"`
+	RefID             string         `json:"refID" gorm:"unique"`
+	CreditCards       []CreditCard   `gorm:"foreignKey:PatientID"`
+	ID                uint           `json:"id" gorm:"autoIncrement,primaryKey"`
 }
 
 type PatientDataStore interface {

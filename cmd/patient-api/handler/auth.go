@@ -28,10 +28,9 @@ type AuthHandler struct {
 	hospitalSysClient hospital.SystemClient
 	smsClient         sms.Client
 	cacheClient       cache.Client
-	logger            *zap.SugaredLogger
 	tokenService      token.Service
 	clock             clock.Clock
-	server.GinHandler
+	PatientGinHandler
 }
 
 func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospital.SystemClient, sms sms.Client, cache cache.Client, tokenService token.Service, clock clock.Clock, logger *zap.SugaredLogger) *AuthHandler {
@@ -40,10 +39,9 @@ func NewAuthHandler(patientDataStore datastore.PatientDataStore, hosClient hospi
 		hospitalSysClient: hosClient,
 		smsClient:         sms,
 		cacheClient:       cache,
-		logger:            logger,
 		tokenService:      tokenService,
 		clock:             clock,
-		GinHandler:        server.GinHandler{Logger: logger},
+		PatientGinHandler: NewPatientGinHandler(patientDataStore, logger),
 	}
 }
 

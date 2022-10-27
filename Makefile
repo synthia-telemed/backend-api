@@ -21,7 +21,6 @@ mockgen:
 	mockgen -source=pkg/clock/clock.go -destination=test/mock_clock/mock_clock.go -package mock_clock
 	mockgen -source=pkg/id/nanoid.go -destination=test/mock_id/mock_id.go -package mock_id
 	mockgen -source=pkg/datastore/patient.go -destination=test/mock_datastore/mock_patient_datastore.go -package mock_datastore
-	mockgen -source=pkg/datastore/measurement.go -destination=test/mock_datastore/mock_measurement_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/doctor.go -destination=test/mock_datastore/mock_doctor_datastore.go -package mock_datastore
 	mockgen -source=pkg/datastore/credit_card.go -destination=test/mock_datastore/mock_credit_card.go -package mock_datastore
 	mockgen -source=pkg/datastore/payment.go -destination=test/mock_datastore/mock_payment.go -package mock_datastore
