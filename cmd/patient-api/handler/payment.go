@@ -10,7 +10,6 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/server"
-	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -35,25 +34,23 @@ type PaymentHandler struct {
 	hospitalSysClient   hospital.SystemClient
 	paymentDataStore    datastore.PaymentDataStore
 	clock               clock.Clock
-	logger              *zap.SugaredLogger
-	server.GinHandler
+	PatientGinHandler
 }
 
 func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, clock clock.Clock, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
 		paymentClient:       paymentClient,
 		patientDataStore:    pds,
-		logger:              logger,
 		creditCardDataStore: cds,
 		hospitalSysClient:   hsc,
 		paymentDataStore:    pay,
 		clock:               clock,
-		GinHandler:          server.GinHandler{Logger: logger},
+		PatientGinHandler:   NewPatientGinHandler(pds, logger),
 	}
 }
 
 func (h PaymentHandler) Register(r *gin.RouterGroup) {
-	paymentGroup := r.Group("/payment", middleware.ParseUserID)
+	paymentGroup := r.Group("/payment", h.ParseUserID)
 	paymentGroup.POST("/credit-card", h.CreateOrParseCustomer, h.AddCreditCard)
 	paymentGroup.GET("/credit-card", h.GetCreditCards)
 	paymentGroup.PATCH("/credit-card/:cardID", h.VerifyCreditCardOwnership, h.SetCreditCardIsDefault)

@@ -11,6 +11,7 @@ import (
 )
 
 type SystemClient interface {
+	FindPatientByID(ctx context.Context, id string) (*Patient, error)
 	FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error)
 	AssertDoctorCredential(ctx context.Context, username, password string) (bool, error)
 	FindDoctorByUsername(ctx context.Context, username string) (*Doctor, error)
@@ -40,13 +41,22 @@ func NewGraphQLClient(config *Config) *GraphQLClient {
 }
 
 func (c GraphQLClient) FindPatientByGovCredential(ctx context.Context, cred string) (*Patient, error) {
-	resp, err := getPatient(ctx, c.client, &PatientWhereInput{
+	where := &PatientWhereInput{
 		OR: []*PatientWhereInput{
 			{NationalId: &StringNullableFilter{Equals: &cred}},
 			{PassportId: &StringNullableFilter{Equals: &cred}},
 		},
-	})
+	}
+	return c.getAndParsePatient(ctx, where)
+}
 
+func (c GraphQLClient) FindPatientByID(ctx context.Context, id string) (*Patient, error) {
+	where := &PatientWhereInput{Id: &StringFilter{Equals: &id}}
+	return c.getAndParsePatient(ctx, where)
+}
+
+func (c GraphQLClient) getAndParsePatient(ctx context.Context, where *PatientWhereInput) (*Patient, error) {
+	resp, err := getPatient(ctx, c.client, where)
 	if err != nil || resp.GetPatient() == nil {
 		return nil, err
 	}

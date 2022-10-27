@@ -312,8 +312,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/measurement/blood-pressure": {
-            "post": {
+        "/info": {
+            "get": {
                 "security": [
                     {
                         "UserID": []
@@ -323,35 +323,24 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "Measurement"
+                    "Info"
                 ],
-                "summary": "Record blood pressure",
-                "parameters": [
-                    {
-                        "description": "Blood pressure information",
-                        "name": "BloodPressureRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.BloodPressureRequest"
-                        }
-                    }
-                ],
+                "summary": "Get patient information",
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "Patient information",
                         "schema": {
-                            "$ref": "#/definitions/datastore.BloodPressure"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
+                            "$ref": "#/definitions/hospital.Patient"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Patient not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -365,8 +354,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/measurement/glucose": {
-            "post": {
+        "/info/name": {
+            "get": {
                 "security": [
                     {
                         "UserID": []
@@ -376,35 +365,24 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "Measurement"
+                    "Info"
                 ],
-                "summary": "Record glucose level",
-                "parameters": [
-                    {
-                        "description": "Glucose level information",
-                        "name": "GlucoseRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.GlucoseRequest"
-                        }
-                    }
-                ],
+                "summary": "Get patient name",
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "Name of the patient in both Thai and English",
                         "schema": {
-                            "$ref": "#/definitions/datastore.Glucose"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
+                            "$ref": "#/definitions/handler.GetNameResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Patient not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }
@@ -704,38 +682,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "datastore.BloodPressure": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "date_time": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "diastolic": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "patient_id": {
-                    "type": "integer"
-                },
-                "pulse": {
-                    "type": "integer"
-                },
-                "systolic": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
         "datastore.CreditCard": {
             "type": "object",
             "properties": {
@@ -765,35 +711,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                }
-            }
-        },
-        "datastore.Glucose": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "date_time": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_before_meal": {
-                    "type": "boolean"
-                },
-                "patient_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "integer"
                 }
             }
         },
@@ -832,18 +749,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
@@ -858,29 +763,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "handler.BloodPressureRequest": {
-            "type": "object",
-            "required": [
-                "date_time",
-                "diastolic",
-                "pulse",
-                "systolic"
-            ],
-            "properties": {
-                "date_time": {
-                    "type": "string"
-                },
-                "diastolic": {
-                    "type": "integer"
-                },
-                "pulse": {
-                    "type": "integer"
-                },
-                "systolic": {
-                    "type": "integer"
                 }
             }
         },
@@ -936,22 +818,14 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.GlucoseRequest": {
+        "handler.GetNameResponse": {
             "type": "object",
-            "required": [
-                "date_time",
-                "is_before_meal",
-                "value"
-            ],
             "properties": {
-                "date_time": {
-                    "type": "string"
+                "EN": {
+                    "$ref": "#/definitions/hospital.Name"
                 },
-                "is_before_meal": {
-                    "type": "boolean"
-                },
-                "value": {
-                    "type": "integer"
+                "TH": {
+                    "$ref": "#/definitions/hospital.Name"
                 }
             }
         },
@@ -1159,6 +1033,61 @@ const docTemplate = `{
                 }
             }
         },
+        "hospital.Name": {
+            "type": "object",
+            "properties": {
+                "firstname": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "initial": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                }
+            }
+        },
+        "hospital.Patient": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "blood_type": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "name_en": {
+                    "$ref": "#/definitions/hospital.Name"
+                },
+                "name_th": {
+                    "$ref": "#/definitions/hospital.Name"
+                },
+                "national_id": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "passport_id": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
         "hospital.PatientOverview": {
             "type": "object",
             "properties": {
@@ -1166,6 +1095,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
                     "type": "string"
                 }
             }

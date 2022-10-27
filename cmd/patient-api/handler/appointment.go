@@ -9,7 +9,6 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/server"
-	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -31,8 +30,7 @@ type AppointmentHandler struct {
 	hospitalClient       hospital.SystemClient
 	cacheClient          cache.Client
 	clock                clock.Clock
-	logger               *zap.SugaredLogger
-	*server.GinHandler
+	PatientGinHandler
 }
 
 func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, appsDS datastore.AppointmentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
@@ -43,17 +41,16 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datas
 		appointmentDataStore: appsDS,
 		cacheClient:          cacheClient,
 		clock:                c,
-		logger:               logger,
-		GinHandler:           &server.GinHandler{Logger: logger},
+		PatientGinHandler:    NewPatientGinHandler(patientDS, logger),
 	}
 }
 
 func (h AppointmentHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("/appointment")
-	g.GET("", middleware.ParseUserID, h.ParsePatient, h.ListAppointments)
-	g.GET("/next", middleware.ParseUserID, h.ParsePatient, h.GetNextScheduledAppointment)
-	g.GET("/:appointmentID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointment)
-	g.GET("/:appointmentID/roomID", middleware.ParseUserID, h.ParsePatient, h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
+	g := r.Group("/appointment", h.ParseUserID, h.ParsePatient)
+	g.GET("", h.ListAppointments)
+	g.GET("/next", h.GetNextScheduledAppointment)
+	g.GET("/:appointmentID", h.AuthorizedPatientToAppointment, h.GetAppointment)
+	g.GET("/:appointmentID/roomID", h.AuthorizedPatientToAppointment, h.GetAppointmentRoomID)
 }
 
 // GetNextScheduledAppointment godoc
@@ -155,9 +152,7 @@ func (h AppointmentHandler) GetAppointment(c *gin.Context) {
 			h.InternalServerError(c, err, "h.appointmentDataStore.FindByRefID error")
 			return
 		}
-		h.logger.Info(compAppData)
 		res.Duration = &compAppData.Duration
-
 	}
 	if appointment.Invoice != nil && appointment.Invoice.Paid {
 		payment, err := h.paymentDataStore.FindLatestByInvoiceIDAndStatus(appointment.Invoice.Id, datastore.SuccessPaymentStatus)
@@ -240,18 +235,4 @@ func (h AppointmentHandler) AuthorizedPatientToAppointment(c *gin.Context) {
 		return
 	}
 	c.Set("Appointment", appointment)
-}
-
-func (h AppointmentHandler) ParsePatient(c *gin.Context) {
-	patientID := h.GetUserID(c)
-	patient, err := h.patientDataStore.FindByID(patientID)
-	if err != nil {
-		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
-		return
-	}
-	if patient == nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrPatientNotFound)
-		return
-	}
-	c.Set("Patient", patient)
 }

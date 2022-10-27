@@ -470,6 +470,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "profile_pic_url": {
+                    "type": "string"
+                },
                 "weight": {
                     "type": "number"
                 }
@@ -499,6 +502,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
                     "type": "string"
                 }
             }

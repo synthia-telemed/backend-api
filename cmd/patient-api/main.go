@@ -63,8 +63,6 @@ func main() {
 
 	patientDataStore, err := datastore.NewGormPatientDataStore(db)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create patient data store")
-	measurementDataStore, err := datastore.NewGormMeasurementDataStore(db)
-	server.AssertFatalError(sugaredLogger, err, "Failed to create measurement data store")
 	creditCardDataStore, err := datastore.NewGormCreditCardDataStore(db)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create credit card data store")
 	paymentDataStore, err := datastore.NewGormPaymentDataStore(db)
@@ -84,11 +82,11 @@ func main() {
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, realClock, sugaredLogger)
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
-	measurementHandler := handler.NewMeasurementHandler(measurementDataStore, sugaredLogger)
 	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, paymentDataStore, appointmentDataStore, hospitalSysClient, cacheClient, realClock, sugaredLogger)
+	infoHandler := handler.NewInfoHandler(patientDataStore, hospitalSysClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, measurementHandler, appointmentHandler)
+	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, appointmentHandler, infoHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }

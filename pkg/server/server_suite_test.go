@@ -1,4 +1,4 @@
-package middleware_test
+package server_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestMiddleware(t *testing.T) {
+func TestServer(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Middleware Suite")
+	RunSpecs(t, "Server Suite")
 }
