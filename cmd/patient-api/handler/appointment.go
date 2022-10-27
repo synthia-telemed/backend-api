@@ -31,7 +31,7 @@ type AppointmentHandler struct {
 	hospitalClient       hospital.SystemClient
 	cacheClient          cache.Client
 	clock                clock.Clock
-	*PatientGinHandler
+	PatientGinHandler
 }
 
 func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, appsDS datastore.AppointmentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {

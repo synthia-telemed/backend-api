@@ -35,20 +35,18 @@ type PaymentHandler struct {
 	hospitalSysClient   hospital.SystemClient
 	paymentDataStore    datastore.PaymentDataStore
 	clock               clock.Clock
-	logger              *zap.SugaredLogger
-	server.GinHandler
+	PatientGinHandler
 }
 
 func NewPaymentHandler(paymentClient payment.Client, pds datastore.PatientDataStore, cds datastore.CreditCardDataStore, hsc hospital.SystemClient, pay datastore.PaymentDataStore, clock clock.Clock, logger *zap.SugaredLogger) *PaymentHandler {
 	return &PaymentHandler{
 		paymentClient:       paymentClient,
 		patientDataStore:    pds,
-		logger:              logger,
 		creditCardDataStore: cds,
 		hospitalSysClient:   hsc,
 		paymentDataStore:    pay,
 		clock:               clock,
-		GinHandler:          server.GinHandler{Logger: logger},
+		PatientGinHandler:   NewPatientGinHandler(pds, logger),
 	}
 }
 

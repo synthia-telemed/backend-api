@@ -13,8 +13,8 @@ type PatientGinHandler struct {
 	server.GinHandler
 }
 
-func NewPatientGinHandler(patientDS datastore.PatientDataStore, logger *zap.SugaredLogger) *PatientGinHandler {
-	return &PatientGinHandler{
+func NewPatientGinHandler(patientDS datastore.PatientDataStore, logger *zap.SugaredLogger) PatientGinHandler {
+	return PatientGinHandler{
 		patientDataStore: patientDS,
 		GinHandler:       server.GinHandler{Logger: logger},
 	}

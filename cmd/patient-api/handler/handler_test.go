@@ -30,7 +30,8 @@ var _ = Describe("Patient Gin Handler", func() {
 	BeforeEach(func() {
 		mockCtrl, rec, c = testhelper.InitHandlerTest()
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
-		h = handler.NewPatientGinHandler(mockPatientDataStore, zap.NewNop().Sugar())
+		patientGinHandler := handler.NewPatientGinHandler(mockPatientDataStore, zap.NewNop().Sugar())
+		h = &patientGinHandler
 		patient = testhelper.GeneratePatient()
 	})
 
