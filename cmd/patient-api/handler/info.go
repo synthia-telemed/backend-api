@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
-	"github.com/synthia-telemed/backend-api/pkg/server/middleware"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -24,8 +23,8 @@ func NewInfoHandler(patientDataStore datastore.PatientDataStore, hospitalClient 
 }
 
 func (h InfoHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("info")
-	g.GET("/name", middleware.ParseUserID, h.ParsePatient, h.GetName)
+	g := r.Group("info", h.ParseUserID, h.ParsePatient)
+	g.GET("/name", h.GetName)
 }
 
 type GetNameResponse struct {
