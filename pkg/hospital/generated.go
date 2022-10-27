@@ -1118,24 +1118,25 @@ func (v *NestedStringNullableFilter) GetNotIn() []string { return v.NotIn }
 func (v *NestedStringNullableFilter) GetStartsWith() *string { return v.StartsWith }
 
 type PatientOrderByWithRelationInput struct {
-	Appointments *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
-	BirthDate    *SortOrder                                `json:"birthDate"`
-	BloodType    *SortOrder                                `json:"bloodType"`
-	CreatedAt    *SortOrder                                `json:"createdAt"`
-	Firstname_en *SortOrder                                `json:"firstname_en"`
-	Firstname_th *SortOrder                                `json:"firstname_th"`
-	Height       *SortOrder                                `json:"height"`
-	Id           *SortOrder                                `json:"id"`
-	Initial_en   *SortOrder                                `json:"initial_en"`
-	Initial_th   *SortOrder                                `json:"initial_th"`
-	Lastname_en  *SortOrder                                `json:"lastname_en"`
-	Lastname_th  *SortOrder                                `json:"lastname_th"`
-	NationalId   *SortOrder                                `json:"nationalId"`
-	Nationality  *SortOrder                                `json:"nationality"`
-	PassportId   *SortOrder                                `json:"passportId"`
-	PhoneNumber  *SortOrder                                `json:"phoneNumber"`
-	UpdatedAt    *SortOrder                                `json:"updatedAt"`
-	Weight       *SortOrder                                `json:"weight"`
+	Appointments  *AppointmentOrderByRelationAggregateInput `json:"appointments,omitempty"`
+	BirthDate     *SortOrder                                `json:"birthDate"`
+	BloodType     *SortOrder                                `json:"bloodType"`
+	CreatedAt     *SortOrder                                `json:"createdAt"`
+	Firstname_en  *SortOrder                                `json:"firstname_en"`
+	Firstname_th  *SortOrder                                `json:"firstname_th"`
+	Height        *SortOrder                                `json:"height"`
+	Id            *SortOrder                                `json:"id"`
+	Initial_en    *SortOrder                                `json:"initial_en"`
+	Initial_th    *SortOrder                                `json:"initial_th"`
+	Lastname_en   *SortOrder                                `json:"lastname_en"`
+	Lastname_th   *SortOrder                                `json:"lastname_th"`
+	NationalId    *SortOrder                                `json:"nationalId"`
+	Nationality   *SortOrder                                `json:"nationality"`
+	PassportId    *SortOrder                                `json:"passportId"`
+	PhoneNumber   *SortOrder                                `json:"phoneNumber"`
+	ProfilePicURL *SortOrder                                `json:"profilePicURL"`
+	UpdatedAt     *SortOrder                                `json:"updatedAt"`
+	Weight        *SortOrder                                `json:"weight"`
 }
 
 // GetAppointments returns PatientOrderByWithRelationInput.Appointments, and is useful for accessing the field via an interface.
@@ -1188,6 +1189,9 @@ func (v *PatientOrderByWithRelationInput) GetPassportId() *SortOrder { return v.
 // GetPhoneNumber returns PatientOrderByWithRelationInput.PhoneNumber, and is useful for accessing the field via an interface.
 func (v *PatientOrderByWithRelationInput) GetPhoneNumber() *SortOrder { return v.PhoneNumber }
 
+// GetProfilePicURL returns PatientOrderByWithRelationInput.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *PatientOrderByWithRelationInput) GetProfilePicURL() *SortOrder { return v.ProfilePicURL }
+
 // GetUpdatedAt returns PatientOrderByWithRelationInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *PatientOrderByWithRelationInput) GetUpdatedAt() *SortOrder { return v.UpdatedAt }
 
@@ -1206,27 +1210,28 @@ func (v *PatientRelationFilter) GetIs() *PatientWhereInput { return v.Is }
 func (v *PatientRelationFilter) GetIsNot() *PatientWhereInput { return v.IsNot }
 
 type PatientWhereInput struct {
-	Weight       *FloatFilter                   `json:"weight,omitempty"`
-	UpdatedAt    *DateTimeFilter                `json:"updatedAt,omitempty"`
-	PhoneNumber  *StringFilter                  `json:"phoneNumber,omitempty"`
-	Appointments *AppointmentListRelationFilter `json:"appointments,omitempty"`
-	BirthDate    *DateTimeFilter                `json:"birthDate,omitempty"`
-	BloodType    *EnumBloodTypeFilter           `json:"bloodType,omitempty"`
-	CreatedAt    *DateTimeFilter                `json:"createdAt,omitempty"`
-	Firstname_en *StringFilter                  `json:"firstname_en,omitempty"`
-	Firstname_th *StringFilter                  `json:"firstname_th,omitempty"`
-	Height       *FloatFilter                   `json:"height,omitempty"`
-	Id           *StringFilter                  `json:"id,omitempty"`
-	Initial_en   *StringFilter                  `json:"initial_en,omitempty"`
-	Initial_th   *StringFilter                  `json:"initial_th,omitempty"`
-	Lastname_en  *StringFilter                  `json:"lastname_en,omitempty"`
-	Lastname_th  *StringFilter                  `json:"lastname_th,omitempty"`
-	NationalId   *StringNullableFilter          `json:"nationalId,omitempty"`
-	Nationality  *StringFilter                  `json:"nationality,omitempty"`
-	PassportId   *StringNullableFilter          `json:"passportId,omitempty"`
-	OR           []*PatientWhereInput           `json:"OR,omitempty"`
-	NOT          []*PatientWhereInput           `json:"NOT,omitempty"`
-	AND          []*PatientWhereInput           `json:"AND,omitempty"`
+	Weight        *FloatFilter                   `json:"weight,omitempty"`
+	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
+	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
+	Appointments  *AppointmentListRelationFilter `json:"appointments,omitempty"`
+	BirthDate     *DateTimeFilter                `json:"birthDate,omitempty"`
+	BloodType     *EnumBloodTypeFilter           `json:"bloodType,omitempty"`
+	CreatedAt     *DateTimeFilter                `json:"createdAt,omitempty"`
+	Firstname_en  *StringFilter                  `json:"firstname_en,omitempty"`
+	Firstname_th  *StringFilter                  `json:"firstname_th,omitempty"`
+	Height        *FloatFilter                   `json:"height,omitempty"`
+	Id            *StringFilter                  `json:"id,omitempty"`
+	Initial_en    *StringFilter                  `json:"initial_en,omitempty"`
+	Initial_th    *StringFilter                  `json:"initial_th,omitempty"`
+	Lastname_en   *StringFilter                  `json:"lastname_en,omitempty"`
+	Lastname_th   *StringFilter                  `json:"lastname_th,omitempty"`
+	NationalId    *StringNullableFilter          `json:"nationalId,omitempty"`
+	Nationality   *StringFilter                  `json:"nationality,omitempty"`
+	PassportId    *StringNullableFilter          `json:"passportId,omitempty"`
+	PhoneNumber   *StringFilter                  `json:"phoneNumber,omitempty"`
+	OR            []*PatientWhereInput           `json:"OR,omitempty"`
+	NOT           []*PatientWhereInput           `json:"NOT,omitempty"`
+	AND           []*PatientWhereInput           `json:"AND,omitempty"`
 }
 
 // GetAND returns PatientWhereInput.AND, and is useful for accessing the field via an interface.
@@ -1285,6 +1290,9 @@ func (v *PatientWhereInput) GetPassportId() *StringNullableFilter { return v.Pas
 
 // GetPhoneNumber returns PatientWhereInput.PhoneNumber, and is useful for accessing the field via an interface.
 func (v *PatientWhereInput) GetPhoneNumber() *StringFilter { return v.PhoneNumber }
+
+// GetProfilePicURL returns PatientWhereInput.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *PatientWhereInput) GetProfilePicURL() *StringFilter { return v.ProfilePicURL }
 
 // GetUpdatedAt returns PatientWhereInput.UpdatedAt, and is useful for accessing the field via an interface.
 func (v *PatientWhereInput) GetUpdatedAt() *DateTimeFilter { return v.UpdatedAt }
@@ -1871,10 +1879,11 @@ func (v *getAppointmentsAppointmentsAppointmentDoctor) GetProfilePicURL() string
 
 // getAppointmentsAppointmentsAppointmentPatient includes the requested fields of the GraphQL type Patient.
 type getAppointmentsAppointmentsAppointmentPatient struct {
-	Id           string `json:"id"`
-	Initial_en   string `json:"initial_en"`
-	Firstname_en string `json:"firstname_en"`
-	Lastname_en  string `json:"lastname_en"`
+	Id            string `json:"id"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	ProfilePicURL string `json:"profilePicURL"`
 }
 
 // GetId returns getAppointmentsAppointmentsAppointmentPatient.Id, and is useful for accessing the field via an interface.
@@ -1890,6 +1899,11 @@ func (v *getAppointmentsAppointmentsAppointmentPatient) GetFirstname_en() string
 
 // GetLastname_en returns getAppointmentsAppointmentsAppointmentPatient.Lastname_en, and is useful for accessing the field via an interface.
 func (v *getAppointmentsAppointmentsAppointmentPatient) GetLastname_en() string { return v.Lastname_en }
+
+// GetProfilePicURL returns getAppointmentsAppointmentsAppointmentPatient.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentsAppointmentsAppointmentPatient) GetProfilePicURL() string {
+	return v.ProfilePicURL
+}
 
 // getAppointmentsResponse is returned by getAppointments on success.
 type getAppointmentsResponse struct {
@@ -1983,10 +1997,11 @@ func (v *getAppointmentsWithPaginationAppointmentsAppointmentDoctor) GetProfileP
 
 // getAppointmentsWithPaginationAppointmentsAppointmentPatient includes the requested fields of the GraphQL type Patient.
 type getAppointmentsWithPaginationAppointmentsAppointmentPatient struct {
-	Id           string `json:"id"`
-	Initial_en   string `json:"initial_en"`
-	Firstname_en string `json:"firstname_en"`
-	Lastname_en  string `json:"lastname_en"`
+	Id            string `json:"id"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	ProfilePicURL string `json:"profilePicURL"`
 }
 
 // GetId returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Id, and is useful for accessing the field via an interface.
@@ -2005,6 +2020,11 @@ func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetFirstna
 // GetLastname_en returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.Lastname_en, and is useful for accessing the field via an interface.
 func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetLastname_en() string {
 	return v.Lastname_en
+}
+
+// GetProfilePicURL returns getAppointmentsWithPaginationAppointmentsAppointmentPatient.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getAppointmentsWithPaginationAppointmentsAppointmentPatient) GetProfilePicURL() string {
+	return v.ProfilePicURL
 }
 
 // getAppointmentsWithPaginationResponse is returned by getAppointmentsWithPagination on success.
@@ -2057,14 +2077,15 @@ func (v *getDoctorAppointmentAppointment) GetPatient() *getDoctorAppointmentAppo
 
 // getDoctorAppointmentAppointmentPatient includes the requested fields of the GraphQL type Patient.
 type getDoctorAppointmentAppointmentPatient struct {
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Firstname_en string    `json:"firstname_en"`
-	Lastname_en  string    `json:"lastname_en"`
-	BirthDate    time.Time `json:"birthDate"`
-	BloodType    BloodType `json:"bloodType"`
-	Height       float64   `json:"height"`
-	Weight       float64   `json:"weight"`
+	BirthDate     time.Time `json:"birthDate"`
+	Id            string    `json:"id"`
+	Initial_en    string    `json:"initial_en"`
+	Firstname_en  string    `json:"firstname_en"`
+	Lastname_en   string    `json:"lastname_en"`
+	BloodType     BloodType `json:"bloodType"`
+	ProfilePicURL string    `json:"profilePicURL"`
+	Height        float64   `json:"height"`
+	Weight        float64   `json:"weight"`
 }
 
 // GetId returns getDoctorAppointmentAppointmentPatient.Id, and is useful for accessing the field via an interface.
@@ -2090,6 +2111,9 @@ func (v *getDoctorAppointmentAppointmentPatient) GetHeight() float64 { return v.
 
 // GetWeight returns getDoctorAppointmentAppointmentPatient.Weight, and is useful for accessing the field via an interface.
 func (v *getDoctorAppointmentAppointmentPatient) GetWeight() float64 { return v.Weight }
+
+// GetProfilePicURL returns getDoctorAppointmentAppointmentPatient.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentPatient) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getDoctorAppointmentResponse is returned by getDoctorAppointment on success.
 type getDoctorAppointmentResponse struct {
@@ -2225,23 +2249,24 @@ func (v *getInvoiceResponse) GetInvoice() *getInvoiceInvoice { return v.Invoice 
 
 // getPatientPatient includes the requested fields of the GraphQL type Patient.
 type getPatientPatient struct {
-	UpdatedAt    time.Time `json:"updatedAt"`
-	CreatedAt    time.Time `json:"createdAt"`
-	BirthDate    time.Time `json:"birthDate"`
-	PassportId   *string   `json:"passportId"`
-	NationalId   *string   `json:"nationalId"`
-	Initial_th   string    `json:"initial_th"`
-	Id           string    `json:"id"`
-	Initial_en   string    `json:"initial_en"`
-	Firstname_th string    `json:"firstname_th"`
-	Lastname_en  string    `json:"lastname_en"`
-	Lastname_th  string    `json:"lastname_th"`
-	Firstname_en string    `json:"firstname_en"`
-	Nationality  string    `json:"nationality"`
-	BloodType    BloodType `json:"bloodType"`
-	PhoneNumber  string    `json:"phoneNumber"`
-	Height       float64   `json:"height"`
-	Weight       float64   `json:"weight"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	CreatedAt     time.Time `json:"createdAt"`
+	BirthDate     time.Time `json:"birthDate"`
+	PassportId    *string   `json:"passportId"`
+	NationalId    *string   `json:"nationalId"`
+	Lastname_en   string    `json:"lastname_en"`
+	Id            string    `json:"id"`
+	Initial_en    string    `json:"initial_en"`
+	Initial_th    string    `json:"initial_th"`
+	Firstname_th  string    `json:"firstname_th"`
+	Lastname_th   string    `json:"lastname_th"`
+	Firstname_en  string    `json:"firstname_en"`
+	Nationality   string    `json:"nationality"`
+	BloodType     BloodType `json:"bloodType"`
+	PhoneNumber   string    `json:"phoneNumber"`
+	ProfilePicURL string    `json:"profilePicURL"`
+	Height        float64   `json:"height"`
+	Weight        float64   `json:"weight"`
 }
 
 // GetBirthDate returns getPatientPatient.BirthDate, and is useful for accessing the field via an interface.
@@ -2294,6 +2319,9 @@ func (v *getPatientPatient) GetUpdatedAt() time.Time { return v.UpdatedAt }
 
 // GetWeight returns getPatientPatient.Weight, and is useful for accessing the field via an interface.
 func (v *getPatientPatient) GetWeight() float64 { return v.Weight }
+
+// GetProfilePicURL returns getPatientPatient.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getPatientPatient) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getPatientResponse is returned by getPatient on success.
 type getPatientResponse struct {
@@ -2517,6 +2545,7 @@ query getAppointments ($where: AppointmentWhereInput, $orderBy: [AppointmentOrde
 			initial_en
 			firstname_en
 			lastname_en
+			profilePicURL
 		}
 	}
 }
@@ -2571,6 +2600,7 @@ query getAppointmentsWithPagination ($where: AppointmentWhereInput, $orderBy: [A
 			initial_en
 			firstname_en
 			lastname_en
+			profilePicURL
 		}
 	}
 }
@@ -2665,6 +2695,7 @@ query getDoctorAppointment ($where: AppointmentWhereInput!) {
 			bloodType
 			height
 			weight
+			profilePicURL
 		}
 	}
 }
@@ -2757,6 +2788,7 @@ query getPatient ($where: PatientWhereInput!) {
 		phoneNumber
 		updatedAt
 		weight
+		profilePicURL
 	}
 }
 `,
