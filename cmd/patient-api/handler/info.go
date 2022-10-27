@@ -52,6 +52,16 @@ func (h InfoHandler) GetName(c *gin.Context) {
 	})
 }
 
+// GetPatientInfo godoc
+// @Summary      Get patient information
+// @Tags         Info
+// @Success      200  {object}	hospital.Patient "Patient information"
+// @Failure      401  {object}  server.ErrorResponse "Unauthorized"
+// @Failure      404  {object}  server.ErrorResponse "Patient not found"
+// @Failure      500  {object}  server.ErrorResponse "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /info [get]
 func (h InfoHandler) GetPatientInfo(c *gin.Context) {
 	rawInfo, _ := c.Get("PatientInfo")
 	patientInfo := rawInfo.(*hospital.Patient)
