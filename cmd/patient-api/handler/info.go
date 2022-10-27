@@ -23,7 +23,7 @@ func NewInfoHandler(patientDataStore datastore.PatientDataStore, hospitalClient 
 }
 
 func (h InfoHandler) Register(r *gin.RouterGroup) {
-	g := r.Group("info", h.ParseUserID, h.ParsePatient)
+	g := r.Group("info", h.ParseUserID, h.ParsePatient, h.ParseHospitalPatientInfo)
 	g.GET("", h.GetPatientInfo)
 	g.GET("/name", h.GetName)
 }
