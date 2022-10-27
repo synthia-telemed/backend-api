@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
@@ -48,6 +49,21 @@ var _ = Describe("Hospital Client", func() {
 
 		It("should return nil when patient not found", func() {
 			patient, err := graphQLClient.FindPatientByGovCredential(ctx, "not-exist-national-id")
+			Expect(err).To(BeNil())
+			Expect(patient).To(BeNil())
+		})
+	})
+
+	Context("FindPatientByID", func() {
+		It("should found the patient", func() {
+			patient, err := graphQLClient.FindPatientByID(ctx, "HN-846103")
+			Expect(err).To(BeNil())
+			Expect(patient.Id).To(Equal("HN-846103"))
+			Expect(patient.NationalId).To(HaveValue(Equal("1108182787046")))
+		})
+
+		It("should return nil if not found", func() {
+			patient, err := graphQLClient.FindPatientByID(ctx, uuid.NewString())
 			Expect(err).To(BeNil())
 			Expect(patient).To(BeNil())
 		})
