@@ -64,47 +64,6 @@ var _ = Describe("Appointment Handler", func() {
 		mockCtrl.Finish()
 	})
 
-	//Context("ParsePatient", func() {
-	//	BeforeEach(func() {
-	//		handlerFunc = h.ParsePatient
-	//		c.Set("Patient", nil)
-	//	})
-	//
-	//	When("find patient by ID error", func() {
-	//		BeforeEach(func() {
-	//			id := uint(rand.Uint32())
-	//			c.Set("UserID", id)
-	//			mockPatientDataStore.EXPECT().FindByID(id).Return(nil, errors.New("err")).Times(1)
-	//		})
-	//		It("should return 500", func() {
-	//			Expect(rec.Code).To(Equal(http.StatusInternalServerError))
-	//		})
-	//	})
-	//	When("patient is not found", func() {
-	//		BeforeEach(func() {
-	//			id := uint(rand.Uint32())
-	//			c.Set("UserID", id)
-	//			mockPatientDataStore.EXPECT().FindByID(id).Return(nil, nil).Times(1)
-	//		})
-	//		It("should return 400", func() {
-	//			Expect(rec.Code).To(Equal(http.StatusBadRequest))
-	//		})
-	//	})
-	//	When("patient patient is found", func() {
-	//		BeforeEach(func() {
-	//			id := uint(rand.Uint32())
-	//			c.Set("UserID", id)
-	//			mockPatientDataStore.EXPECT().FindByID(id).Return(patient, nil).Times(1)
-	//		})
-	//		It("should set the patient", func() {
-	//			Expect(rec.Code).To(Equal(http.StatusOK))
-	//			p, exist := c.Get("Patient")
-	//			Expect(exist).To(BeTrue())
-	//			Expect(p).To(Equal(patient))
-	//		})
-	//	})
-	//})
-
 	Context("ListAppointments", func() {
 		BeforeEach(func() {
 			handlerFunc = h.ListAppointments
