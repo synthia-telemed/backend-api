@@ -36,12 +36,12 @@ func (g GormNotificationDataStore) Create(notification *Notification) error {
 
 func (g GormNotificationDataStore) CountUnRead(patientID uint) (int, error) {
 	var count int64
-	tx := g.db.Model(&Notification{}).Where(&Notification{PatientID: patientID, IsRead: false}).Count(&count)
+	tx := g.db.Model(&Notification{}).Where("patient_id = ? AND is_read = ?", patientID, false).Count(&count)
 	return int(count), tx.Error
 }
 
 func (g GormNotificationDataStore) ListLatest(patientID uint) ([]Notification, error) {
 	var notifications []Notification
-	tx := g.db.Where(&Notification{PatientID: patientID}).Find(&notifications)
+	tx := g.db.Where(&Notification{PatientID: patientID}).Order("created_at desc").Find(&notifications)
 	return notifications, tx.Error
 }
