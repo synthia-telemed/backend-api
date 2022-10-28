@@ -63,6 +63,21 @@ func (mr *MockNotificationDataStoreMockRecorder) Create(notification interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockNotificationDataStore)(nil).Create), notification)
 }
 
+// FindByID mocks base method.
+func (m *MockNotificationDataStore) FindByID(id uint) (*datastore.Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", id)
+	ret0, _ := ret[0].(*datastore.Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockNotificationDataStoreMockRecorder) FindByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockNotificationDataStore)(nil).FindByID), id)
+}
+
 // ListLatest mocks base method.
 func (m *MockNotificationDataStore) ListLatest(patientID uint) ([]datastore.Notification, error) {
 	m.ctrl.T.Helper()
@@ -76,4 +91,32 @@ func (m *MockNotificationDataStore) ListLatest(patientID uint) ([]datastore.Noti
 func (mr *MockNotificationDataStoreMockRecorder) ListLatest(patientID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLatest", reflect.TypeOf((*MockNotificationDataStore)(nil).ListLatest), patientID)
+}
+
+// SetAllAsRead mocks base method.
+func (m *MockNotificationDataStore) SetAllAsRead(patientID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAllAsRead", patientID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAllAsRead indicates an expected call of SetAllAsRead.
+func (mr *MockNotificationDataStoreMockRecorder) SetAllAsRead(patientID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAllAsRead", reflect.TypeOf((*MockNotificationDataStore)(nil).SetAllAsRead), patientID)
+}
+
+// SetAsRead mocks base method.
+func (m *MockNotificationDataStore) SetAsRead(id uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAsRead", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAsRead indicates an expected call of SetAsRead.
+func (mr *MockNotificationDataStoreMockRecorder) SetAsRead(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAsRead", reflect.TypeOf((*MockNotificationDataStore)(nil).SetAsRead), id)
 }
