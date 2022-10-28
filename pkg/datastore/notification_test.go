@@ -118,7 +118,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 	})
 
 	Context("SetAllAsRead", func() {
-		It("shoudl set all notifications to read", func() {
+		It("should set all notifications to read", func() {
 			patient := patients[1]
 			Expect(notificationDataStore.SetAllAsRead(patient.ID)).To(Succeed())
 			var readCount int64
