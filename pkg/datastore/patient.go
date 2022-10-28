@@ -16,6 +16,8 @@ type Patient struct {
 	RefID             string         `json:"refID" gorm:"unique"`
 	CreditCards       []CreditCard   `gorm:"foreignKey:PatientID"`
 	ID                uint           `json:"id" gorm:"autoIncrement,primaryKey"`
+	Notification      []Notification `gorm:"foreignKey:PatientID"`
+	NotificationToken string         `json:"-"`
 }
 
 type PatientDataStore interface {
