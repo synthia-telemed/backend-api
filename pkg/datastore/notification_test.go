@@ -70,4 +70,60 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 			// Cannot test the order because of timestamp is all the same
 		})
 	})
+
+	Context("FindByID", func() {
+		When("notification is not found", func() {
+			It("should return nil with error of nil", func() {
+				notification, err := notificationDataStore.FindByID(473842738)
+				Expect(err).To(BeNil())
+				Expect(notification).To(BeNil())
+			})
+		})
+
+		When("notification is found", func() {
+			It("should return the notification", func() {
+				expected := patients[1].Notification[0]
+				notification, err := notificationDataStore.FindByID(expected.ID)
+				Expect(err).To(BeNil())
+				Expect(notification.ID).To(Equal(expected.ID))
+			})
+		})
+	})
+
+	Context("SetAsRead", func() {
+		When("notification is not exist", func() {
+			It("should return no error and do no action", func() {
+				Expect(notificationDataStore.SetAsRead(2837428)).To(Succeed())
+			})
+		})
+
+		When("notification is exist", func() {
+			var targetNotification *datastore.Notification
+			BeforeEach(func() {
+				for _, noti := range patients[0].Notification {
+					if !noti.IsRead {
+						targetNotification = &noti
+					}
+				}
+			})
+
+			It("should return error of nil", func() {
+				Expect(notificationDataStore.SetAsRead(targetNotification.ID)).To(Succeed())
+				var retrievedNoti datastore.Notification
+				db.First(&retrievedNoti, targetNotification.ID)
+				Expect(retrievedNoti.ID).To(Equal(targetNotification.ID))
+				Expect(retrievedNoti.IsRead).To(BeTrue())
+			})
+		})
+	})
+
+	Context("SetAllAsRead", func() {
+		It("should set all notifications to read", func() {
+			patient := patients[1]
+			Expect(notificationDataStore.SetAllAsRead(patient.ID)).To(Succeed())
+			var readCount int64
+			db.Model(datastore.Notification{}).Where("patient_id = ? AND is_read = ?", patient.ID, false).Count(&readCount)
+			Expect(readCount).To(BeZero())
+		})
+	})
 })

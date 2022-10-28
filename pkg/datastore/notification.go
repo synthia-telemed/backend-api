@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -20,6 +21,9 @@ type NotificationDataStore interface {
 	Create(notification *Notification) error
 	CountUnRead(patientID uint) (int, error)
 	ListLatest(patientID uint) ([]Notification, error)
+	FindByID(id uint) (*Notification, error)
+	SetAsRead(id uint) error
+	SetAllAsRead(patientID uint) error
 }
 
 type GormNotificationDataStore struct {
@@ -44,4 +48,23 @@ func (g GormNotificationDataStore) ListLatest(patientID uint) ([]Notification, e
 	var notifications []Notification
 	tx := g.db.Where(&Notification{PatientID: patientID}).Order("created_at desc").Find(&notifications)
 	return notifications, tx.Error
+}
+
+func (g GormNotificationDataStore) FindByID(id uint) (*Notification, error) {
+	var notification Notification
+	if err := g.db.First(&notification, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &notification, nil
+}
+
+func (g GormNotificationDataStore) SetAsRead(id uint) error {
+	return g.db.Model(&Notification{}).Where("id = ?", id).Update("is_read", true).Error
+}
+
+func (g GormNotificationDataStore) SetAllAsRead(patientID uint) error {
+	return g.db.Model(&Notification{}).Where("patient_id = ?", patientID).Update("is_read", true).Error
 }

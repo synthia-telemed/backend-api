@@ -433,6 +433,37 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Set all notification as read",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/notification/unread": {
@@ -458,6 +489,66 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/{notificationID}": {
+            "patch": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Set specific notification to read",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the notification",
+                        "name": "notificationID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid notification id",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the notification",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Notification not found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
                         }

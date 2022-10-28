@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
@@ -100,6 +101,127 @@ var _ = Describe("Notification Handler", func() {
 				var res handler.CountUnReadNotificationResponse
 				Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 				Expect(res.Count).To(Equal(count))
+			})
+		})
+	})
+
+	Context("AuthorizedPatientToNotification", func() {
+		BeforeEach(func() {
+			handlerFunc = h.AuthorizedPatientToNotification
+
+		})
+
+		When("notification id is not set in param", func() {
+			It("should return 400 with ErrInvalidNotificationID", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidNotificationID)
+			})
+		})
+		When("notification id in param in not a unsigned integer", func() {
+			BeforeEach(func() {
+				c.AddParam("id", "not-uint")
+			})
+			It("should return 400 with ErrInvalidNotificationID", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidNotificationID)
+			})
+		})
+
+		Context("id param is properly set", func() {
+			var notification datastore.Notification
+			BeforeEach(func() {
+				notification = testhelper.GenerateNotification(patientID)
+				c.AddParam("id", fmt.Sprintf("%d", notification.ID))
+			})
+
+			When("find notification by id error", func() {
+				BeforeEach(func() {
+					mockNotificationDataStore.EXPECT().FindByID(notification.ID).Return(nil, testhelper.MockError).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+			When("notification is not found", func() {
+				BeforeEach(func() {
+					mockNotificationDataStore.EXPECT().FindByID(notification.ID).Return(nil, nil).Times(1)
+				})
+				It("should return 404", func() {
+					Expect(rec.Code).To(Equal(http.StatusNotFound))
+					testhelper.AssertErrorResponseBody(rec.Body, handler.ErrNotificationNotFound)
+				})
+			})
+			When("notification is owned by the patient", func() {
+				BeforeEach(func() {
+					otherNotification := testhelper.GenerateNotification(uint(rand.Uint32()))
+					mockNotificationDataStore.EXPECT().FindByID(notification.ID).Return(&otherNotification, nil).Times(1)
+				})
+				It("should return 403", func() {
+					Expect(rec.Code).To(Equal(http.StatusForbidden))
+					testhelper.AssertErrorResponseBody(rec.Body, handler.ErrForbidden)
+				})
+			})
+			When("no error", func() {
+				BeforeEach(func() {
+					mockNotificationDataStore.EXPECT().FindByID(notification.ID).Return(&notification, nil).Times(1)
+				})
+				It("should set the notification to context", func() {
+					Expect(rec.Code).To(Equal(http.StatusOK))
+					rawNotification, exists := c.Get("Notification")
+					Expect(exists).To(BeTrue())
+					retrievedNotification, ok := rawNotification.(*datastore.Notification)
+					Expect(ok).To(BeTrue())
+					Expect(retrievedNotification).To(Equal(&notification))
+				})
+			})
+		})
+	})
+
+	Context("Read notification", func() {
+		var notification datastore.Notification
+		BeforeEach(func() {
+			handlerFunc = h.Read
+			notification = testhelper.GenerateNotification(patientID)
+			c.Set("Notification", &notification)
+		})
+
+		When("set read status error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().SetAsRead(notification.ID).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("no error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().SetAsRead(notification.ID).Return(nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
+
+	Context("Read all notifications", func() {
+		BeforeEach(func() {
+			handlerFunc = h.ReadAll
+		})
+
+		When("set all notification read status error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().SetAllAsRead(patientID).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("no error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().SetAllAsRead(patientID).Return(nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
 			})
 		})
 	})

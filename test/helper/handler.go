@@ -276,6 +276,7 @@ func GenerateNotification(patientID uint) datastore.Notification {
 		Body:      uuid.NewString(),
 		IsRead:    rand.Float32() > 0.5,
 		PatientID: patientID,
+		ID:        uint(rand.Uint32()),
 	}
 }
 
