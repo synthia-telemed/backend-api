@@ -76,6 +76,15 @@ func (h NotificationHandler) CountUnRead(c *gin.Context) {
 	c.JSON(http.StatusOK, &CountUnReadNotificationResponse{Count: count})
 }
 
+// ReadAll godoc
+// @Summary      Set all notification as read
+// @Tags         Notification
+// @Success      200
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /notification [patch]
 func (h NotificationHandler) ReadAll(c *gin.Context) {
 	patientID := h.GetUserID(c)
 	if err := h.notificationDataStore.SetAllAsRead(patientID); err != nil {
@@ -114,6 +123,19 @@ func (h NotificationHandler) AuthorizedPatientToNotification(c *gin.Context) {
 	c.Set("Notification", notification)
 }
 
+// Read godoc
+// @Summary      Set specific notification to read
+// @Tags         Notification
+// @Param  		 notificationID 	path	 integer 	true "ID of the notification"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse   "Invalid notification id"
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse   "Patient doesn't own the notification"
+// @Failure      404  {object}  server.ErrorResponse   "Notification not found"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /notification/{notificationID} [patch]
 func (h NotificationHandler) Read(c *gin.Context) {
 	rawNotification, _ := c.Get("Notification")
 	notification, _ := rawNotification.(*datastore.Notification)

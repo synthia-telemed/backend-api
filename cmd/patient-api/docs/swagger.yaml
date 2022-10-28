@@ -585,6 +585,61 @@ paths:
       summary: Get list of notification from latest to oldest
       tags:
       - Notification
+    patch:
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Set all notification as read
+      tags:
+      - Notification
+  /notification/{notificationID}:
+    patch:
+      parameters:
+      - description: ID of the notification
+        in: path
+        name: notificationID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid notification id
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Patient doesn't own the notification
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Notification not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Set specific notification to read
+      tags:
+      - Notification
   /notification/unread:
     get:
       responses:
