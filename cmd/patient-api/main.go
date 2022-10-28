@@ -69,6 +69,8 @@ func main() {
 	server.AssertFatalError(sugaredLogger, err, "Failed to create payment data store")
 	appointmentDataStore, err := datastore.NewGormAppointmentDataStore(db)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create appointment data store")
+	notificationDataStore, err := datastore.NewGormNotificationDataStore(db)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create notification data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	smsClient := sms.NewTwilioClient(&cfg.SMS)
@@ -84,9 +86,10 @@ func main() {
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
 	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, paymentDataStore, appointmentDataStore, hospitalSysClient, cacheClient, realClock, sugaredLogger)
 	infoHandler := handler.NewInfoHandler(patientDataStore, hospitalSysClient, sugaredLogger)
+	notificationHandler := handler.NewNotificationHandler(notificationDataStore, patientDataStore, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
-	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, appointmentHandler, infoHandler)
+	ginServer.RegisterHandlers("/api", authHandler, paymentHandler, appointmentHandler, infoHandler, notificationHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
 }

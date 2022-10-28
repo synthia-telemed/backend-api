@@ -396,6 +396,172 @@ const docTemplate = `{
                 }
             }
         },
+        "/notification": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Get list of notification from latest to oldest",
+                "responses": {
+                    "200": {
+                        "description": "List of notifications",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/datastore.Notification"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Set all notification as read",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/unread": {
+            "get": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Get count of unread notifications",
+                "responses": {
+                    "200": {
+                        "description": "Count of the unread notifications",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CountUnReadNotificationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/{notificationID}": {
+            "patch": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Set specific notification to read",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the notification",
+                        "name": "notificationID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid notification id",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Patient doesn't own the notification",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Notification not found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment/credit-card": {
             "get": {
                 "security": [
@@ -714,6 +880,35 @@ const docTemplate = `{
                 }
             }
         },
+        "datastore.Notification": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_read": {
+                    "type": "boolean"
+                },
+                "patient_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "datastore.Payment": {
             "type": "object",
             "properties": {
@@ -749,6 +944,18 @@ const docTemplate = `{
                 }
             }
         },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
         "handler.AddCreditCardRequest": {
             "type": "object",
             "required": [
@@ -763,6 +970,14 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.CountUnReadNotificationResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
                 }
             }
         },
