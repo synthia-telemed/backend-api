@@ -85,7 +85,7 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 				expected := patients[1].Notification[0]
 				notification, err := notificationDataStore.FindByID(expected.ID)
 				Expect(err).To(BeNil())
-				Expect(notification).To(HaveValue(Equal(expected)))
+				Expect(notification.ID).To(Equal(expected.ID))
 			})
 		})
 	})
