@@ -55,6 +55,10 @@ var _ = Describe("Auth Handler", func() {
 		handlerFunc(c)
 	})
 
+	AfterEach(func() {
+		mockCtrl.Finish()
+	})
+
 	Context("Signin", func() {
 		BeforeEach(func() {
 			handlerFunc = h.Signin
@@ -151,9 +155,4 @@ var _ = Describe("Auth Handler", func() {
 			})
 		})
 	})
-
-	AfterEach(func() {
-		mockCtrl.Finish()
-	})
-
 })
