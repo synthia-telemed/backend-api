@@ -22,6 +22,7 @@ func NewNotificationHandler(notificationDataStore datastore.NotificationDataStor
 func (h NotificationHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/notification")
 	g.GET("", h.ParseUserID, h.ListNotifications)
+	g.GET("/unread", h.ParseUserID, h.CountUnRead)
 }
 
 func (h NotificationHandler) ListNotifications(c *gin.Context) {
@@ -32,4 +33,18 @@ func (h NotificationHandler) ListNotifications(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, notifications)
+}
+
+type CountUnReadNotificationResponse struct {
+	Count int `json:"count"`
+}
+
+func (h NotificationHandler) CountUnRead(c *gin.Context) {
+	patientID := h.GetUserID(c)
+	count, err := h.notificationDataStore.CountUnRead(patientID)
+	if err != nil {
+		h.InternalServerError(c, err, "h.notificationDataStore.CountUnRead error")
+		return
+	}
+	c.JSON(http.StatusOK, &CountUnReadNotificationResponse{Count: count})
 }
