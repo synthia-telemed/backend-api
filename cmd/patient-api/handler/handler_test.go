@@ -39,6 +39,10 @@ var _ = Describe("Patient Gin Handler", func() {
 		handlerFunc(c)
 	})
 
+	AfterEach(func() {
+		mockCtrl.Finish()
+	})
+
 	Context("ParsePatient", func() {
 		BeforeEach(func() {
 			handlerFunc = h.ParsePatient
