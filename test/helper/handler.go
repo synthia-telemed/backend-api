@@ -269,3 +269,24 @@ func GenerateHospitalPatient() *hospital.Patient {
 		Weight:        rand.Float64(),
 	}
 }
+
+func GenerateNotification(patientID uint) datastore.Notification {
+	return datastore.Notification{
+		Title:     uuid.NewString(),
+		Body:      uuid.NewString(),
+		IsRead:    rand.Float32() > 0.5,
+		PatientID: patientID,
+	}
+}
+
+func GenerateNotifications(patientID uint, n int) ([]datastore.Notification, int) {
+	notifications := make([]datastore.Notification, n, n)
+	readCount := 0
+	for i := 0; i < n; i++ {
+		notifications[i] = GenerateNotification(patientID)
+		if notifications[i].IsRead {
+			readCount++
+		}
+	}
+	return notifications, readCount
+}
