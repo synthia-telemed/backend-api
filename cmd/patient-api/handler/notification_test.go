@@ -1,10 +1,12 @@
 package handler_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
@@ -15,6 +17,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 )
 
 var _ = Describe("Notification Handler", func() {
@@ -222,6 +225,70 @@ var _ = Describe("Notification Handler", func() {
 			})
 			It("should return 200", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
+
+	Context("Set notification token", func() {
+		var (
+			req     *handler.SetNotificationTokenRequest
+			patient *datastore.Patient
+		)
+		BeforeEach(func() {
+			handlerFunc = h.SetNotificationToken
+			patient = testhelper.GeneratePatient()
+			req = &handler.SetNotificationTokenRequest{Token: uuid.NewString()}
+			body, err := json.Marshal(req)
+			Expect(err).To(BeNil())
+			c.Request = httptest.NewRequest("GET", "/", bytes.NewReader(body))
+		})
+
+		When("request body is invalid", func() {
+			BeforeEach(func() {
+				c.Request = httptest.NewRequest("GET", "/", strings.NewReader(`{"not-token": "wasd"}`))
+			})
+			It("should return 400 with error", func() {
+				Expect(rec.Code).To(Equal(http.StatusBadRequest))
+				testhelper.AssertErrorResponseBody(rec.Body, handler.ErrInvalidRequestBody)
+			})
+		})
+		When("Patient is not set in context", func() {
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+		When("Patient in the context is not *datastore.Patient", func() {
+			BeforeEach(func() {
+				c.Set("Patient", &datastore.Payment{})
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		Context("patient struct is properly set", func() {
+			var targetPatient datastore.Patient
+			BeforeEach(func() {
+				c.Set("Patient", patient)
+				targetPatient = *patient
+				targetPatient.NotificationToken = req.Token
+			})
+
+			When("save patient error", func() {
+				BeforeEach(func() {
+					mockPatientDataStore.EXPECT().Save(&targetPatient).Return(testhelper.MockError).Times(1)
+				})
+				It("should return 500", func() {
+					Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+				})
+			})
+			When("no error", func() {
+				BeforeEach(func() {
+					mockPatientDataStore.EXPECT().Save(&targetPatient).Return(nil).Times(1)
+				})
+				It("should return 200", func() {
+					Expect(rec.Code).To(Equal(http.StatusOK))
+				})
 			})
 		})
 	})
