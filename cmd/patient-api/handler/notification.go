@@ -152,6 +152,16 @@ type SetNotificationTokenRequest struct {
 	Token string `json:"token" binding:"required"`
 }
 
+// SetNotificationToken godoc
+// @Summary      Save patient device notification token
+// @Tags         Notification
+// @Param  		 SetNotificationTokenRequest body SetNotificationTokenRequest true "Notification token"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /notification/token [post]
 func (h NotificationHandler) SetNotificationToken(c *gin.Context) {
 	var req SetNotificationTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

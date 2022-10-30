@@ -466,6 +466,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/notification/token": {
+            "post": {
+                "security": [
+                    {
+                        "UserID": []
+                    },
+                    {
+                        "JWSToken": []
+                    }
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Save patient device notification token",
+                "parameters": [
+                    {
+                        "description": "Notification token",
+                        "name": "SetNotificationTokenRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SetNotificationTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notification/unread": {
             "get": {
                 "security": [
@@ -1087,6 +1131,17 @@ const docTemplate = `{
             "properties": {
                 "is_default": {
                     "type": "boolean"
+                }
+            }
+        },
+        "handler.SetNotificationTokenRequest": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         },
