@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/server"
@@ -30,6 +31,7 @@ func (h NotificationHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/notification", h.ParseUserID)
 	g.GET("", h.ListNotifications)
 	g.PATCH("", h.ReadAll)
+	g.POST("/token", h.ParsePatient, h.SetNotificationToken)
 	g.GET("/unread", h.CountUnRead)
 	g.PATCH("/:id", h.AuthorizedPatientToNotification, h.Read)
 }
@@ -141,6 +143,46 @@ func (h NotificationHandler) Read(c *gin.Context) {
 	notification, _ := rawNotification.(*datastore.Notification)
 	if err := h.notificationDataStore.SetAsRead(notification.ID); err != nil {
 		h.InternalServerError(c, err, "h.notificationDataStore.SetAsRead error")
+		return
+	}
+	c.AbortWithStatus(http.StatusOK)
+}
+
+type SetNotificationTokenRequest struct {
+	Token string `json:"token" binding:"required"`
+}
+
+// SetNotificationToken godoc
+// @Summary      Save patient device notification token
+// @Tags         Notification
+// @Param  		 SetNotificationTokenRequest body SetNotificationTokenRequest true "Notification token"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse   "Invalid request body"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /notification/token [post]
+func (h NotificationHandler) SetNotificationToken(c *gin.Context) {
+	var req SetNotificationTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInvalidRequestBody)
+		return
+	}
+
+	rawPatient, exist := c.Get("Patient")
+	if !exist {
+		h.InternalServerError(c, errors.New("c.Get Patient not exist"), "c.Get Patient not exist")
+		return
+	}
+	patient, ok := rawPatient.(*datastore.Patient)
+	if !ok {
+		h.InternalServerError(c, errors.New("patient type casting error"), "Patient type casting error")
+		return
+	}
+
+	patient.NotificationToken = req.Token
+	if err := h.patientDataStore.Save(patient); err != nil {
+		h.InternalServerError(c, err, "h.patientDataStore.Save error")
 		return
 	}
 	c.AbortWithStatus(http.StatusOK)

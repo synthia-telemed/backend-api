@@ -160,6 +160,13 @@ definitions:
       is_default:
         type: boolean
     type: object
+  handler.SetNotificationTokenRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
   handler.SigninRequest:
     properties:
       credential:
@@ -638,6 +645,32 @@ paths:
       - UserID: []
       - JWSToken: []
       summary: Set specific notification to read
+      tags:
+      - Notification
+  /notification/token:
+    post:
+      parameters:
+      - description: Notification token
+        in: body
+        name: SetNotificationTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetNotificationTokenRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Save patient device notification token
       tags:
       - Notification
   /notification/unread:
