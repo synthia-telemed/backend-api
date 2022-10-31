@@ -120,9 +120,9 @@ const (
 )
 
 type AppointmentWhereInput struct {
-	AND             []*AppointmentWhereInput        `json:"AND,omitempty"`
-	NOT             []*AppointmentWhereInput        `json:"NOT,omitempty"`
-	OR              []*AppointmentWhereInput        `json:"OR,omitempty"`
+	UpdatedAt       *DateTimeFilter                 `json:"updatedAt,omitempty"`
+	Status          *EnumAppointmentStatusFilter    `json:"status,omitempty"`
+	StartDateTime   *DateTimeFilter                 `json:"startDateTime,omitempty"`
 	CreatedAt       *DateTimeFilter                 `json:"createdAt,omitempty"`
 	Detail          *StringFilter                   `json:"detail,omitempty"`
 	Doctor          *DoctorRelationFilter           `json:"doctor,omitempty"`
@@ -134,9 +134,9 @@ type AppointmentWhereInput struct {
 	Patient         *PatientRelationFilter          `json:"patient,omitempty"`
 	PatientId       *StringFilter                   `json:"patientId,omitempty"`
 	Prescriptions   *PrescriptionListRelationFilter `json:"prescriptions,omitempty"`
-	StartDateTime   *DateTimeFilter                 `json:"startDateTime,omitempty"`
-	Status          *EnumAppointmentStatusFilter    `json:"status,omitempty"`
-	UpdatedAt       *DateTimeFilter                 `json:"updatedAt,omitempty"`
+	OR              []*AppointmentWhereInput        `json:"OR,omitempty"`
+	NOT             []*AppointmentWhereInput        `json:"NOT,omitempty"`
+	AND             []*AppointmentWhereInput        `json:"AND,omitempty"`
 }
 
 // GetAND returns AppointmentWhereInput.AND, and is useful for accessing the field via an interface.
@@ -357,9 +357,9 @@ func (v *DoctorRelationFilter) GetIs() *DoctorWhereInput { return v.Is }
 func (v *DoctorRelationFilter) GetIsNot() *DoctorWhereInput { return v.IsNot }
 
 type DoctorWhereInput struct {
-	AND           []*DoctorWhereInput            `json:"AND,omitempty"`
-	NOT           []*DoctorWhereInput            `json:"NOT,omitempty"`
-	OR            []*DoctorWhereInput            `json:"OR,omitempty"`
+	Username      *StringFilter                  `json:"username,omitempty"`
+	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
+	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
 	Appointments  *AppointmentListRelationFilter `json:"appointments,omitempty"`
 	CreatedAt     *DateTimeFilter                `json:"createdAt,omitempty"`
 	Firstname_en  *StringFilter                  `json:"firstname_en,omitempty"`
@@ -371,9 +371,9 @@ type DoctorWhereInput struct {
 	Lastname_th   *StringFilter                  `json:"lastname_th,omitempty"`
 	Password      *StringFilter                  `json:"password,omitempty"`
 	Position      *StringFilter                  `json:"position,omitempty"`
-	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
-	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
-	Username      *StringFilter                  `json:"username,omitempty"`
+	OR            []*DoctorWhereInput            `json:"OR,omitempty"`
+	NOT           []*DoctorWhereInput            `json:"NOT,omitempty"`
+	AND           []*DoctorWhereInput            `json:"AND,omitempty"`
 }
 
 // GetAND returns DoctorWhereInput.AND, and is useful for accessing the field via an interface.
@@ -558,16 +558,16 @@ type InvoiceDiscountOrderByRelationAggregateInput struct {
 func (v *InvoiceDiscountOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
 
 type InvoiceDiscountWhereInput struct {
-	AND       []*InvoiceDiscountWhereInput `json:"AND,omitempty"`
-	NOT       []*InvoiceDiscountWhereInput `json:"NOT,omitempty"`
-	OR        []*InvoiceDiscountWhereInput `json:"OR,omitempty"`
-	Amount    *FloatFilter                 `json:"amount,omitempty"`
-	CreatedAt *DateTimeFilter              `json:"createdAt,omitempty"`
-	Id        *IntFilter                   `json:"id,omitempty"`
 	Invoice   *InvoiceRelationFilter       `json:"invoice,omitempty"`
 	InvoiceId *IntFilter                   `json:"invoiceId,omitempty"`
 	Name      *StringFilter                `json:"name,omitempty"`
+	Amount    *FloatFilter                 `json:"amount,omitempty"`
+	CreatedAt *DateTimeFilter              `json:"createdAt,omitempty"`
+	Id        *IntFilter                   `json:"id,omitempty"`
 	UpdatedAt *DateTimeFilter              `json:"updatedAt,omitempty"`
+	AND       []*InvoiceDiscountWhereInput `json:"AND,omitempty"`
+	NOT       []*InvoiceDiscountWhereInput `json:"NOT,omitempty"`
+	OR        []*InvoiceDiscountWhereInput `json:"OR,omitempty"`
 }
 
 // GetAND returns InvoiceDiscountWhereInput.AND, and is useful for accessing the field via an interface.
@@ -623,17 +623,17 @@ type InvoiceItemOrderByRelationAggregateInput struct {
 func (v *InvoiceItemOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
 
 type InvoiceItemWhereInput struct {
-	AND       []*InvoiceItemWhereInput `json:"AND,omitempty"`
-	NOT       []*InvoiceItemWhereInput `json:"NOT,omitempty"`
-	OR        []*InvoiceItemWhereInput `json:"OR,omitempty"`
-	CreatedAt *DateTimeFilter          `json:"createdAt,omitempty"`
-	Id        *IntFilter               `json:"id,omitempty"`
-	Invoice   *InvoiceRelationFilter   `json:"invoice,omitempty"`
 	InvoiceId *IntFilter               `json:"invoiceId,omitempty"`
 	Name      *StringFilter            `json:"name,omitempty"`
 	Price     *FloatFilter             `json:"price,omitempty"`
+	CreatedAt *DateTimeFilter          `json:"createdAt,omitempty"`
+	Id        *IntFilter               `json:"id,omitempty"`
+	Invoice   *InvoiceRelationFilter   `json:"invoice,omitempty"`
 	Quantity  *IntFilter               `json:"quantity,omitempty"`
 	UpdatedAt *DateTimeFilter          `json:"updatedAt,omitempty"`
+	AND       []*InvoiceItemWhereInput `json:"AND,omitempty"`
+	NOT       []*InvoiceItemWhereInput `json:"NOT,omitempty"`
+	OR        []*InvoiceItemWhereInput `json:"OR,omitempty"`
 }
 
 // GetAND returns InvoiceItemWhereInput.AND, and is useful for accessing the field via an interface.
@@ -726,18 +726,18 @@ func (v *InvoiceRelationFilter) GetIs() *InvoiceWhereInput { return v.Is }
 func (v *InvoiceRelationFilter) GetIsNot() *InvoiceWhereInput { return v.IsNot }
 
 type InvoiceWhereInput struct {
-	AND             []*InvoiceWhereInput               `json:"AND,omitempty"`
-	InvoiceDiscount *InvoiceDiscountListRelationFilter `json:"InvoiceDiscount,omitempty"`
-	NOT             []*InvoiceWhereInput               `json:"NOT,omitempty"`
-	OR              []*InvoiceWhereInput               `json:"OR,omitempty"`
-	Appointment     *AppointmentRelationFilter         `json:"appointment,omitempty"`
-	AppointmentId   *IntFilter                         `json:"appointmentId,omitempty"`
 	CreatedAt       *DateTimeFilter                    `json:"createdAt,omitempty"`
-	Id              *IntFilter                         `json:"id,omitempty"`
+	InvoiceDiscount *InvoiceDiscountListRelationFilter `json:"InvoiceDiscount,omitempty"`
 	InvoiceItems    *InvoiceItemListRelationFilter     `json:"invoiceItems,omitempty"`
 	Paid            *BoolFilter                        `json:"paid,omitempty"`
+	Appointment     *AppointmentRelationFilter         `json:"appointment,omitempty"`
+	AppointmentId   *IntFilter                         `json:"appointmentId,omitempty"`
+	Id              *IntFilter                         `json:"id,omitempty"`
 	Total           *FloatFilter                       `json:"total,omitempty"`
 	UpdatedAt       *DateTimeFilter                    `json:"updatedAt,omitempty"`
+	AND             []*InvoiceWhereInput               `json:"AND,omitempty"`
+	NOT             []*InvoiceWhereInput               `json:"NOT,omitempty"`
+	OR              []*InvoiceWhereInput               `json:"OR,omitempty"`
 }
 
 // GetAND returns InvoiceWhereInput.AND, and is useful for accessing the field via an interface.
@@ -790,16 +790,16 @@ func (v *MedicineRelationFilter) GetIs() *MedicineWhereInput { return v.Is }
 func (v *MedicineRelationFilter) GetIsNot() *MedicineWhereInput { return v.IsNot }
 
 type MedicineWhereInput struct {
-	AND           []*MedicineWhereInput           `json:"AND,omitempty"`
-	NOT           []*MedicineWhereInput           `json:"NOT,omitempty"`
-	OR            []*MedicineWhereInput           `json:"OR,omitempty"`
-	CreatedAt     *DateTimeFilter                 `json:"createdAt,omitempty"`
-	Description   *StringFilter                   `json:"description,omitempty"`
-	Id            *IntFilter                      `json:"id,omitempty"`
 	Name          *StringFilter                   `json:"name,omitempty"`
 	PictureURL    *StringFilter                   `json:"pictureURL,omitempty"`
 	Prescriptions *PrescriptionListRelationFilter `json:"prescriptions,omitempty"`
+	CreatedAt     *DateTimeFilter                 `json:"createdAt,omitempty"`
+	Description   *StringFilter                   `json:"description,omitempty"`
+	Id            *IntFilter                      `json:"id,omitempty"`
 	UpdatedAt     *DateTimeFilter                 `json:"updatedAt,omitempty"`
+	AND           []*MedicineWhereInput           `json:"AND,omitempty"`
+	NOT           []*MedicineWhereInput           `json:"NOT,omitempty"`
+	OR            []*MedicineWhereInput           `json:"OR,omitempty"`
 }
 
 // GetAND returns MedicineWhereInput.AND, and is useful for accessing the field via an interface.
@@ -1029,12 +1029,12 @@ type NestedStringFilter struct {
 	Equals     *string             `json:"equals"`
 	Gt         *string             `json:"gt"`
 	Gte        *string             `json:"gte"`
-	In         []string            `json:"in"`
 	Lt         *string             `json:"lt"`
 	Lte        *string             `json:"lte"`
 	Not        *NestedStringFilter `json:"not,omitempty"`
-	NotIn      []string            `json:"notIn"`
 	StartsWith *string             `json:"startsWith"`
+	In         []string            `json:"in"`
+	NotIn      []string            `json:"notIn"`
 }
 
 // GetContains returns NestedStringFilter.Contains, and is useful for accessing the field via an interface.
@@ -1076,12 +1076,12 @@ type NestedStringNullableFilter struct {
 	Equals     *string                     `json:"equals"`
 	Gt         *string                     `json:"gt"`
 	Gte        *string                     `json:"gte"`
-	In         []string                    `json:"in"`
 	Lt         *string                     `json:"lt"`
 	Lte        *string                     `json:"lte"`
 	Not        *NestedStringNullableFilter `json:"not,omitempty"`
-	NotIn      []string                    `json:"notIn"`
 	StartsWith *string                     `json:"startsWith"`
+	In         []string                    `json:"in"`
+	NotIn      []string                    `json:"notIn"`
 }
 
 // GetContains returns NestedStringNullableFilter.Contains, and is useful for accessing the field via an interface.
@@ -1210,9 +1210,9 @@ func (v *PatientRelationFilter) GetIs() *PatientWhereInput { return v.Is }
 func (v *PatientRelationFilter) GetIsNot() *PatientWhereInput { return v.IsNot }
 
 type PatientWhereInput struct {
-	AND           []*PatientWhereInput           `json:"AND,omitempty"`
-	NOT           []*PatientWhereInput           `json:"NOT,omitempty"`
-	OR            []*PatientWhereInput           `json:"OR,omitempty"`
+	Weight        *FloatFilter                   `json:"weight,omitempty"`
+	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
+	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
 	Appointments  *AppointmentListRelationFilter `json:"appointments,omitempty"`
 	BirthDate     *DateTimeFilter                `json:"birthDate,omitempty"`
 	BloodType     *EnumBloodTypeFilter           `json:"bloodType,omitempty"`
@@ -1229,9 +1229,9 @@ type PatientWhereInput struct {
 	Nationality   *StringFilter                  `json:"nationality,omitempty"`
 	PassportId    *StringNullableFilter          `json:"passportId,omitempty"`
 	PhoneNumber   *StringFilter                  `json:"phoneNumber,omitempty"`
-	ProfilePicURL *StringFilter                  `json:"profilePicURL,omitempty"`
-	UpdatedAt     *DateTimeFilter                `json:"updatedAt,omitempty"`
-	Weight        *FloatFilter                   `json:"weight,omitempty"`
+	OR            []*PatientWhereInput           `json:"OR,omitempty"`
+	NOT           []*PatientWhereInput           `json:"NOT,omitempty"`
+	AND           []*PatientWhereInput           `json:"AND,omitempty"`
 }
 
 // GetAND returns PatientWhereInput.AND, and is useful for accessing the field via an interface.
@@ -1323,17 +1323,17 @@ type PrescriptionOrderByRelationAggregateInput struct {
 func (v *PrescriptionOrderByRelationAggregateInput) GetCount() *SortOrder { return v.Count }
 
 type PrescriptionWhereInput struct {
-	AND           []*PrescriptionWhereInput  `json:"AND,omitempty"`
-	NOT           []*PrescriptionWhereInput  `json:"NOT,omitempty"`
-	OR            []*PrescriptionWhereInput  `json:"OR,omitempty"`
-	Amount        *IntFilter                 `json:"amount,omitempty"`
-	Appointment   *AppointmentRelationFilter `json:"appointment,omitempty"`
-	AppointmentId *IntFilter                 `json:"appointmentId,omitempty"`
 	CreatedAt     *DateTimeFilter            `json:"createdAt,omitempty"`
 	Id            *IntFilter                 `json:"id,omitempty"`
 	Medicine      *MedicineRelationFilter    `json:"medicine,omitempty"`
+	Amount        *IntFilter                 `json:"amount,omitempty"`
+	Appointment   *AppointmentRelationFilter `json:"appointment,omitempty"`
+	AppointmentId *IntFilter                 `json:"appointmentId,omitempty"`
 	MedicineId    *IntFilter                 `json:"medicineId,omitempty"`
 	UpdatedAt     *DateTimeFilter            `json:"updatedAt,omitempty"`
+	AND           []*PrescriptionWhereInput  `json:"AND,omitempty"`
+	NOT           []*PrescriptionWhereInput  `json:"NOT,omitempty"`
+	OR            []*PrescriptionWhereInput  `json:"OR,omitempty"`
 }
 
 // GetAND returns PrescriptionWhereInput.AND, and is useful for accessing the field via an interface.
@@ -1389,13 +1389,13 @@ type StringFilter struct {
 	Equals     *string             `json:"equals"`
 	Gt         *string             `json:"gt"`
 	Gte        *string             `json:"gte"`
-	In         []string            `json:"in"`
+	StartsWith *string             `json:"startsWith"`
 	Lt         *string             `json:"lt"`
 	Lte        *string             `json:"lte"`
 	Mode       *QueryMode          `json:"mode"`
 	Not        *NestedStringFilter `json:"not,omitempty"`
 	NotIn      []string            `json:"notIn"`
-	StartsWith *string             `json:"startsWith"`
+	In         []string            `json:"in"`
 }
 
 // GetContains returns StringFilter.Contains, and is useful for accessing the field via an interface.
@@ -1440,13 +1440,13 @@ type StringNullableFilter struct {
 	Equals     *string                     `json:"equals"`
 	Gt         *string                     `json:"gt"`
 	Gte        *string                     `json:"gte"`
-	In         []string                    `json:"in"`
+	StartsWith *string                     `json:"startsWith"`
 	Lt         *string                     `json:"lt"`
 	Lte        *string                     `json:"lte"`
 	Mode       *QueryMode                  `json:"mode"`
 	Not        *NestedStringNullableFilter `json:"not,omitempty"`
 	NotIn      []string                    `json:"notIn"`
-	StartsWith *string                     `json:"startsWith"`
+	In         []string                    `json:"in"`
 }
 
 // GetContains returns StringNullableFilter.Contains, and is useful for accessing the field via an interface.
@@ -1530,9 +1530,9 @@ func (v *__getAppointmentsInput) GetOrderBy() []*AppointmentOrderByWithRelationI
 // __getAppointmentsWithPaginationInput is used internally by genqlient
 type __getAppointmentsWithPaginationInput struct {
 	Where   *AppointmentWhereInput                 `json:"where,omitempty"`
-	OrderBy []*AppointmentOrderByWithRelationInput `json:"orderBy,omitempty"`
 	Take    *int                                   `json:"take"`
 	Skip    *int                                   `json:"skip"`
+	OrderBy []*AppointmentOrderByWithRelationInput `json:"orderBy,omitempty"`
 }
 
 // GetWhere returns __getAppointmentsWithPaginationInput.Where, and is useful for accessing the field via an interface.
@@ -1591,8 +1591,8 @@ func (v *__paidInvoiceInput) GetPaidInvoiceId() float64 { return v.PaidInvoiceId
 
 // __setAppointmentStatusInput is used internally by genqlient
 type __setAppointmentStatusInput struct {
-	SetAppointmentStatusId float64           `json:"setAppointmentStatusId"`
 	Status                 AppointmentStatus `json:"status"`
+	SetAppointmentStatusId float64           `json:"setAppointmentStatusId"`
 }
 
 // GetSetAppointmentStatusId returns __setAppointmentStatusInput.SetAppointmentStatusId, and is useful for accessing the field via an interface.
@@ -1690,10 +1690,10 @@ func (v *getAppointmentAppointmentDoctor) GetProfilePicURL() string { return v.P
 // getAppointmentAppointmentInvoice includes the requested fields of the GraphQL type Invoice.
 type getAppointmentAppointmentInvoice struct {
 	Id              string                                                     `json:"id"`
-	Total           float64                                                    `json:"total"`
-	Paid            bool                                                       `json:"paid"`
 	InvoiceItems    []*getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem `json:"invoiceItems"`
 	InvoiceDiscount []*getAppointmentAppointmentInvoiceInvoiceDiscount         `json:"InvoiceDiscount"`
+	Total           float64                                                    `json:"total"`
+	Paid            bool                                                       `json:"paid"`
 }
 
 // GetId returns getAppointmentAppointmentInvoice.Id, and is useful for accessing the field via an interface.
@@ -1751,8 +1751,8 @@ func (v *getAppointmentAppointmentInvoiceInvoiceItemsInvoiceItem) GetQuantity() 
 
 // getAppointmentAppointmentPrescriptionsPrescription includes the requested fields of the GraphQL type Prescription.
 type getAppointmentAppointmentPrescriptionsPrescription struct {
-	Amount   int                                                         `json:"amount"`
 	Medicine *getAppointmentAppointmentPrescriptionsPrescriptionMedicine `json:"medicine"`
+	Amount   int                                                         `json:"amount"`
 }
 
 // GetAmount returns getAppointmentAppointmentPrescriptionsPrescription.Amount, and is useful for accessing the field via an interface.
@@ -1811,13 +1811,13 @@ func (v *getAppointmentResponse) GetAppointment() *getAppointmentAppointment { r
 
 // getAppointmentsAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
 type getAppointmentsAppointmentsAppointment struct {
-	Id            string                                         `json:"id"`
 	StartDateTime time.Time                                      `json:"startDateTime"`
 	EndDateTime   time.Time                                      `json:"endDateTime"`
+	Patient       *getAppointmentsAppointmentsAppointmentPatient `json:"patient"`
+	Doctor        *getAppointmentsAppointmentsAppointmentDoctor  `json:"doctor"`
 	Status        AppointmentStatus                              `json:"status"`
 	Detail        string                                         `json:"detail"`
-	Doctor        *getAppointmentsAppointmentsAppointmentDoctor  `json:"doctor"`
-	Patient       *getAppointmentsAppointmentsAppointmentPatient `json:"patient"`
+	Id            string                                         `json:"id"`
 }
 
 // GetId returns getAppointmentsAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
@@ -1917,13 +1917,13 @@ func (v *getAppointmentsResponse) GetAppointments() []*getAppointmentsAppointmen
 
 // getAppointmentsWithPaginationAppointmentsAppointment includes the requested fields of the GraphQL type Appointment.
 type getAppointmentsWithPaginationAppointmentsAppointment struct {
-	Id            string                                                       `json:"id"`
 	StartDateTime time.Time                                                    `json:"startDateTime"`
 	EndDateTime   time.Time                                                    `json:"endDateTime"`
+	Patient       *getAppointmentsWithPaginationAppointmentsAppointmentPatient `json:"patient"`
+	Doctor        *getAppointmentsWithPaginationAppointmentsAppointmentDoctor  `json:"doctor"`
 	Status        AppointmentStatus                                            `json:"status"`
 	Detail        string                                                       `json:"detail"`
-	Doctor        *getAppointmentsWithPaginationAppointmentsAppointmentDoctor  `json:"doctor"`
-	Patient       *getAppointmentsWithPaginationAppointmentsAppointmentPatient `json:"patient"`
+	Id            string                                                       `json:"id"`
 }
 
 // GetId returns getAppointmentsWithPaginationAppointmentsAppointment.Id, and is useful for accessing the field via an interface.
@@ -2039,14 +2039,14 @@ func (v *getAppointmentsWithPaginationResponse) GetAppointments() []*getAppointm
 
 // getDoctorAppointmentAppointment includes the requested fields of the GraphQL type Appointment.
 type getDoctorAppointmentAppointment struct {
-	Id              string                                  `json:"id"`
-	Detail          string                                  `json:"detail"`
 	StartDateTime   time.Time                               `json:"startDateTime"`
 	EndDateTime     time.Time                               `json:"endDateTime"`
-	NextAppointment *time.Time                              `json:"nextAppointment"`
-	Status          AppointmentStatus                       `json:"status"`
 	Patient         *getDoctorAppointmentAppointmentPatient `json:"patient"`
 	Doctor          *getDoctorAppointmentAppointmentDoctor  `json:"doctor"`
+	NextAppointment *time.Time                              `json:"nextAppointment"`
+	Status          AppointmentStatus                       `json:"status"`
+	Id              string                                  `json:"id"`
+	Detail          string                                  `json:"detail"`
 }
 
 // GetId returns getDoctorAppointmentAppointment.Id, and is useful for accessing the field via an interface.
@@ -2107,15 +2107,15 @@ func (v *getDoctorAppointmentAppointmentDoctor) GetProfilePicURL() string { retu
 
 // getDoctorAppointmentAppointmentPatient includes the requested fields of the GraphQL type Patient.
 type getDoctorAppointmentAppointmentPatient struct {
+	BirthDate     time.Time `json:"birthDate"`
 	Id            string    `json:"id"`
 	Initial_en    string    `json:"initial_en"`
 	Firstname_en  string    `json:"firstname_en"`
 	Lastname_en   string    `json:"lastname_en"`
-	BirthDate     time.Time `json:"birthDate"`
 	BloodType     BloodType `json:"bloodType"`
+	ProfilePicURL string    `json:"profilePicURL"`
 	Height        float64   `json:"height"`
 	Weight        float64   `json:"weight"`
-	ProfilePicURL string    `json:"profilePicURL"`
 }
 
 // GetId returns getDoctorAppointmentAppointmentPatient.Id, and is useful for accessing the field via an interface.
@@ -2218,11 +2218,11 @@ func (v *getDoctorResponse) GetDoctor() *getDoctorDoctor { return v.Doctor }
 // getInvoiceInvoice includes the requested fields of the GraphQL type Invoice.
 type getInvoiceInvoice struct {
 	CreatedAt       time.Time                           `json:"createdAt"`
-	Id              string                              `json:"id"`
-	Paid            bool                                `json:"paid"`
-	Total           float64                             `json:"total"`
 	Appointment     *getInvoiceInvoiceAppointment       `json:"appointment"`
+	Id              string                              `json:"id"`
 	InvoiceDiscount []*getInvoiceInvoiceInvoiceDiscount `json:"InvoiceDiscount"`
+	Total           float64                             `json:"total"`
+	Paid            bool                                `json:"paid"`
 }
 
 // GetCreatedAt returns getInvoiceInvoice.CreatedAt, and is useful for accessing the field via an interface.
@@ -2279,24 +2279,24 @@ func (v *getInvoiceResponse) GetInvoice() *getInvoiceInvoice { return v.Invoice 
 
 // getPatientPatient includes the requested fields of the GraphQL type Patient.
 type getPatientPatient struct {
-	BirthDate     time.Time `json:"birthDate"`
-	BloodType     BloodType `json:"bloodType"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 	CreatedAt     time.Time `json:"createdAt"`
-	Firstname_en  string    `json:"firstname_en"`
-	Firstname_th  string    `json:"firstname_th"`
-	Height        float64   `json:"height"`
+	BirthDate     time.Time `json:"birthDate"`
+	PassportId    *string   `json:"passportId"`
+	NationalId    *string   `json:"nationalId"`
+	Lastname_en   string    `json:"lastname_en"`
 	Id            string    `json:"id"`
 	Initial_en    string    `json:"initial_en"`
 	Initial_th    string    `json:"initial_th"`
-	Lastname_en   string    `json:"lastname_en"`
+	Firstname_th  string    `json:"firstname_th"`
 	Lastname_th   string    `json:"lastname_th"`
-	NationalId    *string   `json:"nationalId"`
+	Firstname_en  string    `json:"firstname_en"`
 	Nationality   string    `json:"nationality"`
-	PassportId    *string   `json:"passportId"`
+	BloodType     BloodType `json:"bloodType"`
 	PhoneNumber   string    `json:"phoneNumber"`
-	UpdatedAt     time.Time `json:"updatedAt"`
-	Weight        float64   `json:"weight"`
 	ProfilePicURL string    `json:"profilePicURL"`
+	Height        float64   `json:"height"`
+	Weight        float64   `json:"weight"`
 }
 
 // GetBirthDate returns getPatientPatient.BirthDate, and is useful for accessing the field via an interface.
