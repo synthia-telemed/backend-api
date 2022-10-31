@@ -682,7 +682,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Title: notiData.Title,
 				Body:  notiData.Body,
 			}
-			data = map[string]string{"appointmentID": appointment.Id}
+			data = map[string]string{"appointmentID": appointment.Id, "notificationID": fmt.Sprintf("%d", notiData.ID)}
 		})
 
 		When("create notification in db error", func() {

@@ -266,7 +266,8 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 		Title: noti.Title,
 		Body:  noti.Body,
 	}
-	if err := h.notificationClient.Send(context.Background(), notiParam, map[string]string{"appointmentID": appointment.Id}); err != nil {
+	notiData := map[string]string{"appointmentID": appointment.Id, "notificationID": fmt.Sprintf("%d", noti.ID)}
+	if err := h.notificationClient.Send(context.Background(), notiParam, notiData); err != nil {
 		h.InternalServerErrorWithoutAborting(c, err, "h.notificationClient.Send error")
 		return
 	}
