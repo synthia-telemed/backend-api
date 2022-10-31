@@ -18,6 +18,7 @@ import (
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
+	"github.com/synthia-telemed/backend-api/test/mock_notification"
 	"go.uber.org/zap"
 	"math/rand"
 	"net/http"
@@ -39,6 +40,7 @@ var _ = Describe("Appointment Handler", func() {
 		mockHospitalSysClient    *mock_hospital_client.MockSystemClient
 		mockCacheClient          *mock_cache_client.MockClient
 		mockClock                *mock_clock.MockClock
+		mockNotificationClient   *mock_notification.MockClient
 
 		patient *datastore.Patient
 	)
@@ -51,7 +53,8 @@ var _ = Describe("Appointment Handler", func() {
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
-		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockAppointmentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, zap.NewNop().Sugar())
+		mockNotificationClient = mock_notification.NewMockClient(mockCtrl)
+		h = handler.NewAppointmentHandler(mockPatientDataStore, mockPaymentDataStore, mockAppointmentDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockNotificationClient, zap.NewNop().Sugar())
 		patient = testhelper.GeneratePatient()
 		c.Set("Patient", patient)
 	})
