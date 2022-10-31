@@ -13,6 +13,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
@@ -653,6 +654,62 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			Expect(res.Id).To(Equal(appointment.Id))
 			Expect(res.Doctor.ID).To(Equal(appointment.Doctor.ID))
 			Expect(res.Patient.ID).To(Equal(appointment.Patient.ID))
+		})
+	})
+
+	Context("SendAppointmentPushNotification", func() {
+		var (
+			patient    *datastore.Patient
+			notiData   *datastore.Notification
+			notiParams notification.SendParams
+			data       map[string]string
+		)
+		BeforeEach(func() {
+			handlerFunc = h.SendAppointmentPushNotification
+			patient = testhelper.GeneratePatient()
+			appointment.Patient.ID = patient.RefID
+			patient.NotificationToken = uuid.NewString()
+			c.Set("Patient", patient)
+			c.Set("Appointment", appointment)
+			notiData = &datastore.Notification{
+				Title:     "Your doctor is ready",
+				Body:      fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
+				IsRead:    false,
+				PatientID: patient.ID,
+			}
+			notiParams = notification.SendParams{
+				Token: patient.NotificationToken,
+				Title: notiData.Title,
+				Body:  notiData.Body,
+			}
+			data = map[string]string{"appointmentID": appointment.Id}
+		})
+
+		When("create notification in db error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("sending notification error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("no error sending notification", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
 		})
 	})
 })
