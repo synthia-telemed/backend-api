@@ -67,7 +67,7 @@ func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment", h.ParseUserID, h.ParseDoctor)
 	g.GET("", h.ListAppointments)
 	g.GET("/:appointmentID", h.AuthorizedDoctorToAppointment, h.GetDoctorAppointmentDetail)
-	g.POST("/:appointmentID", h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom)
+	g.POST("/:appointmentID", h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom, h.SendAppointmentPushNotification)
 	g.POST("/complete", h.CompleteAppointment)
 }
 
@@ -253,7 +253,7 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 		PatientID: patient.ID,
 	}
 	if err := h.notificationDataStore.Create(noti); err != nil {
-		h.InternalServerError(c, err, "h.notificationDataStore.Create error")
+		h.InternalServerErrorWithoutAborting(c, err, "h.notificationDataStore.Create error")
 		return
 	}
 	if patient.NotificationToken == "" {
@@ -267,7 +267,7 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 		Body:  noti.Body,
 	}
 	if err := h.notificationClient.Send(context.Background(), notiParam, map[string]string{"appointmentID": appointment.Id}); err != nil {
-		h.InternalServerError(c, err, "h.notificationClient.Send error")
+		h.InternalServerErrorWithoutAborting(c, err, "h.notificationClient.Send error")
 		return
 	}
 }
