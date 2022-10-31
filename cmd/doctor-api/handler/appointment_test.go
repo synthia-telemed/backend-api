@@ -693,6 +693,15 @@ var _ = Describe("Doctor Appointment Handler", func() {
 				Expect(rec.Code).To(Equal(http.StatusOK))
 			})
 		})
+		When("patient doesn't have notification token", func() {
+			BeforeEach(func() {
+				patient.NotificationToken = ""
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+			})
+			It("should return 200 without calling the send push notification", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
 		When("sending notification error", func() {
 			BeforeEach(func() {
 				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
