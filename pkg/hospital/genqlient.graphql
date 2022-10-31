@@ -182,7 +182,6 @@ query getDoctorAppointment($where: AppointmentWhereInput!) {
         endDateTime
         nextAppointment
         status
-        doctorId
         patient {
             id
             initial_en
@@ -192,6 +191,14 @@ query getDoctorAppointment($where: AppointmentWhereInput!) {
             bloodType
             height
             weight
+            profilePicURL
+        }
+        doctor {
+            id
+            initial_en
+            firstname_en
+            lastname_en
+            position
             profilePicURL
         }
     }

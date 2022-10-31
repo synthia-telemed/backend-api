@@ -17,11 +17,15 @@ type GinHandler struct {
 }
 
 func (h GinHandler) InternalServerError(c *gin.Context, err error, msg string) {
+	h.InternalServerErrorWithoutAborting(c, err, msg)
+	c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
+}
+
+func (h GinHandler) InternalServerErrorWithoutAborting(c *gin.Context, err error, msg string) {
+	h.Logger.Errorw(msg, "error", err.Error())
 	if hub := sentrygin.GetHubFromContext(c); hub != nil {
 		hub.CaptureException(err)
 	}
-	h.Logger.Errorw(msg, "error", err.Error())
-	c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{err.Error()})
 }
 
 func (h GinHandler) ParseUserID(c *gin.Context) {

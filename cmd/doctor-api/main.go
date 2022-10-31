@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/getsentry/sentry-go"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -13,6 +14,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/id"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/token"
 	"gorm.io/driver/postgres"
@@ -66,6 +68,8 @@ func main() {
 	server.AssertFatalError(sugaredLogger, err, "Failed to create patient data store")
 	appointmentDataStore, err := datastore.NewGormAppointmentDataStore(db)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create appointment data store")
+	notificationDataStore, err := datastore.NewGormNotificationDataStore(db)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create notification data store")
 
 	hospitalSysClient := hospital.NewGraphQLClient(&cfg.HospitalClient)
 	cacheClient := cache.NewRedisClient(&cfg.Cache)
@@ -73,10 +77,12 @@ func main() {
 	idGenerator := id.NewNanoID()
 	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create token service")
+	firebaseNotificationClient, err := notification.NewFirebaseNotificationClient(context.Background(), &cfg.Notification)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create firebase notification client")
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(hospitalSysClient, tokenService, doctorDataStore, sugaredLogger)
-	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, sugaredLogger)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, notificationDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, firebaseNotificationClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	ginServer.RegisterHandlers("/api", authHandler, appointmentHandler)
