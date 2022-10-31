@@ -41,7 +41,7 @@ type AppointmentHandler struct {
 	clock                 clock.Clock
 	idGenerator           id.Generator
 	logger                *zap.SugaredLogger
-	notification          notification.Client
+	notificationClient    notification.Client
 	server.GinHandler
 }
 
@@ -56,7 +56,7 @@ func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.Pat
 		clock:                 clock,
 		idGenerator:           id,
 		logger:                logger,
-		notification:          noti,
+		notificationClient:    noti,
 		GinHandler: server.GinHandler{
 			Logger: logger,
 		},
@@ -236,8 +236,35 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 
-	// TODO: Push notification to patient
 	c.JSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
+
+	// Create notification for patient
+	noti := &datastore.Notification{
+		Title:     "Your doctor is ready",
+		Body:      "Your doctor is ready for the appointment. Tab here to join the room.",
+		IsRead:    false,
+		PatientID: patient.ID,
+	}
+	if err := h.notificationDataStore.Create(noti); err != nil {
+		h.InternalServerError(c, err, "h.notificationDataStore.Create error")
+		return
+	}
+
+	if patient.NotificationToken == "" {
+		return
+	}
+
+	// Push notification to patient
+	notiParam := notification.SendParams{
+		Token: patient.NotificationToken,
+		Title: "Synthia",
+		Body:  noti.Body,
+	}
+	if err := h.notificationClient.Send(context.Background(), notiParam, map[string]string{"appointmentID": appointment.Id}); err != nil {
+		h.InternalServerError(c, err, "h.notificationClient.Send error")
+		return
+	}
+
 }
 
 type CompleteAppointmentRequest struct {
