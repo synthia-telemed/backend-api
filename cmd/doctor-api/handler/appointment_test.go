@@ -651,7 +651,7 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			var res hospital.DoctorAppointment
 			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 			Expect(res.Id).To(Equal(appointment.Id))
-			Expect(res.DoctorID).To(Equal(appointment.DoctorID))
+			Expect(res.Doctor.ID).To(Equal(appointment.Doctor.ID))
 			Expect(res.Patient.ID).To(Equal(appointment.Patient.ID))
 		})
 	})

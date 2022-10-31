@@ -202,7 +202,7 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 			h.InternalServerError(c, err, "h.cacheClient.Get error")
 			return
 		}
-		c.JSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
+		c.AbortWithStatusJSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
 		return
 	}
 	// Doctor is not in any room
@@ -236,9 +236,16 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		return
 	}
 
+	c.Set("Patient", patient)
 	c.JSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
+}
 
-	// Create notification for patient
+func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
+	rawPatient, _ := c.Get("Patient")
+	patient, _ := rawPatient.(*datastore.Patient)
+	rawApp, _ := c.Get("Appointment")
+	appointment := rawApp.(*hospital.DoctorAppointment)
+
 	noti := &datastore.Notification{
 		Title:     "Your doctor is ready",
 		Body:      "Your doctor is ready for the appointment. Tab here to join the room.",
@@ -249,7 +256,6 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		h.InternalServerError(c, err, "h.notificationDataStore.Create error")
 		return
 	}
-
 	if patient.NotificationToken == "" {
 		return
 	}
@@ -264,7 +270,6 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 		h.InternalServerError(c, err, "h.notificationClient.Send error")
 		return
 	}
-
 }
 
 type CompleteAppointmentRequest struct {
@@ -392,7 +397,7 @@ func (h AppointmentHandler) AuthorizedDoctorToAppointment(c *gin.Context) {
 		h.InternalServerError(c, errors.New("doctor type casting error"), "Doctor type casting error")
 		return
 	}
-	if apps.DoctorID != doctor.RefID {
+	if apps.Doctor.ID != doctor.RefID {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrForbidden)
 		return
 	}
