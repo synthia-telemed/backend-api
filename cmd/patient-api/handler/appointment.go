@@ -8,7 +8,6 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/clock"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
-	"github.com/synthia-telemed/backend-api/pkg/notification"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"go.uber.org/zap"
 	"net/http"
@@ -31,11 +30,10 @@ type AppointmentHandler struct {
 	hospitalClient       hospital.SystemClient
 	cacheClient          cache.Client
 	clock                clock.Clock
-	notification         notification.Client
 	PatientGinHandler
 }
 
-func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, appsDS datastore.AppointmentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, noti notification.Client, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datastore.PaymentDataStore, appsDS datastore.AppointmentDataStore, hos hospital.SystemClient, cacheClient cache.Client, c clock.Clock, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
 		patientDataStore:     patientDS,
 		hospitalClient:       hos,
@@ -43,7 +41,6 @@ func NewAppointmentHandler(patientDS datastore.PatientDataStore, paymentDS datas
 		appointmentDataStore: appsDS,
 		cacheClient:          cacheClient,
 		clock:                c,
-		notification:         noti,
 		PatientGinHandler:    NewPatientGinHandler(patientDS, logger),
 	}
 }

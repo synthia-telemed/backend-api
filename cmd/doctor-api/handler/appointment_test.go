@@ -19,6 +19,7 @@ import (
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_id"
+	"github.com/synthia-telemed/backend-api/test/mock_notification"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
@@ -35,16 +36,18 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		h           *handler.AppointmentHandler
 		handlerFunc gin.HandlerFunc
 
-		mockDoctorDataStore      *mock_datastore.MockDoctorDataStore
-		mockAppointmentDataStore *mock_datastore.MockAppointmentDataStore
-		mockPatientDataStore     *mock_datastore.MockPatientDataStore
-		mockHospitalSysClient    *mock_hospital_client.MockSystemClient
-		mockCacheClient          *mock_cache_client.MockClient
-		mockClock                *mock_clock.MockClock
-		mockIDGenerator          *mock_id.MockGenerator
-		doctor                   *datastore.Doctor
-		appointment              *hospital.DoctorAppointment
-		appointmentID            int
+		mockDoctorDataStore       *mock_datastore.MockDoctorDataStore
+		mockAppointmentDataStore  *mock_datastore.MockAppointmentDataStore
+		mockPatientDataStore      *mock_datastore.MockPatientDataStore
+		mockNotificationDataStore *mock_datastore.MockNotificationDataStore
+		mockHospitalSysClient     *mock_hospital_client.MockSystemClient
+		mockCacheClient           *mock_cache_client.MockClient
+		mockClock                 *mock_clock.MockClock
+		mockIDGenerator           *mock_id.MockGenerator
+		mockNotificationClient    *mock_notification.MockClient
+		doctor                    *datastore.Doctor
+		appointment               *hospital.DoctorAppointment
+		appointmentID             int
 	)
 
 	BeforeEach(func() {
@@ -53,10 +56,12 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockAppointmentDataStore = mock_datastore.NewMockAppointmentDataStore(mockCtrl)
+		mockNotificationDataStore = mock_datastore.NewMockNotificationDataStore(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockIDGenerator = mock_id.NewMockGenerator(mockCtrl)
-		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
+		mockNotificationClient = mock_notification.NewMockClient(mockCtrl)
+		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockNotificationDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, mockNotificationClient, zap.NewNop().Sugar())
 		doctor = testhelper.GenerateDoctor()
 		appointment, appointmentID = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 	})

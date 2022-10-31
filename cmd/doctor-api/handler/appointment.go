@@ -10,6 +10,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/id"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"go.uber.org/zap"
 	"math"
@@ -31,27 +32,31 @@ var (
 )
 
 type AppointmentHandler struct {
-	appointmentDataStore datastore.AppointmentDataStore
-	patientDataStore     datastore.PatientDataStore
-	doctorDataStore      datastore.DoctorDataStore
-	hospitalClient       hospital.SystemClient
-	cacheClient          cache.Client
-	clock                clock.Clock
-	idGenerator          id.Generator
-	logger               *zap.SugaredLogger
+	appointmentDataStore  datastore.AppointmentDataStore
+	patientDataStore      datastore.PatientDataStore
+	doctorDataStore       datastore.DoctorDataStore
+	notificationDataStore datastore.NotificationDataStore
+	hospitalClient        hospital.SystemClient
+	cacheClient           cache.Client
+	clock                 clock.Clock
+	idGenerator           id.Generator
+	logger                *zap.SugaredLogger
+	notification          notification.Client
 	server.GinHandler
 }
 
-func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.PatientDataStore, dds datastore.DoctorDataStore, hos hospital.SystemClient, cache cache.Client, clock clock.Clock, id id.Generator, logger *zap.SugaredLogger) *AppointmentHandler {
+func NewAppointmentHandler(ads datastore.AppointmentDataStore, pds datastore.PatientDataStore, dds datastore.DoctorDataStore, nds datastore.NotificationDataStore, hos hospital.SystemClient, cache cache.Client, clock clock.Clock, id id.Generator, noti notification.Client, logger *zap.SugaredLogger) *AppointmentHandler {
 	return &AppointmentHandler{
-		appointmentDataStore: ads,
-		patientDataStore:     pds,
-		doctorDataStore:      dds,
-		hospitalClient:       hos,
-		cacheClient:          cache,
-		clock:                clock,
-		idGenerator:          id,
-		logger:               logger,
+		appointmentDataStore:  ads,
+		patientDataStore:      pds,
+		doctorDataStore:       dds,
+		notificationDataStore: nds,
+		hospitalClient:        hos,
+		cacheClient:           cache,
+		clock:                 clock,
+		idGenerator:           id,
+		logger:                logger,
+		notification:          noti,
 		GinHandler: server.GinHandler{
 			Logger: logger,
 		},
