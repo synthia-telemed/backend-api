@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/getsentry/sentry-go"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -12,6 +13,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	"github.com/synthia-telemed/backend-api/pkg/logger"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/server"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
@@ -80,11 +82,13 @@ func main() {
 	paymentClient, err := payment.NewOmisePaymentClient(&cfg.Payment)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create payment client")
 	realClock := clock.NewRealClock()
+	firebaseNotificationClient, err := notification.NewFirebaseNotificationClient(context.Background(), &cfg.Notification)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create firebase notification client")
 
 	// Handler
 	authHandler := handler.NewAuthHandler(patientDataStore, hospitalSysClient, smsClient, cacheClient, tokenService, realClock, sugaredLogger)
 	paymentHandler := handler.NewPaymentHandler(paymentClient, patientDataStore, creditCardDataStore, hospitalSysClient, paymentDataStore, realClock, sugaredLogger)
-	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, paymentDataStore, appointmentDataStore, hospitalSysClient, cacheClient, realClock, sugaredLogger)
+	appointmentHandler := handler.NewAppointmentHandler(patientDataStore, paymentDataStore, appointmentDataStore, hospitalSysClient, cacheClient, realClock, firebaseNotificationClient, sugaredLogger)
 	infoHandler := handler.NewInfoHandler(patientDataStore, hospitalSysClient, sugaredLogger)
 	notificationHandler := handler.NewNotificationHandler(notificationDataStore, patientDataStore, sugaredLogger)
 

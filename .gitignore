@@ -175,3 +175,4 @@ $RECYCLE.BIN/
 **/*.env
 # End of https://www.toptal.com/developers/gitignore/api/goland+all,windows,macos,visualstudiocode
 .env.test
+firebase-service-account.json
