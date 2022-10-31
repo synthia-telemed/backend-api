@@ -248,7 +248,7 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 
 	noti := &datastore.Notification{
 		Title:     "Your doctor is ready",
-		Body:      "Your doctor is ready for the appointment. Tab here to join the room.",
+		Body:      fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
 		IsRead:    false,
 		PatientID: patient.ID,
 	}
@@ -263,7 +263,7 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 	// Push notification to patient
 	notiParam := notification.SendParams{
 		Token: patient.NotificationToken,
-		Title: "Synthia",
+		Title: noti.Title,
 		Body:  noti.Body,
 	}
 	if err := h.notificationClient.Send(context.Background(), notiParam, map[string]string{"appointmentID": appointment.Id}); err != nil {
