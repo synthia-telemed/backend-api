@@ -192,9 +192,14 @@ func GenerateDoctorAppointment(patientID string, doctorID string, status hospita
 		EndDateTime:     time.Now().Add(time.Hour),
 		NextAppointment: nil,
 		Status:          status,
-		DoctorID:        doctorID,
-		Detail:          patientID,
-		Id:              fmt.Sprintf("%d", id),
+		Doctor: hospital.DoctorOverview{
+			ID:            doctorID,
+			FullName:      uuid.NewString(),
+			Position:      uuid.NewString(),
+			ProfilePicURL: uuid.NewString(),
+		},
+		Detail: patientID,
+		Id:     fmt.Sprintf("%d", id),
 		Patient: hospital.DoctorAppointmentPatient{
 			BirthDate: time.Now(),
 			ID:        uuid.NewString(),

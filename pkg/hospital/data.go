@@ -81,7 +81,7 @@ type DoctorAppointment struct {
 	EndDateTime     time.Time                `json:"end_date_time"`
 	NextAppointment *time.Time               `json:"next_appointment"`
 	Status          AppointmentStatus        `json:"status"`
-	DoctorID        string                   `json:"doctor_id"`
+	Doctor          DoctorOverview           `json:"doctor"`
 	Detail          string                   `json:"detail"`
 	Id              string                   `json:"id"`
 	Patient         DoctorAppointmentPatient `json:"patient"`

@@ -310,7 +310,12 @@ func (c GraphQLClient) FindDoctorAppointmentByID(ctx context.Context, appointmen
 			Height:        app.Patient.GetHeight(),
 			ProfilePicURL: app.Patient.GetProfilePicURL(),
 		},
-		DoctorID:        fmt.Sprintf("%d", app.GetDoctorId()),
+		Doctor: DoctorOverview{
+			ID:            app.Doctor.GetId(),
+			FullName:      parseFullName(app.Doctor.GetInitial_en(), app.Doctor.GetFirstname_en(), app.Doctor.GetLastname_en()),
+			Position:      app.Doctor.GetPosition(),
+			ProfilePicURL: app.Doctor.GetProfilePicURL(),
+		},
 		Detail:          app.GetDetail(),
 		StartDateTime:   app.GetStartDateTime(),
 		EndDateTime:     app.GetEndDateTime(),

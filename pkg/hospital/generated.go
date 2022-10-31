@@ -2042,11 +2042,11 @@ type getDoctorAppointmentAppointment struct {
 	StartDateTime   time.Time                               `json:"startDateTime"`
 	EndDateTime     time.Time                               `json:"endDateTime"`
 	Patient         *getDoctorAppointmentAppointmentPatient `json:"patient"`
+	Doctor          *getDoctorAppointmentAppointmentDoctor  `json:"doctor"`
 	NextAppointment *time.Time                              `json:"nextAppointment"`
-	Id              string                                  `json:"id"`
 	Status          AppointmentStatus                       `json:"status"`
+	Id              string                                  `json:"id"`
 	Detail          string                                  `json:"detail"`
-	DoctorId        int                                     `json:"doctorId"`
 }
 
 // GetId returns getDoctorAppointmentAppointment.Id, and is useful for accessing the field via an interface.
@@ -2067,13 +2067,43 @@ func (v *getDoctorAppointmentAppointment) GetNextAppointment() *time.Time { retu
 // GetStatus returns getDoctorAppointmentAppointment.Status, and is useful for accessing the field via an interface.
 func (v *getDoctorAppointmentAppointment) GetStatus() AppointmentStatus { return v.Status }
 
-// GetDoctorId returns getDoctorAppointmentAppointment.DoctorId, and is useful for accessing the field via an interface.
-func (v *getDoctorAppointmentAppointment) GetDoctorId() int { return v.DoctorId }
-
 // GetPatient returns getDoctorAppointmentAppointment.Patient, and is useful for accessing the field via an interface.
 func (v *getDoctorAppointmentAppointment) GetPatient() *getDoctorAppointmentAppointmentPatient {
 	return v.Patient
 }
+
+// GetDoctor returns getDoctorAppointmentAppointment.Doctor, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointment) GetDoctor() *getDoctorAppointmentAppointmentDoctor {
+	return v.Doctor
+}
+
+// getDoctorAppointmentAppointmentDoctor includes the requested fields of the GraphQL type Doctor.
+type getDoctorAppointmentAppointmentDoctor struct {
+	Id            string `json:"id"`
+	Initial_en    string `json:"initial_en"`
+	Firstname_en  string `json:"firstname_en"`
+	Lastname_en   string `json:"lastname_en"`
+	Position      string `json:"position"`
+	ProfilePicURL string `json:"profilePicURL"`
+}
+
+// GetId returns getDoctorAppointmentAppointmentDoctor.Id, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetId() string { return v.Id }
+
+// GetInitial_en returns getDoctorAppointmentAppointmentDoctor.Initial_en, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetInitial_en() string { return v.Initial_en }
+
+// GetFirstname_en returns getDoctorAppointmentAppointmentDoctor.Firstname_en, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetFirstname_en() string { return v.Firstname_en }
+
+// GetLastname_en returns getDoctorAppointmentAppointmentDoctor.Lastname_en, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetLastname_en() string { return v.Lastname_en }
+
+// GetPosition returns getDoctorAppointmentAppointmentDoctor.Position, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetPosition() string { return v.Position }
+
+// GetProfilePicURL returns getDoctorAppointmentAppointmentDoctor.ProfilePicURL, and is useful for accessing the field via an interface.
+func (v *getDoctorAppointmentAppointmentDoctor) GetProfilePicURL() string { return v.ProfilePicURL }
 
 // getDoctorAppointmentAppointmentPatient includes the requested fields of the GraphQL type Patient.
 type getDoctorAppointmentAppointmentPatient struct {
@@ -2685,7 +2715,6 @@ query getDoctorAppointment ($where: AppointmentWhereInput!) {
 		endDateTime
 		nextAppointment
 		status
-		doctorId
 		patient {
 			id
 			initial_en
@@ -2695,6 +2724,14 @@ query getDoctorAppointment ($where: AppointmentWhereInput!) {
 			bloodType
 			height
 			weight
+			profilePicURL
+		}
+		doctor {
+			id
+			initial_en
+			firstname_en
+			lastname_en
+			position
 			profilePicURL
 		}
 	}

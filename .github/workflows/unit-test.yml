@@ -38,10 +38,10 @@ jobs:
           ${{ runner.os }}-go-
     - name: Install mockgen
       run: go install github.com/golang/mock/mockgen@v1.6.0
-    - name: Get Ginkgo
-      run: go get github.com/onsi/ginkgo/v2/ginkgo
+    # - name: Get Ginkgo
+    # run: go get github.com/onsi/ginkgo/v2/ginkgo
     - name: Install Ginkgo
-      run: go install github.com/onsi/ginkgo/v2/ginkgo
+      run: go install github.com/onsi/ginkgo/v2/ginkgo@v2.1.4 
     - name: mockgen
       run: make mockgen
     - name: Run unit tests

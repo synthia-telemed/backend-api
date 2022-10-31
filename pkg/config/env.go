@@ -6,6 +6,7 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	"github.com/synthia-telemed/backend-api/pkg/payment"
 	"github.com/synthia-telemed/backend-api/pkg/sms"
 	"github.com/synthia-telemed/backend-api/pkg/token"
@@ -23,6 +24,7 @@ type Config struct {
 	DatabaseDSN    string
 	Cache          cache.Config
 	Port           int `env:"PORT" envDefault:"8080"`
+	Notification   notification.Config
 }
 
 func Load() (*Config, error) {

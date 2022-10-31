@@ -13,12 +13,14 @@ import (
 	"github.com/synthia-telemed/backend-api/pkg/cache"
 	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
+	"github.com/synthia-telemed/backend-api/pkg/notification"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
 	"github.com/synthia-telemed/backend-api/test/mock_clock"
 	"github.com/synthia-telemed/backend-api/test/mock_datastore"
 	"github.com/synthia-telemed/backend-api/test/mock_hospital_client"
 	"github.com/synthia-telemed/backend-api/test/mock_id"
+	"github.com/synthia-telemed/backend-api/test/mock_notification"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
@@ -35,16 +37,18 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		h           *handler.AppointmentHandler
 		handlerFunc gin.HandlerFunc
 
-		mockDoctorDataStore      *mock_datastore.MockDoctorDataStore
-		mockAppointmentDataStore *mock_datastore.MockAppointmentDataStore
-		mockPatientDataStore     *mock_datastore.MockPatientDataStore
-		mockHospitalSysClient    *mock_hospital_client.MockSystemClient
-		mockCacheClient          *mock_cache_client.MockClient
-		mockClock                *mock_clock.MockClock
-		mockIDGenerator          *mock_id.MockGenerator
-		doctor                   *datastore.Doctor
-		appointment              *hospital.DoctorAppointment
-		appointmentID            int
+		mockDoctorDataStore       *mock_datastore.MockDoctorDataStore
+		mockAppointmentDataStore  *mock_datastore.MockAppointmentDataStore
+		mockPatientDataStore      *mock_datastore.MockPatientDataStore
+		mockNotificationDataStore *mock_datastore.MockNotificationDataStore
+		mockHospitalSysClient     *mock_hospital_client.MockSystemClient
+		mockCacheClient           *mock_cache_client.MockClient
+		mockClock                 *mock_clock.MockClock
+		mockIDGenerator           *mock_id.MockGenerator
+		mockNotificationClient    *mock_notification.MockClient
+		doctor                    *datastore.Doctor
+		appointment               *hospital.DoctorAppointment
+		appointmentID             int
 	)
 
 	BeforeEach(func() {
@@ -53,10 +57,12 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		mockHospitalSysClient = mock_hospital_client.NewMockSystemClient(mockCtrl)
 		mockPatientDataStore = mock_datastore.NewMockPatientDataStore(mockCtrl)
 		mockAppointmentDataStore = mock_datastore.NewMockAppointmentDataStore(mockCtrl)
+		mockNotificationDataStore = mock_datastore.NewMockNotificationDataStore(mockCtrl)
 		mockClock = mock_clock.NewMockClock(mockCtrl)
 		mockCacheClient = mock_cache_client.NewMockClient(mockCtrl)
 		mockIDGenerator = mock_id.NewMockGenerator(mockCtrl)
-		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, zap.NewNop().Sugar())
+		mockNotificationClient = mock_notification.NewMockClient(mockCtrl)
+		h = handler.NewAppointmentHandler(mockAppointmentDataStore, mockPatientDataStore, mockDoctorDataStore, mockNotificationDataStore, mockHospitalSysClient, mockCacheClient, mockClock, mockIDGenerator, mockNotificationClient, zap.NewNop().Sugar())
 		doctor = testhelper.GenerateDoctor()
 		appointment, appointmentID = testhelper.GenerateDoctorAppointment("", doctor.RefID, hospital.AppointmentStatusScheduled)
 	})
@@ -646,8 +652,73 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			var res hospital.DoctorAppointment
 			Expect(json.Unmarshal(rec.Body.Bytes(), &res)).To(Succeed())
 			Expect(res.Id).To(Equal(appointment.Id))
-			Expect(res.DoctorID).To(Equal(appointment.DoctorID))
+			Expect(res.Doctor.ID).To(Equal(appointment.Doctor.ID))
 			Expect(res.Patient.ID).To(Equal(appointment.Patient.ID))
+		})
+	})
+
+	Context("SendAppointmentPushNotification", func() {
+		var (
+			patient    *datastore.Patient
+			notiData   *datastore.Notification
+			notiParams notification.SendParams
+			data       map[string]string
+		)
+		BeforeEach(func() {
+			handlerFunc = h.SendAppointmentPushNotification
+			patient = testhelper.GeneratePatient()
+			appointment.Patient.ID = patient.RefID
+			patient.NotificationToken = uuid.NewString()
+			c.Set("Patient", patient)
+			c.Set("Appointment", appointment)
+			notiData = &datastore.Notification{
+				Title:     "Your doctor is ready",
+				Body:      fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
+				IsRead:    false,
+				PatientID: patient.ID,
+			}
+			notiParams = notification.SendParams{
+				Token: patient.NotificationToken,
+				Title: notiData.Title,
+				Body:  notiData.Body,
+			}
+			data = map[string]string{"appointmentID": appointment.Id}
+		})
+
+		When("create notification in db error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("patient doesn't have notification token", func() {
+			BeforeEach(func() {
+				patient.NotificationToken = ""
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+			})
+			It("should return 200 without calling the send push notification", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("sending notification error", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("no error sending notification", func() {
+			BeforeEach(func() {
+				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
+				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
 		})
 	})
 })
