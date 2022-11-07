@@ -22,4 +22,4 @@ services:
   rabbitmq:
     image: rabbitmq:3.11-alpine
     expose:
-      - "5672:5672"
+      - "5672"
