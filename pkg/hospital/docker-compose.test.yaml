@@ -14,5 +14,12 @@ services:
       pull_policy: always
       environment:
         DATABASE_URL: "postgres://postgres:unsecurepassword@postgres:5432/hospital-mock"
+        RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+        RABBITMQ_EXCHANGE_NAME: "notification"
+        RABBITMQ_ROUTING_KEY: "push-notification"
       ports:
         - "30821:3000"
+  rabbitmq:
+    image: rabbitmq:3.11-alpine
+    expose:
+      - "5672:5672"
