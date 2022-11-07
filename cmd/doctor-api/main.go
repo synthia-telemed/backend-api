@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"github.com/getsentry/sentry-go"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -77,15 +76,16 @@ func main() {
 	idGenerator := id.NewNanoID()
 	tokenService, err := token.NewGRPCTokenService(&cfg.Token)
 	server.AssertFatalError(sugaredLogger, err, "Failed to create token service")
-	firebaseNotificationClient, err := notification.NewFirebaseNotificationClient(context.Background(), &cfg.Notification)
-	server.AssertFatalError(sugaredLogger, err, "Failed to create firebase notification client")
+	notificationClient, err := notification.NewRabbitMQNotificationClient(&cfg.Notification)
+	server.AssertFatalError(sugaredLogger, err, "Failed to create rabbitmq notification client")
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(hospitalSysClient, tokenService, doctorDataStore, sugaredLogger)
-	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, notificationDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, firebaseNotificationClient, sugaredLogger)
+	appointmentHandler := handler.NewAppointmentHandler(appointmentDataStore, patientDataStore, doctorDataStore, notificationDataStore, hospitalSysClient, cacheClient, realClock, idGenerator, notificationClient, sugaredLogger)
 
 	ginServer := server.NewGinServer(cfg, sugaredLogger)
 	ginServer.RegisterHandlers("/api", authHandler, appointmentHandler)
 	ginServer.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	ginServer.ListenAndServe()
+	server.AssertFatalError(sugaredLogger, notificationClient.Close(), "Failed to close rabbitmq connection")
 }
