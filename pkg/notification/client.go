@@ -9,7 +9,7 @@ type Client interface {
 }
 
 type SendParams struct {
-	Token string
+	ID    string
 	Title string
 	Body  string
 }

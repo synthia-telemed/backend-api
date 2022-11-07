@@ -660,7 +660,6 @@ var _ = Describe("Doctor Appointment Handler", func() {
 	Context("SendAppointmentPushNotification", func() {
 		var (
 			patient    *datastore.Patient
-			notiData   *datastore.Notification
 			notiParams notification.SendParams
 			data       map[string]string
 		)
@@ -671,40 +670,16 @@ var _ = Describe("Doctor Appointment Handler", func() {
 			patient.NotificationToken = uuid.NewString()
 			c.Set("Patient", patient)
 			c.Set("Appointment", appointment)
-			notiData = &datastore.Notification{
-				Title:     "Your doctor is ready",
-				Body:      fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
-				IsRead:    false,
-				PatientID: patient.ID,
-			}
 			notiParams = notification.SendParams{
-				Token: patient.NotificationToken,
-				Title: notiData.Title,
-				Body:  notiData.Body,
+				ID:    fmt.Sprintf("%d", patient.ID),
+				Title: "Your doctor is ready",
+				Body:  fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
 			}
-			data = map[string]string{"appointmentID": appointment.Id, "notificationID": fmt.Sprintf("%d", notiData.ID)}
+			data = map[string]string{"appointmentID": appointment.Id}
 		})
 
-		When("create notification in db error", func() {
-			BeforeEach(func() {
-				mockNotificationDataStore.EXPECT().Create(notiData).Return(testhelper.MockError).Times(1)
-			})
-			It("should return 200", func() {
-				Expect(rec.Code).To(Equal(http.StatusOK))
-			})
-		})
-		When("patient doesn't have notification token", func() {
-			BeforeEach(func() {
-				patient.NotificationToken = ""
-				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
-			})
-			It("should return 200 without calling the send push notification", func() {
-				Expect(rec.Code).To(Equal(http.StatusOK))
-			})
-		})
 		When("sending notification error", func() {
 			BeforeEach(func() {
-				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
 				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 200", func() {
@@ -713,7 +688,6 @@ var _ = Describe("Doctor Appointment Handler", func() {
 		})
 		When("no error sending notification", func() {
 			BeforeEach(func() {
-				mockNotificationDataStore.EXPECT().Create(notiData).Return(nil).Times(1)
 				mockNotificationClient.EXPECT().Send(gomock.Any(), notiParams, data).Return(nil).Times(1)
 			})
 			It("should return 200", func() {
