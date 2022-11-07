@@ -246,27 +246,13 @@ func (h AppointmentHandler) SendAppointmentPushNotification(c *gin.Context) {
 	rawApp, _ := c.Get("Appointment")
 	appointment := rawApp.(*hospital.DoctorAppointment)
 
-	noti := &datastore.Notification{
-		Title:     "Your doctor is ready",
-		Body:      fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
-		IsRead:    false,
-		PatientID: patient.ID,
-	}
-	if err := h.notificationDataStore.Create(noti); err != nil {
-		h.InternalServerErrorWithoutAborting(c, err, "h.notificationDataStore.Create error")
-		return
-	}
-	if patient.NotificationToken == "" {
-		return
-	}
-
 	// Push notification to patient
 	notiParam := notification.SendParams{
-		Token: patient.NotificationToken,
-		Title: noti.Title,
-		Body:  noti.Body,
+		ID:    fmt.Sprintf("%d", patient.ID),
+		Title: "Your doctor is ready",
+		Body:  fmt.Sprintf("%s is ready for the appointment. Tab here to join the room.", appointment.Doctor.FullName),
 	}
-	notiData := map[string]string{"appointmentID": appointment.Id, "notificationID": fmt.Sprintf("%d", noti.ID)}
+	notiData := map[string]string{"appointmentID": appointment.Id}
 	if err := h.notificationClient.Send(context.Background(), notiParam, notiData); err != nil {
 		h.InternalServerErrorWithoutAborting(c, err, "h.notificationClient.Send error")
 		return
