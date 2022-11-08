@@ -5,6 +5,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -32,7 +33,7 @@ func setupTestHospitalSystem() {
 		WithCommand([]string{"up", "-d"}).
 		WaitForService("postgres", wait.ForLog("database system is ready to accept connections").WithOccurrence(2)).
 		WaitForService("rabbitmq", wait.ForLog("Ready to start client connection listeners")).
-		WaitForService("hospital-sys", wait.ForLog("Nest application successfully started")).
+		WaitForService("hospital-sys", wait.ForLog("Nest application successfully started").WithStartupTimeout(time.Minute*2)).
 		Invoke()
 	Expect(execError.Error).To(BeNil())
 }
