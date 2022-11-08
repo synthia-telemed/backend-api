@@ -117,13 +117,13 @@ var _ = Describe("Patient Datastore", Ordered, func() {
 		})
 	})
 
-	Context("SetAllAsRead", func() {
-		It("should set all notifications to read", func() {
-			patient := patients[1]
-			Expect(notificationDataStore.SetAllAsRead(patient.ID)).To(Succeed())
-			var readCount int64
-			db.Model(datastore.Notification{}).Where("patient_id = ? AND is_read = ?", patient.ID, false).Count(&readCount)
-			Expect(readCount).To(BeZero())
-		})
-	})
+	//Context("SetAllAsRead", func() {
+	//	It("should set all notifications to read", func() {
+	//		patient := patients[1]
+	//		Expect(notificationDataStore.SetAllAsRead(patient.ID)).To(Succeed())
+	//		var readCount int64
+	//		db.Model(datastore.Notification{}).Where("patient_id = ? AND is_read = ?", patient.ID, false).Count(&readCount)
+	//		Expect(readCount).To(BeZero())
+	//	})
+	//})
 })
