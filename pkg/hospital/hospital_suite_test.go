@@ -31,6 +31,7 @@ func setupTestHospitalSystem() {
 	execError := compose.
 		WithCommand([]string{"up", "-d"}).
 		WaitForService("postgres", wait.ForLog("database system is ready to accept connections").WithOccurrence(2)).
+		WaitForService("rabbitmq", wait.ForLog("Ready to start client connection listeners")).
 		WaitForService("hospital-sys", wait.ForLog("Nest application successfully started")).
 		Invoke()
 	Expect(execError.Error).To(BeNil())
