@@ -88,7 +88,9 @@ var _ = Describe("Payment Datastore", Ordered, func() {
 			})
 			When("payment is found but credit card is deleted", func() {
 				BeforeEach(func() {
-					Expect(db.Delete(creditCard).Error).To(BeNil())
+					tx := db.Delete(creditCard)
+					Expect(tx.Error).To(BeNil())
+					Expect(tx.RowsAffected).To(BeEquivalentTo(1))
 				})
 				It("should return payment with credit card preloaded", func() {
 					p, err := paymentDataStore.FindLatestByInvoiceIDAndStatus(payment.InvoiceID, datastore.SuccessPaymentStatus)
