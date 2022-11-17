@@ -26,7 +26,7 @@ type Patient struct {
 	NameEN        *Name     `json:"name_en"`
 	NameTH        *Name     `json:"name_th"`
 	NationalId    *string   `json:"national_id"`
-	Id            string    `json:"-"`
+	Id            string    `json:"id"`
 	Nationality   string    `json:"nationality"`
 	PhoneNumber   string    `json:"phone_number"`
 	BloodType     BloodType `json:"blood_type"`
