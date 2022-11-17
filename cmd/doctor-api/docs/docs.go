@@ -429,8 +429,8 @@ const docTemplate = `{
                 "detail": {
                     "type": "string"
                 },
-                "doctor_id": {
-                    "type": "string"
+                "doctor": {
+                    "$ref": "#/definitions/hospital.DoctorOverview"
                 },
                 "end_date_time": {
                     "type": "string"
