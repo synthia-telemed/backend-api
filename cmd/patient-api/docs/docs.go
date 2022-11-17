@@ -1332,6 +1332,9 @@ const docTemplate = `{
                 "height": {
                     "type": "number"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name_en": {
                     "$ref": "#/definitions/hospital.Name"
                 },

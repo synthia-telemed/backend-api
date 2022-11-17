@@ -50,11 +50,12 @@ func (g GormPaymentDataStore) Create(payment *Payment) error {
 
 func (g GormPaymentDataStore) FindLatestByInvoiceIDAndStatus(invoiceID int, status PaymentStatus) (*Payment, error) {
 	var payment Payment
-	if err := g.db.Preload("CreditCard").Where(&Payment{InvoiceID: invoiceID, Status: status}).Order("created_at").First(&payment).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	tx := g.db.Preload("CreditCard", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).Where(&Payment{InvoiceID: invoiceID, Status: status}).Order("created_at").First(&payment)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, tx.Error
 	}
 	return &payment, nil
 }
