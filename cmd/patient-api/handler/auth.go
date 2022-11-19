@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -50,6 +49,7 @@ func (h AuthHandler) Register(r *gin.RouterGroup) {
 	authGroup := r.Group("/auth")
 	authGroup.POST("/signin", h.Signin)
 	authGroup.POST("/verify", h.VerifyOTP)
+	authGroup.DELETE("/signout", h.ParseUserID, h.ParsePatient, h.SignOut)
 }
 
 type SigninRequest struct {
@@ -164,16 +164,9 @@ func (h AuthHandler) censorPhoneNumber(number string) string {
 }
 
 func (h AuthHandler) SignOut(c *gin.Context) {
-	patientID := h.GetUserID(c)
-	patient, err := h.patientDataStore.FindByID(patientID)
-	if err != nil {
-		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
-		return
-	}
-	if patient == nil {
-		h.InternalServerError(c, errors.New("patient not found in db"), "patient not found in db")
-		return
-	}
+	patientRaw, _ := c.Get("Patient")
+	patient := patientRaw.(*datastore.Patient)
+
 	patient.NotificationToken = ""
 	if err := h.patientDataStore.Save(patient); err != nil {
 		h.InternalServerError(c, err, "h.patientDataStore.Save")

@@ -165,33 +165,14 @@ var _ = Describe("Auth Handler", func() {
 		BeforeEach(func() {
 			handlerFunc = h.SignOut
 			patient = testhelper.GeneratePatient()
+			c.Set("Patient", patient)
 			p := *patient
 			p.NotificationToken = ""
 			updatedPatient = &p
-			c.Set("UserID", patient.ID)
-		})
-
-		When("find patient by ID error", func() {
-			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(nil, testhelper.MockError).Times(1)
-			})
-			It("should return 500", func() {
-				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
-			})
-		})
-
-		When("find patient by ID not found", func() {
-			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(nil, nil).Times(1)
-			})
-			It("should return 500", func() {
-				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
-			})
 		})
 
 		When("update patient's notification token error", func() {
 			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(patient, nil).Times(1)
 				mockPatientDataStore.EXPECT().Save(updatedPatient).Return(testhelper.MockError).Times(1)
 			})
 			It("should return 500", func() {
@@ -201,7 +182,6 @@ var _ = Describe("Auth Handler", func() {
 
 		When("no error", func() {
 			BeforeEach(func() {
-				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(patient, nil).Times(1)
 				mockPatientDataStore.EXPECT().Save(updatedPatient).Return(nil).Times(1)
 			})
 			It("should return 200", func() {
