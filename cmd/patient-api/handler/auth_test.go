@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/synthia-telemed/backend-api/cmd/patient-api/handler"
+	"github.com/synthia-telemed/backend-api/pkg/datastore"
 	"github.com/synthia-telemed/backend-api/pkg/hospital"
 	testhelper "github.com/synthia-telemed/backend-api/test/helper"
 	"github.com/synthia-telemed/backend-api/test/mock_cache_client"
@@ -154,5 +155,59 @@ var _ = Describe("Auth Handler", func() {
 				Expect(res.Token).To(Equal("token"))
 			})
 		})
+	})
+
+	Context("SignOut", func() {
+		var (
+			patient        *datastore.Patient
+			updatedPatient *datastore.Patient
+		)
+		BeforeEach(func() {
+			handlerFunc = h.SignOut
+			patient = testhelper.GeneratePatient()
+			p := *patient
+			p.NotificationToken = ""
+			updatedPatient = &p
+			c.Set("UserID", patient.ID)
+		})
+
+		When("find patient by ID error", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(nil, testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("find patient by ID not found", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(nil, nil).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("update patient's notification token error", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(patient, nil).Times(1)
+				mockPatientDataStore.EXPECT().Save(updatedPatient).Return(testhelper.MockError).Times(1)
+			})
+			It("should return 500", func() {
+				Expect(rec.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		When("no error", func() {
+			BeforeEach(func() {
+				mockPatientDataStore.EXPECT().FindByID(patient.ID).Return(patient, nil).Times(1)
+				mockPatientDataStore.EXPECT().Save(updatedPatient).Return(nil).Times(1)
+			})
+			It("should return 200", func() {
+				Expect(rec.Code).To(Equal(http.StatusOK))
+			})
+		})
+
 	})
 })

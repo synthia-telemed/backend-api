@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -160,4 +161,23 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 
 func (h AuthHandler) censorPhoneNumber(number string) string {
 	return number[:3] + "***" + number[len(number)-4:]
+}
+
+func (h AuthHandler) SignOut(c *gin.Context) {
+	patientID := h.GetUserID(c)
+	patient, err := h.patientDataStore.FindByID(patientID)
+	if err != nil {
+		h.InternalServerError(c, err, "h.patientDataStore.FindByID error")
+		return
+	}
+	if patient == nil {
+		h.InternalServerError(c, errors.New("patient not found in db"), "patient not found in db")
+		return
+	}
+	patient.NotificationToken = ""
+	if err := h.patientDataStore.Save(patient); err != nil {
+		h.InternalServerError(c, err, "h.patientDataStore.Save")
+		return
+	}
+	c.AbortWithStatus(http.StatusOK)
 }
