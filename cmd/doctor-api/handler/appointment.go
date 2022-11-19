@@ -151,6 +151,44 @@ func (h AppointmentHandler) GetDoctorAppointmentDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, appointment)
 }
 
+func (h AppointmentHandler) CanJoinAppointment(c *gin.Context) {
+	rawDoc, _ := c.Get("Doctor")
+	doctor := rawDoc.(*datastore.Doctor)
+
+	rawApp, _ := c.Get("Appointment")
+	appointment := rawApp.(*hospital.DoctorAppointment)
+	if appointment.Status != hospital.AppointmentStatusScheduled {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
+		return
+	}
+
+	currentAppID, err := h.cacheClient.Get(context.Background(), cache.CurrentDoctorAppointmentIDKey(doctor.ID), false)
+	if err != nil {
+		h.InternalServerError(c, err, "h.cacheClient.Get error")
+		return
+	}
+	if currentAppID != "" {
+		if currentAppID != appointment.Id {
+			c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorInAnotherRoom)
+			return
+		}
+		roomID, err := h.cacheClient.Get(context.Background(), cache.AppointmentRoomIDKey(appointment.Id), false)
+		if err != nil {
+			h.InternalServerError(c, err, "h.cacheClient.Get error")
+			return
+		}
+		c.Set("RoomID", roomID)
+		return
+	}
+
+	now := h.clock.Now()
+	diff := appointment.StartDateTime.Sub(now)
+	if diff < -time.Hour*3 || diff > time.Minute*10 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrNotTimeYet)
+		return
+	}
+}
+
 // InitAppointmentRoom godoc
 // @Summary      Init the appointment room
 // @Tags         Appointment
@@ -174,43 +212,21 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 
 	rawApp, _ := c.Get("Appointment")
 	appointment := rawApp.(*hospital.DoctorAppointment)
-	if appointment.Status != hospital.AppointmentStatusScheduled {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrInitNonScheduledAppointment)
-		return
-	}
-	now := h.clock.Now()
-	diff := appointment.StartDateTime.Sub(now)
-	if diff < -time.Hour*3 || diff > time.Minute*10 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrNotTimeYet)
-		return
+
+	var roomID string
+	rawRoomID, exist := c.Get("RoomID")
+	if !exist {
+		var err error
+		roomID, err = h.idGenerator.GenerateRoomID()
+		if err != nil {
+			h.InternalServerError(c, err, "h.idGenerator.GenerateRoomID error")
+			return
+		}
+	} else {
+		roomID = rawRoomID.(string)
 	}
 
 	ctx := context.Background()
-	// Check the current room that doctor is in
-	currentAppID, err := h.cacheClient.Get(ctx, cache.CurrentDoctorAppointmentIDKey(doctor.ID), false)
-	if err != nil {
-		h.InternalServerError(c, err, "h.cacheClient.Get error")
-		return
-	}
-	if currentAppID != "" {
-		if currentAppID != appointment.Id {
-			c.AbortWithStatusJSON(http.StatusBadRequest, ErrDoctorInAnotherRoom)
-			return
-		}
-		roomID, err := h.cacheClient.Get(ctx, cache.AppointmentRoomIDKey(appointment.Id), false)
-		if err != nil {
-			h.InternalServerError(c, err, "h.cacheClient.Get error")
-			return
-		}
-		c.AbortWithStatusJSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
-		return
-	}
-	// Doctor is not in any room
-	roomID, err := h.idGenerator.GenerateRoomID()
-	if err != nil {
-		h.InternalServerError(c, err, "h.idGenerator.GenerateRoomID error")
-		return
-	}
 	// Set appointment ID that doctor is currently in and room ID of the appointment
 	kv := map[string]string{
 		cache.CurrentDoctorAppointmentIDKey(doctor.ID): appointment.Id,
