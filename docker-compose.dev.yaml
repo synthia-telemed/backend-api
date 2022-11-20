@@ -1,0 +1,11 @@
+version: '3'
+services:
+  rabbit-mq:
+    image: rabbitmq:3.11-management
+    ports:
+      - "8081:15672"
+      - "5672:5672"
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
