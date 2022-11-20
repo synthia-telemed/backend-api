@@ -67,7 +67,8 @@ func (h AppointmentHandler) Register(r *gin.RouterGroup) {
 	g := r.Group("/appointment", h.ParseUserID, h.ParseDoctor)
 	g.GET("", h.ListAppointments)
 	g.GET("/:appointmentID", h.AuthorizedDoctorToAppointment, h.GetDoctorAppointmentDetail)
-	g.POST("/:appointmentID", h.AuthorizedDoctorToAppointment, h.InitAppointmentRoom, h.SendAppointmentPushNotification)
+	g.POST("/:appointmentID", h.AuthorizedDoctorToAppointment, h.CanJoinAppointment, h.InitAppointmentRoom, h.SendAppointmentPushNotification)
+	g.GET("/:appointmentID/can-join", h.AuthorizedDoctorToAppointment, h.CanJoinAppointment)
 	g.POST("/complete", h.CompleteAppointment)
 }
 
