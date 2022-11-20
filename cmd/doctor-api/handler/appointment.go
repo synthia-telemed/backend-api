@@ -21,14 +21,14 @@ import (
 
 var (
 	ErrDoctorNotFound              = server.NewErrorResponse("Doctor not found")
-	ErrInitNonScheduledAppointment = server.NewErrorResponse("Cannot initiate room for completed or cancelled appointment")
-	ErrDoctorInAnotherRoom         = server.NewErrorResponse("Doctor is in another room. Please close the room before starting a new one")
-	ErrNotTimeYet                  = server.NewErrorResponse("The appointment can start 10 minutes early and not later than 3 hours")
+	ErrInitNonScheduledAppointment = server.NewErrorResponse("Cannot join a completed or cancelled appointment")
+	ErrDoctorInAnotherRoom         = server.NewErrorResponse("You're in another room. Please close the room before starting a new one")
+	ErrNotTimeYet                  = server.NewErrorResponse("The appointment can be started 10 minutes early and not later than 3 hours")
 	ErrAppointmentIDMissing        = server.NewErrorResponse("Appointment ID is missing")
 	ErrAppointmentIDInvalid        = server.NewErrorResponse("Invalid appointment ID")
 	ErrAppointmentNotFound         = server.NewErrorResponse("Appointment not found")
 	ErrForbidden                   = server.NewErrorResponse("Forbidden")
-	ErrDoctorNotInRoom             = server.NewErrorResponse("Doctor isn't currently in any room")
+	ErrDoctorNotInRoom             = server.NewErrorResponse("You're not currently in any room")
 )
 
 type AppointmentHandler struct {
