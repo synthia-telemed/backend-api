@@ -152,6 +152,23 @@ func (h AppointmentHandler) GetDoctorAppointmentDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, appointment)
 }
 
+// CanJoinAppointment godoc
+// @Summary      Check if the doctor can join or open the appointment room
+// @Tags         Appointment
+// @Param  		 appointmentID 	path	 integer	true "ID of the appointment"
+// @Success      200
+// @Failure      400  {object}  server.ErrorResponse   "Doctor not found"
+// @Failure      400  {object}  server.ErrorResponse   "Appointment ID is missing"
+// @Failure      400  {object}  server.ErrorResponse   "Invalid appointment ID"
+// @Failure      400  {object}  server.ErrorResponse   "Cannot initiate room for completed or cancelled appointment"
+// @Failure      400  {object}  server.ErrorResponse   "The appointment can start 10 minutes early and not later than 3 hours"
+// @Failure      401  {object}  server.ErrorResponse   "Unauthorized"
+// @Failure      403  {object}  server.ErrorResponse   "Forbidden"
+// @Failure      404  {object}  server.ErrorResponse   "Appointment not found"
+// @Failure      500  {object}  server.ErrorResponse   "Internal server error"
+// @Security     UserID
+// @Security     JWSToken
+// @Router       /appointment/{appointmentID}/can-join [get]
 func (h AppointmentHandler) CanJoinAppointment(c *gin.Context) {
 	rawDoc, _ := c.Get("Doctor")
 	doctor := rawDoc.(*datastore.Doctor)

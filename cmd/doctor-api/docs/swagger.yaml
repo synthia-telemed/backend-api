@@ -262,6 +262,44 @@ paths:
       summary: Init the appointment room
       tags:
       - Appointment
+  /appointment/{appointmentID}/can-join:
+    get:
+      parameters:
+      - description: ID of the appointment
+        in: path
+        name: appointmentID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: The appointment can start 10 minutes early and not later than
+            3 hours
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Appointment not found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - UserID: []
+      - JWSToken: []
+      summary: Check if the doctor can join or open the appointment room
+      tags:
+      - Appointment
   /appointment/complete:
     post:
       parameters:
