@@ -49,6 +49,7 @@ func (h AuthHandler) Register(r *gin.RouterGroup) {
 	authGroup := r.Group("/auth")
 	authGroup.POST("/signin", h.Signin)
 	authGroup.POST("/verify", h.VerifyOTP)
+	authGroup.DELETE("/signout", h.ParseUserID, h.ParsePatient, h.SignOut)
 }
 
 type SigninRequest struct {
@@ -160,4 +161,16 @@ func (h AuthHandler) VerifyOTP(c *gin.Context) {
 
 func (h AuthHandler) censorPhoneNumber(number string) string {
 	return number[:3] + "***" + number[len(number)-4:]
+}
+
+func (h AuthHandler) SignOut(c *gin.Context) {
+	patientRaw, _ := c.Get("Patient")
+	patient := patientRaw.(*datastore.Patient)
+
+	patient.NotificationToken = ""
+	if err := h.patientDataStore.Save(patient); err != nil {
+		h.InternalServerError(c, err, "h.patientDataStore.Save")
+		return
+	}
+	c.AbortWithStatus(http.StatusOK)
 }
