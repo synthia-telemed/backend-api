@@ -213,17 +213,16 @@ func (h AppointmentHandler) InitAppointmentRoom(c *gin.Context) {
 	rawApp, _ := c.Get("Appointment")
 	appointment := rawApp.(*hospital.DoctorAppointment)
 
-	var roomID string
 	rawRoomID, exist := c.Get("RoomID")
-	if !exist {
-		var err error
-		roomID, err = h.idGenerator.GenerateRoomID()
-		if err != nil {
-			h.InternalServerError(c, err, "h.idGenerator.GenerateRoomID error")
-			return
-		}
-	} else {
-		roomID = rawRoomID.(string)
+	if exist {
+		roomID := rawRoomID.(string)
+		c.AbortWithStatusJSON(http.StatusCreated, &InitAppointmentRoomResponse{RoomID: roomID})
+		return
+	}
+	roomID, err := h.idGenerator.GenerateRoomID()
+	if err != nil {
+		h.InternalServerError(c, err, "h.idGenerator.GenerateRoomID error")
+		return
 	}
 
 	ctx := context.Background()
