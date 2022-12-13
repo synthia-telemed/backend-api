@@ -8,7 +8,7 @@ on:
     branches: [ "main", "develop" ]
 
 env:
-  REGISTRY: synthiatelemed
+  REPO_NAME: synthiatelemed
   IMAGE_NAME: backend-api
 
 jobs:
@@ -25,7 +25,6 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_HUB_REGISTRY_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_REGISTRY_PASSWORD }}
 
@@ -33,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha,format=long,prefix=
